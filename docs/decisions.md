@@ -30,13 +30,25 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 - Borrowed skills becoming permanent = flex/tuning decision — code to support either path
 - Option 3 (shared vs per-leader ability system) = resolved by this model, no longer open
 
-### Prestige — Partial
+### Prestige — LOCKED (2026-03-10)
 - F, E, D tiers = never prestige-eligible
 - C through Legendary = prestige-eligible, C is the entry point
-- Escalating benefits and archetype options per tier
-- Post-prestige 10 = multiple high-tier adventurers required simultaneously
-- Forced prestige windows exist in early prestiges
-- **Full trigger conditions lost in session transfer — do not implement until re-locked**
+- Prestige is story not mechanics — adventurer retires and founds own guild, their career converts to next hero class
+- Run 1: class selection menu only (no prior career to convert)
+- Starting context: player is a retired legendary hero, backstory involves a cataclysmic event — details deferred
+- Legacy Track fills via: years in guild, quests, mentor sessions, achievements, loyalty consistency
+- Each tier has visible guild presence (gold nameplate at C through portrait on wall at Legendary)
+- Tier benefits: more hero class options unlock at higher tier — player sees why each option is available
+- Adventurer class → hero class conversion table locked (see docs/design/prestige.md)
+- Hero class ability pools locked (passive + career milestone active per class)
+- Skill Borrow: Legendary hero with 2 SS in roster, once per Conclave — whether it becomes permanent is tuning TBD
+- Escalating prestige requirements table locked (1–3 prestiges: 1 at C+, scaling up to 16+: 1 Legendary or 2 SS etc.)
+- Forced prestige windows locked: Year 25/30/35/40/45 for prestiges 1–6, free at 7+
+- Involuntary leader replacement rules locked by prestige tier
+- Guild continues after prestige, 50yr run max, 75–100yr guild life, up to 4 leaders, minimum 2 guaranteed
+- Previous guilds become NPC rivals with real history
+- Tutorial prestige sequence: ideas exist (Branch → Affiliate → merge → fresh guild), not locked, deferred
+- Full detail: docs/design/prestige.md
 
 ### Guild Relationship Tiers by Prestige
 | Prestige Tier | Relationship Created |
@@ -124,7 +136,7 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 
 | Question | Status | Blocking |
 |---|---|---|
-| Prestige trigger conditions full design | Lost in session transfer — needs redo | Yes — do not implement prestige triggers |
+| Prestige trigger conditions full design | **CLOSED 2026-03-10** — see docs/design/prestige.md | No |
 | Economy full design pass | Pending dedicated session | No — use stubs |
 | Magic Rewind prestige threshold | Tuning decision | No — code as configurable |
 | Branch merging conditions | Deferred until core systems stable | No |
@@ -138,6 +150,32 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 ---
 
 ## Session Log
+
+### 2026-03-10 — Prestige System Design Lock
+**Topics covered:**
+- Full prestige design recovered and locked
+- Legacy Track mechanics locked (what fills it)
+- Adventurer tier visibility in guild locked
+- Prestige benefits / hero class options table locked
+- Adventurer class → hero class conversion table locked
+- Hero class ability pools locked (all 5 classes)
+- Skill Borrow mechanic locked (tuning detail on permanence still flexible)
+- Escalating prestige requirements table locked
+- Forced prestige windows locked (Years 25/30/35/40/45, free at 7+)
+- Involuntary leader replacement rules locked
+- Starting context locked: retired legendary hero, cataclysm backstory deferred
+- Tutorial prestige sequence: ideas noted, not locked, deferred
+
+**Outputs:**
+- docs/design/prestige.md rewritten — full locked design
+- docs/decisions.md updated — prestige open question closed
+
+**Still TBD from this session:**
+- Tutorial prestige sequence exact structure
+- Cataclysm backstory details
+- NPC guild minimum tenure numbers (tuning)
+
+---
 
 ### 2026-03-10 — Design and Workflow
 **Topics covered:**
