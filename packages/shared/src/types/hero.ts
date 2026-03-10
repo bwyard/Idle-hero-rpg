@@ -1,0 +1,14 @@
+/**
+ * Hero types — shared domain types for the founding hero / guild leader.
+ */
+
+/** Available hero classes. Each class has a passive and a career milestone active. */
+export type HeroClass = 'Warblade' | 'Wanderer' | 'Archmage' | 'Diplomat' | 'Bard';
+
+/** Live hero state stored in the save file. */
+export interface Hero {
+  readonly id: string;
+  name: string;
+  heroClass: HeroClass;
+  actionPoints: number;
+}

@@ -1,0 +1,65 @@
+/**
+ * GameState — the root save file type.
+ *
+ * Architecture rules:
+ * - All collections are Record<string, T> keyed by ID (never arrays for lookups)
+ * - Static template data is referenced by ID only — not embedded
+ * - Every GameState carries a version field for migration support
+ */
+
+import type { Adventurer } from './adventurer';
+import type { Building, Guild } from './guild';
+import type { City } from './kingdom';
+import type { Quest } from './quest';
+import type { Hero } from './hero';
+import type { Dynasty } from './dynasty';
+import type { GameEvent } from './event';
+
+/** The complete game state stored in the save file. */
+export interface GameState {
+  /** Schema version — incremented with every migration. */
+  readonly version: number;
+
+  /** In-game time tracking. */
+  time: {
+    ticksElapsed: number;
+  };
+
+  /** The current guild leader (founding hero or successor). */
+  hero: Hero;
+
+  /** The guild itself. */
+  guild: Guild;
+
+  /** All adventurers in the guild roster, keyed by ID. */
+  adventurers: Record<string, Adventurer>;
+
+  /** All cities the guild has a presence in, keyed by ID. */
+  cities: Record<string, City>;
+
+  /** All buildings across all cities, keyed by ID. */
+  buildings: Record<string, Building>;
+
+  /** All active quests, keyed by ID. */
+  quests: Record<string, Quest>;
+
+  /** Dynasty meta-progression (persists across runs). */
+  dynasty: Dynasty;
+
+  /** NPC rival guilds, keyed by ID. */
+  rivals: Record<string, unknown>; // TODO: Define Rival type when system is implemented
+
+  /** The event log — chronological list of notable events. */
+  eventLog: ReadonlyArray<GameEvent>;
+
+  /**
+   * Events generated this tick, waiting to be committed to the log.
+   * Cleared by processEventLog at the end of each tick.
+   */
+  pendingEvents: ReadonlyArray<GameEvent>;
+
+  /** Transient flags set by systems, consumed by UI or other systems. */
+  flags: {
+    prestigeAvailable: boolean;
+  };
+}

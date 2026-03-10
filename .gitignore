@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# TypeScript
+*.tsbuildinfo
+
+# Tests
+coverage/
+cypress/screenshots
+cypress/videos
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/settings.json
+.idea/
+
+# Env
+.env
+.env.local
+.env.*.local
+
+# Build artifacts
+build/
+out/

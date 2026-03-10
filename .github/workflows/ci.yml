@@ -1,0 +1,85 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - develop
+      - main
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+
+  unit-tests:
+    name: Unit & Property Tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm run test:unit
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage
+          path: apps/game/coverage/
+
+  e2e:
+    name: E2E Tests (Expo Web)
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop')
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - name: Build Expo Web
+        run: npm run build --workspace=apps/game
+        env:
+          EXPO_PUBLIC_ENV: test
+      - name: Start Expo Web server
+        run: npx serve apps/game/dist -p 8081 &
+        shell: bash
+      - name: Wait for server
+        run: npx wait-on http://localhost:8081 --timeout 30000
+      - name: Run Cypress E2E
+        run: npm run test:e2e --workspace=e2e
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: cypress-screenshots
+          path: e2e/cypress/screenshots/
