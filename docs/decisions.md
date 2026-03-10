@@ -16,7 +16,8 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 - Absence system pros/cons = future tuning conversation
 
 ### Hero Classes
-- Classes: Warblade, Wanderer, Archmage, Diplomat, Bard, Shadow, Paladin
+- Active classes (5): Warblade, Wanderer, Archmage, Diplomat, Bard
+- Possible future classes (not designed): Shadow, Paladin
 - Each class gates a subset of the global skill pool
 - Each class has a passive ability and a career milestone active ability
 - Class unlocks expand across runs via dynasty meta-progression
