@@ -123,6 +123,18 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 
 ---
 
+### Accessibility
+- Accessibility is a first-class concern, not a retrofit
+- Engine layer requires no changes — pure functional architecture means accessibility is entirely a UI layer concern
+- UI commitments: `accessibilityLabel` + `accessibilityRole` on all interactive elements, `announceForAccessibility` for significant state changes
+- Minimum 44×44dp touch targets, no exceptions
+- Text in `sp` units — layouts must hold at 200% text scale
+- Reduce motion: query `AccessibilityInfo.isReduceMotionEnabled`, all animations have instant fallbacks
+- WCAG AA contrast ratios minimum (4.5:1 text, 3:1 UI components)
+- Tier identity never conveyed by colour alone — always paired with label or icon
+- Deferred: specific colour palette, explicit in-game high-contrast mode
+- Full detail: docs/adr/011-accessibility.md
+
 ### Monetization Architecture
 - Specific monetization model = undecided, multiple options viable (cosmetic only, one-time purchase, optional supporter tier, convenience tier)
 - **Architectural decision locked:** feature gating layer built in from day one

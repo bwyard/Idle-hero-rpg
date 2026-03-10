@@ -248,6 +248,8 @@ Custom list virtualizer over FlashList
 Progressive disclosure on kingdom view
 010
 Feature gating and entitlements architecture
+011
+Accessibility architecture
 ADRs live in docs/adr/. Each ADR records: context, decision, consequences.
 Deferred Design Decisions
 The following are not yet decided. Do not implement them until a design conversation closes them.
