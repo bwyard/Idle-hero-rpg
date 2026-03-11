@@ -108,6 +108,7 @@ Priority tiers:
 - [ ] Review `processEconomy` negative gold guard rails — even before full economy design, define the minimum safety check so negative gold doesn't break invariants
 - [ ] Document `pipe` utility — add a usage example in the file header for future contributors
 - [ ] Audit `eslint.config.js` — confirm `no-any` is an error, not a warning, per CLAUDE.md
+- [ ] Vite CJS deprecation warning in `apps/game` — `vitest.config.ts` loads via CJS because `apps/game/package.json` lacks `"type": "module"`. Adding it may break Expo/Metro. Investigate whether Expo SDK version in use supports `"type": "module"` at the package level; if not, try `vitest.config.mts` (explicit ESM extension) instead.
 
 ---
 
