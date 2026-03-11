@@ -1,0 +1,84 @@
+{
+  "version": 1,
+  "time": {
+    "ticksElapsed": 0
+  },
+  "hero": {
+    "id": "hero-001",
+    "name": "Aldric the Retired",
+    "heroClass": "Warblade",
+    "prestigeCount": 0,
+    "actionPoints": 3,
+    "passiveAbility": "Iron Discipline",
+    "activeAbility": null
+  },
+  "guild": {
+    "id": "guild-001",
+    "name": "The Hearthstone Guild",
+    "type": "Combat",
+    "gold": 500,
+    "reputation": 0,
+    "level": 1
+  },
+  "adventurers": {
+    "adv-001": {
+      "id": "adv-001",
+      "name": "Bram the Bold",
+      "tier": "F",
+      "archetype": "Fighter",
+      "isPrestigeEligible": false,
+      "cityId": "city-001",
+      "questId": null
+    },
+    "adv-002": {
+      "id": "adv-002",
+      "name": "Lyra Swift",
+      "tier": "F",
+      "archetype": "Scout",
+      "isPrestigeEligible": false,
+      "cityId": "city-001",
+      "questId": null
+    }
+  },
+  "cities": {
+    "city-001": {
+      "id": "city-001",
+      "name": "Hearthstone",
+      "regionId": "region-heartlands",
+      "buildingIds": ["building-001"]
+    }
+  },
+  "buildings": {
+    "building-001": {
+      "id": "building-001",
+      "templateId": "guild-hall",
+      "cityId": "city-001",
+      "level": 1
+    }
+  },
+  "quests": {},
+  "dynasty": {
+    "id": "dynasty-001",
+    "name": "The Aldric Dynasty",
+    "prestigeCount": 0,
+    "worldAwarenessTier": "Unknown",
+    "permanentBonuses": {},
+    "unlockedHeroClasses": ["Warblade"],
+    "unlockedCityIds": ["city-001"],
+    "hallOfHeroes": []
+  },
+  "rivals": {},
+  "eventLog": [
+    {
+      "id": "evt-001",
+      "tick": 0,
+      "type": "GUILD_FOUNDED",
+      "message": "The Hearthstone Guild was founded by Aldric the Retired.",
+      "achievementKey": null
+    }
+  ],
+  "pendingEvents": [],
+  "flags": {
+    "prestigeAvailable": false
+  }
+}

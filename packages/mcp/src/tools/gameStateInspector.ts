@@ -1,11 +1,29 @@
 /**
  * game_state_inspector — Inspect live game state during development.
  *
- * Returns a JSON representation of the current GameState or a specific
- * sub-section of it.
+ * Reads from the dev fixture file (packages/mcp/dev-fixtures/gameState.json).
+ * Replace the fixture file with a real MMKV export when the game loop is wired.
  */
 
+import { readFileSync } from 'fs';
+import { resolve, dirname } from 'path';
+import { fileURLToPath } from 'url';
 import { z } from 'zod';
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const FIXTURE_PATH = resolve(__dirname, '../../dev-fixtures/gameState.json');
+
+type GameStateSection =
+  | 'all'
+  | 'hero'
+  | 'guild'
+  | 'adventurers'
+  | 'cities'
+  | 'buildings'
+  | 'quests'
+  | 'dynasty'
+  | 'rivals'
+  | 'eventLog';
 
 const inputSchema = z.object({
   section: z
@@ -17,20 +35,36 @@ const inputSchema = z.object({
 
 export const gameStateInspector = {
   name: 'game_state_inspector',
-  description: 'Inspect the current live game state. Specify a section to narrow the output.',
+  description:
+    'Inspect the current game state loaded from the dev fixture. Specify a section to narrow the output.',
   inputSchema: { section: inputSchema.shape.section },
   handler: async (args: z.infer<typeof inputSchema>) => {
-    // In development, game state would be loaded from MMKV or a debug endpoint.
-    // This is a stub — replace with actual state loading when the game loop is wired.
+    let state: Record<string, unknown>;
+    try {
+      state = JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8')) as Record<string, unknown>;
+    } catch (err) {
+      return {
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(
+              { error: 'Could not read game state fixture', path: FIXTURE_PATH, detail: String(err) },
+              null,
+              2,
+            ),
+          },
+        ],
+      };
+    }
+
+    const section = args.section as GameStateSection;
+    const output = section === 'all' ? state : { [section]: state[section] ?? null };
+
     return {
       content: [
         {
           type: 'text' as const,
-          text: JSON.stringify(
-            { message: 'game_state_inspector stub', requestedSection: args.section },
-            null,
-            2,
-          ),
+          text: JSON.stringify(output, null, 2),
         },
       ],
     };
