@@ -10,6 +10,8 @@ export type {
   AdventurerTier,
   AdventurerArchetype,
   PrestigeEligibleTier,
+  TransientVisitor,
+  VisitorServiceRequest,
 } from './types/adventurer';
 
 // Hero domain

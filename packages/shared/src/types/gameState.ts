@@ -7,7 +7,7 @@
  * - Every GameState carries a version field for migration support
  */
 
-import type { Adventurer } from './adventurer';
+import type { Adventurer, TransientVisitor } from './adventurer';
 import type { Building, Guild } from './guild';
 import type { City } from './kingdom';
 import type { Quest } from './quest';
@@ -31,8 +31,15 @@ export interface GameState {
   /** The guild itself. */
   guild: Guild;
 
-  /** All adventurers in the guild roster, keyed by ID. */
+  /** All adventurers in the guild roster, keyed by adv_<nanoid>. */
   adventurers: Record<string, Adventurer>;
+
+  /**
+   * Non-guild adventurers currently at the guild house (dorm / transient system).
+   * Keyed by vis_<nanoid>. Visitors arrive, seek a service, and leave after expiresAtTick
+   * unless the player engages or holds them.
+   */
+  transientVisitors: Record<string, TransientVisitor>;
 
   /** All cities the guild has a presence in, keyed by ID. */
   cities: Record<string, City>;

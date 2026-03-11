@@ -4,7 +4,16 @@
  * Returns hero class definitions, building templates, quest templates,
  * and adventurer archetypes. This data is static — never stored in the save file.
  *
- * Template IDs and values are placeholders pending the dedicated design passes
+ * ID STRATEGY:
+ *   Templates use named slugs ('Warblade', 'guild-hall'). They are authored, bounded,
+ *   and never generated at runtime. Named slugs are human-readable in ADRs, logs, and saves.
+ *
+ *   Live game objects (adventurers, visitors, quests, buildings, rivals) use prefixed
+ *   nanoid strings (adv_<nanoid>, vis_<nanoid>, etc.) generated at runtime. Prefixes keep
+ *   logs debuggable at thousands-of-adventurer scale. Record<string, T> preserves O(1)
+ *   lookup regardless of ID format. See TODO.md: ID Strategy Decision for full rationale.
+ *
+ * Template numeric values are stubs pending the dedicated design passes
  * for economy and quest systems. Do not rely on numeric values here for balance.
  */
 
