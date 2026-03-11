@@ -34,10 +34,10 @@ export const CONCLAVE_INTERVAL_YEARS = 5;
 export const ADVENTURER_TIERS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'Legendary'] as const;
 
 /** Tiers that are prestige-eligible (C and above). */
-export const PRESTIGE_ELIGIBLE_TIERS: ReadonlyArray<string> = ['C', 'B', 'A', 'S', 'SS', 'Legendary'];
+export const PRESTIGE_ELIGIBLE_TIERS: readonly string[] = ['C', 'B', 'A', 'S', 'SS', 'Legendary'];
 
 /** Tiers that collapse to aggregate counts on kingdom view (F, D, C). */
-export const KINGDOM_VIEW_COLLAPSED_TIERS: ReadonlyArray<string> = ['F', 'E', 'D'];
+export const KINGDOM_VIEW_COLLAPSED_TIERS: readonly string[] = ['F', 'E', 'D'];
 
 // ─── Prestige ────────────────────────────────────────────────────────────────
 

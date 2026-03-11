@@ -23,10 +23,10 @@ interface UIStore {
 
 export const useUIStore = create<UIStore>((set) => ({
   activeView: 'guild',
-  setActiveView: (view) => set({ activeView: view }),
+  setActiveView: (view) => { set({ activeView: view }); },
   isSettingsOpen: false,
-  openSettings: () => set({ isSettingsOpen: true }),
-  closeSettings: () => set({ isSettingsOpen: false }),
+  openSettings: () => { set({ isSettingsOpen: true }); },
+  closeSettings: () => { set({ isSettingsOpen: false }); },
   selectedAdventurerId: null,
-  selectAdventurer: (id) => set({ selectedAdventurerId: id }),
+  selectAdventurer: (id) => { set({ selectedAdventurerId: id }); },
 }));

@@ -5,7 +5,7 @@
  * and returns the N most recent events, optionally filtered by event type.
  */
 
-import { readFileSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
@@ -13,13 +13,13 @@ import { z } from 'zod';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PATH = resolve(__dirname, '../../dev-fixtures/gameState.json');
 
-type GameEvent = {
+interface GameEvent {
   id: string;
   tick: number;
   type: string;
   message: string;
   achievementKey: string | null;
-};
+}
 
 const inputSchema = z.object({
   count: z
@@ -44,7 +44,7 @@ export const eventLogTail = {
   handler: async (args: z.infer<typeof inputSchema>) => {
     let events: GameEvent[];
     try {
-      const state = JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8')) as {
+      const state = JSON.parse(await readFile(FIXTURE_PATH, 'utf-8')) as {
         eventLog?: GameEvent[];
       };
       events = state.eventLog ?? [];

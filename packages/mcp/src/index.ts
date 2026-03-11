@@ -22,31 +22,27 @@ const server = new McpServer({
   version: '0.1.0',
 });
 
-server.tool(
+server.registerTool(
   gameStateInspector.name,
-  gameStateInspector.description,
-  gameStateInspector.inputSchema,
+  { description: gameStateInspector.description, inputSchema: gameStateInspector.inputSchema },
   gameStateInspector.handler,
 );
 
-server.tool(
+server.registerTool(
   balanceConfigReader.name,
-  balanceConfigReader.description,
-  balanceConfigReader.inputSchema,
+  { description: balanceConfigReader.description, inputSchema: balanceConfigReader.inputSchema },
   balanceConfigReader.handler,
 );
 
-server.tool(
+server.registerTool(
   templateRegistry.name,
-  templateRegistry.description,
-  templateRegistry.inputSchema,
+  { description: templateRegistry.description, inputSchema: templateRegistry.inputSchema },
   templateRegistry.handler,
 );
 
-server.tool(
+server.registerTool(
   eventLogTail.name,
-  eventLogTail.description,
-  eventLogTail.inputSchema,
+  { description: eventLogTail.description, inputSchema: eventLogTail.inputSchema },
   eventLogTail.handler,
 );
 
