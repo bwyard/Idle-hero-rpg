@@ -1,6 +1,6 @@
 # Economy — Design Reference
 
-**Status:** Architecture closed, values pending design pass (see decisions.md — Economy Architecture)
+**Status:** Interface-first pattern implemented. Architecture closed. Values pending design pass — not a blocker.
 
 ---
 
@@ -12,6 +12,31 @@ This means:
 - `processEconomy` in the tick pipe calls into an economy implementation
 - The implementation can be swapped for balance testing via MCP tools
 - Multiple implementations can be stubbed and compared as A/B variants
+
+## Interface-First Implementation (live as of 2026-03-11)
+
+All economy-adjacent systems now use typed implementation interfaces defined
+in `packages/shared/src/types/systemImpls.ts`. Stub implementations ship with
+each system and serve as the default until a live implementation is written.
+
+| Interface | Stub | System |
+|---|---|---|
+| `EconomyImpl` | `stubEconomyImpl` | `processEconomy.ts` |
+| `BuildingProductionImpl` | `stubBuildingProductionImpl` | `processBuildings.ts` |
+| `AdventurerProgressionImpl` | `stubAdventurerProgressionImpl` | `processAdventurers.ts` |
+| `QuestRewardImpl` | `stubQuestRewardImpl` | `processQuests.ts` |
+| `HeroAbilityImpl` | `stubHeroAbilityImpl` | `processHero.ts` |
+| `RivalProgressionImpl` | `stubRivalProgressionImpl` | `processRivals.ts` |
+
+Contract tests in `apps/game/src/__tests__/systemContracts.test.ts` validate
+invariants that must hold for any implementation — stub or live. Writing a live
+impl requires passing these tests; the test file is the acceptance criteria.
+
+**To write a live EconomyImpl:**
+1. Implement `EconomyImpl` from `@idle-hero-rpg/shared`
+2. Fill in values from `balance.ts` (requires design pass to be closed)
+3. Pass all tests in `systemContracts.test.ts`
+4. Inject via `processEconomy(state, myLiveEconomyImpl)` in the Zustand tick call
 
 ---
 
