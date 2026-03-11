@@ -177,6 +177,42 @@ These tests are the acceptance criteria for any live implementation.
 
 ## Session Log
 
+### 2026-03-11 — Foundation Complete + Interface-First Pattern
+**Topics covered:**
+- Project status audit: foundation complete, no screens exist yet
+- Roadmap built: 7 phases, 3-column timeline (no AI / with AI / actual)
+- Phase 0 actual duration: 2 days vs 3–4 week human estimate
+- Interface-first pattern established for systems with pending design decisions:
+  economy, adventurers, buildings, hero, quests, rivals no longer block on design
+- `processHero` bug found by contract tests: AP could go negative — fixed
+- Git workflow gap identified: zero commits have reached `develop`
+- Economy design confirmed NOT a blocker — pattern handles it
+
+**Outputs:**
+- `docs/ROADMAP.md` — full phase plan, 3-column timeline, portfolio milestone
+- `packages/shared/src/types/systemImpls.ts` — 6 typed interfaces
+- `apps/game/src/__tests__/systemContracts.test.ts` — 42 contract tests
+- `apps/game/src/__tests__/helpers/createTestState.ts` — test factory
+- All 6 stub systems updated with impl injection + typed default
+- `balance.ts` — `HERO_ACTION_POINT_MAX` added
+- `docs/design/economy.md` — interface-first pattern documented
+- `docs/decisions.md` — interface-first decision closed
+- `docs/sessions/current-sprint.md` — updated for Phase 1
+
+**Branches created this session:**
+- `claude/mcp-server-tools-PhKCs` — MCP implementation + tests
+- `claude/interface-first-pattern-PhKCs` — interface pattern + contract tests
+- `claude/process-update-PhKCs` — session tracking update (this branch)
+
+**None of the above have been merged to `develop` yet — first task of next session.**
+
+**Still open:**
+- ID strategy decision (prefixed nanoid preferred — see TODO.md P1)
+- Option 3: shared vs per-leader hero ability system (gates Phase 4 only)
+- Economy values (design conversation when tuning is needed, not before)
+
+---
+
 ### 2026-03-10 — Prestige System Design Lock
 **Topics covered:**
 - Full prestige design recovered and locked

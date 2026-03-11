@@ -13,11 +13,16 @@ Priority tiers:
 
 ## P0 — Core Loop Blockers
 
+- [ ] Merge `claude/` branches into `develop` — git workflow gap; no work has reached `develop` yet
 - [ ] Implement `processEventLog` — collect `pendingEvents`, append to `eventLog`, clear pending, trim log to max length (prevent unbounded growth)
 - [ ] Implement `advanceTime` tick→year conversion so all systems that read in-game years work correctly
-- [ ] Implement `processEconomy` stubs once economy design pass is complete (see `balance.ts` TODO comments)
 - [ ] Wire Zustand `loadActiveRun` to MMKV — active run state must load on launch before first render
 - [ ] State migration runner — load version from save, run migrations in sequence before handing state to systems
+
+> `processEconomy`, `processBuildings`, `processAdventurers` and other design-pending systems
+> are **not** P0 blockers. Interface-first pattern is live: typed interfaces in
+> `packages/shared/src/types/systemImpls.ts`, stub impls run by default, CI green.
+> Design conversations happen when values need tuning — not before.
 - [ ] First playable screen — guild view that renders current `GameState` and advances on a timer
 
 ---
@@ -46,12 +51,12 @@ Priority tiers:
   - After all holds are exhausted or `heldUntilTick` elapses, `expiresAtTick` takes over
   - Player UI: show visitor card with "Hold" / "Engage" / "Dismiss" actions via dispatch
   - Action: add `HOLD_VISITOR`, `ENGAGE_VISITOR`, `DISMISS_VISITOR` to `GameAction` discriminated union; implement in `dispatch()`; add `VISITOR_HOLD_DURATIONS` array to `balance.ts`
-- [ ] Implement `processAdventurers` — XP gain per tick, tier advancement (F→Legendary), retirement logic for Legendary tier
-- [ ] Implement `checkPrestigeConditions` — detect Legendary retirement, set `flags.prestigeAvailable`
-- [ ] Implement `checkForcedPrestige` — detect early-run forced prestige windows, trigger appropriately
+- [ ] Write live `AdventurerProgressionImpl` — XP rates, tier thresholds, retirement criteria (requires balance tuning conversation); contract tests in `systemContracts.test.ts` are the acceptance criteria
+- [ ] Implement `checkPrestigeConditions` — detect `flags.prestigeAvailable` set by `processAdventurers`, wire full condition check
+- [ ] Implement `checkForcedPrestige` — forced prestige windows (Years 25/30/35/40/45 for prestiges 1–6)
 - [ ] Wire MMKV dynasty layer — deferred load after first render (`loadDynastyLayer` in gameStore)
-- [ ] Implement `processQuests` — tick advancement, completion, reward distribution, quest generation by region
-- [ ] Implement `processBuildings` — passive income per tick (blocked on economy design), upgrade progress
+- [ ] Write live `QuestRewardImpl` — gold and XP distributions per quest tier (requires balance tuning)
+- [ ] Write live `BuildingProductionImpl` — passive income per level, upgrade completion (requires economy design pass)
 - [ ] MCP `game_state_inspector` — when MMKV is wired, support reading a real exported state dump instead of only the dev fixture
 - [ ] Kent Dodds testing trophy: add integration tests for `tick` pipeline (pipe all 12 systems, assert output shape) — currently only unit tests exist per system
 - [ ] Functional React standards doc — establish component patterns before first screen is built: no class components, hooks only, `useMemo`/`useCallback` at actual bottlenecks (not speculatively), co-locate state with usage
@@ -127,3 +132,11 @@ Priority tiers:
 - [x] MCP `template_registry` — dev shape fixture, O(1) ID lookup via Record; not a production data system
 - [x] MCP `event_log_tail` — reads dev fixture event log, filter + slice
 - [x] MCP tests: 30 tests across 4 tools (Kent Dodds trophy: integration-heavy, unit for pure parsers)
+- [x] Interface-first pattern: 6 `SystemImpl` interfaces in `packages/shared/src/types/systemImpls.ts`
+- [x] Contract tests: `systemContracts.test.ts` — 42 tests, acceptance criteria for live implementations
+- [x] `createTestState()` helper — minimal `GameState` factory for unit and contract tests
+- [x] `processHero` AP clamp fix — action points floored at 0 (caught by contract tests)
+- [x] `HERO_ACTION_POINT_MAX` added to `balance.ts`
+- [x] `docs/ROADMAP.md` — full phase plan, 3-column timeline (no AI / with AI / actual)
+- [x] `TransientVisitor` type + dorm/opportunity hold system documented
+- [x] ID strategy decision documented in TODO.md P1 (prefixed nanoid preferred, not yet closed)
