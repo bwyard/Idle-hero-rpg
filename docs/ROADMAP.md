@@ -331,29 +331,35 @@ one public review, and a stable crash-free session rate ≥ 99%.
 Working assumptions:
 - Solo developer
 - Part-time pace (evenings + weekends ~10–15 hrs/week)
-- No major design pivots in Phases 1–3
-- Economy design pass completes within Phase 1
+- AI-assisted column assumes Claude Code doing implementation, human providing
+  design decisions and review
+- Design conversation time is not compressible regardless of AI assistance —
+  it requires your thinking, not code generation
 
-| Phase | Duration (part-time) | Cumulative |
-|---|---|---|
-| Phase 0 | Complete | Mar 2026 |
-| Phase 1 — Core Loop MVP | 4–6 weeks | Apr–May 2026 |
-| Phase 2 — Adventurers & Quests | 8–12 weeks | Jul–Aug 2026 |
-| Phase 3 — Buildings & Economy | 6–10 weeks | Sep–Oct 2026 |
-| Phase 4 — Prestige & Hero System | 8–12 weeks | Dec 2026–Jan 2027 |
-| Phase 5 — Kingdom & Depth | 10–16 weeks | Mar–May 2027 |
-| Phase 6 — Polish & Optimization | 6–10 weeks | May–Jul 2027 |
-| Phase 7 — Pre-Launch & Submission | 8–12 weeks | Aug–Oct 2027 |
+| Phase | Without AI (part-time) | With AI (part-time) | Actual |
+|---|---|---|---|
+| Phase 0 — Foundation | 3–4 weeks | 3–5 days | **2 days** (Mar 10–11 2026) |
+| Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | — |
+| Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | — |
+| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | — |
+| Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | — |
+| Phase 5 — Kingdom & Depth | 10–16 weeks | 5–8 days | — |
+| Phase 6 — Polish & Optimization | 6–10 weeks | 3–5 days | — |
+| Phase 7 — Pre-Launch & Submission | 8–12 weeks | 8–12 weeks* | — |
 
-**Realistic Google Play launch window: Q3–Q4 2027**
+*Phase 7 is not compressible — Google Play review, beta testing tracks, and
+real-device testing all run on calendar time, not coding time.
 
-This assumes consistent part-time effort with no multi-week gaps. The
-single biggest schedule risk is the economy design pass — it is on the
-critical path for Phases 1, 2, and 3 and cannot be resolved by writing code.
+**Without AI — Google Play launch window: Q3–Q4 2027**
 
-**Portfolio milestone (end of Phase 4): Q4 2026–Q1 2027**
-At this point the architecture is fully demonstrated even if the game is
-not launch-ready.
+**With AI — Google Play launch window: Q3–Q4 2026**
+The bottleneck shifts entirely from implementation to your decision bandwidth.
+Every phase waits on design conversations (economy pass, Option 3, ID strategy)
+not on code being written.
+
+**Portfolio milestone (end of Phase 4):**
+- Without AI: Q4 2026–Q1 2027
+- With AI: **4–6 weeks from today if design decisions are ready**
 
 ---
 
