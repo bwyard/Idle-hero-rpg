@@ -5,7 +5,7 @@
  * Replace the fixture file with a real MMKV export when the game loop is wired.
  */
 
-import { readFileSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
@@ -41,7 +41,7 @@ export const gameStateInspector = {
   handler: async (args: z.infer<typeof inputSchema>) => {
     let state: Record<string, unknown>;
     try {
-      state = JSON.parse(readFileSync(FIXTURE_PATH, 'utf-8')) as Record<string, unknown>;
+      state = JSON.parse(await readFile(FIXTURE_PATH, 'utf-8')) as Record<string, unknown>;
     } catch (err) {
       return {
         content: [

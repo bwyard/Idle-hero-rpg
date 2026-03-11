@@ -88,7 +88,7 @@ export interface Adventurer {
   archetype: AdventurerArchetype | null;
   xp: number;
   /** Milestone keys this adventurer has reached. */
-  milestones: ReadonlyArray<string>;
+  milestones: readonly string[];
   /** Whether this adventurer's Skill Borrow has been used this Conclave cycle. */
   skillBorrowUsed: boolean;
   /** In-game year this adventurer was recruited. */

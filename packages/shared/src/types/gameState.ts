@@ -57,13 +57,13 @@ export interface GameState {
   rivals: Record<string, unknown>; // TODO: Define Rival type when system is implemented
 
   /** The event log — chronological list of notable events. */
-  eventLog: ReadonlyArray<GameEvent>;
+  eventLog: readonly GameEvent[];
 
   /**
    * Events generated this tick, waiting to be committed to the log.
    * Cleared by processEventLog at the end of each tick.
    */
-  pendingEvents: ReadonlyArray<GameEvent>;
+  pendingEvents: readonly GameEvent[];
 
   /** Transient flags set by systems, consumed by UI or other systems. */
   flags: {

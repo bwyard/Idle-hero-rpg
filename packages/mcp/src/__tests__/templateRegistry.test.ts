@@ -7,13 +7,13 @@ import {
   ADVENTURER_ARCHETYPE_TEMPLATES,
 } from '../tools/templateRegistry.js';
 
-type TemplateListResponse = { type: string; count: number; templates: Record<string, unknown> };
-type ErrorResponse = { error: string; type: string; id: string };
+interface TemplateListResponse { type: string; count: number; templates: Record<string, unknown> }
+interface ErrorResponse { error: string; type: string; id: string }
 
 describe('templateRegistry — heroClass', () => {
   it('returns all hero classes when no id provided', async () => {
     const result = await templateRegistry.handler({ type: 'heroClass', id: undefined });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as TemplateListResponse;
     expect(parsed.type).toBe('heroClass');
     expect(parsed.count).toBe(Object.keys(HERO_CLASS_TEMPLATES).length);
@@ -23,7 +23,7 @@ describe('templateRegistry — heroClass', () => {
 
   it('returns a specific hero class by id', async () => {
     const result = await templateRegistry.handler({ type: 'heroClass', id: 'Warblade' });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as {
       id: string;
       passiveAbility: string;
@@ -36,7 +36,7 @@ describe('templateRegistry — heroClass', () => {
 
   it('returns error for unknown hero class id', async () => {
     const result = await templateRegistry.handler({ type: 'heroClass', id: 'Necromancer' });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as ErrorResponse;
     expect(parsed).toHaveProperty('error');
   });
@@ -55,7 +55,7 @@ describe('templateRegistry — heroClass', () => {
 describe('templateRegistry — building', () => {
   it('returns all building templates', async () => {
     const result = await templateRegistry.handler({ type: 'building', id: undefined });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as TemplateListResponse;
     expect(parsed.count).toBe(Object.keys(BUILDING_TEMPLATES).length);
     expect(parsed.templates).toHaveProperty('guild-hall');
@@ -63,7 +63,7 @@ describe('templateRegistry — building', () => {
 
   it('returns guild-hall template by id', async () => {
     const result = await templateRegistry.handler({ type: 'building', id: 'guild-hall' });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as { id: string; maxLevel: number };
     expect(parsed.id).toBe('guild-hall');
     expect(parsed).toHaveProperty('maxLevel');
@@ -73,7 +73,7 @@ describe('templateRegistry — building', () => {
 describe('templateRegistry — quest', () => {
   it('returns all quest templates', async () => {
     const result = await templateRegistry.handler({ type: 'quest', id: undefined });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as TemplateListResponse;
     expect(parsed.count).toBe(Object.keys(QUEST_TEMPLATES).length);
   });
@@ -90,7 +90,7 @@ describe('templateRegistry — quest', () => {
 describe('templateRegistry — adventurerArchetype', () => {
   it('returns all archetypes', async () => {
     const result = await templateRegistry.handler({ type: 'adventurerArchetype', id: undefined });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as TemplateListResponse;
     expect(parsed.count).toBe(Object.keys(ADVENTURER_ARCHETYPE_TEMPLATES).length);
     expect(parsed.templates).toHaveProperty('Fighter');
@@ -99,7 +99,7 @@ describe('templateRegistry — adventurerArchetype', () => {
 
   it('returns Fighter archetype by id', async () => {
     const result = await templateRegistry.handler({ type: 'adventurerArchetype', id: 'Fighter' });
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+     
     const parsed = JSON.parse(result.content[0]!.text) as {
       id: string;
       preferredQuestTypes: string[];

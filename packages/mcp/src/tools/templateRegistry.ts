@@ -218,6 +218,7 @@ export const templateRegistry = {
   description:
     'Query static data templates for hero classes, buildings, quests, and adventurer archetypes.',
   inputSchema: { type: inputSchema.shape.type, id: inputSchema.shape.id },
+  // eslint-disable-next-line @typescript-eslint/require-await -- conforms to async MCP handler interface; no I/O needed for in-memory registry
   handler: async (args: z.infer<typeof inputSchema>) => {
     const collection = REGISTRY[args.type];
 
