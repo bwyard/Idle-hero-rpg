@@ -1,20 +1,26 @@
 /**
- * template_registry — Query static data templates.
+ * template_registry — MCP dev tool for querying static data templates.
  *
- * Returns hero class definitions, building templates, quest templates,
- * and adventurer archetypes. This data is static — never stored in the save file.
+ * ⚠️  DEV FIXTURE — SHAPE ONLY
+ *   The data in this file demonstrates the intended shape of each template type.
+ *   It is not a production data source. When the game content is authored at scale
+ *   (hundreds of quest variants, building upgrades, archetype combinations), this
+ *   tool will need a real data pipeline. See TODO.md: Template Registry Scaling.
+ *
+ * WHAT THIS TOOL IS FOR:
+ *   - MCP dev/debug use during early development
+ *   - Verifying template shape against shared types
+ *   - Balance tooling iteration (reading balance.ts constants alongside template shapes)
+ *
+ * WHAT THIS TOOL IS NOT:
+ *   - A production game data registry
+ *   - A source of truth for numeric values (all numbers are 0 stubs)
+ *   - A substitute for the game engine's static data module
  *
  * ID STRATEGY:
- *   Templates use named slugs ('Warblade', 'guild-hall'). They are authored, bounded,
- *   and never generated at runtime. Named slugs are human-readable in ADRs, logs, and saves.
- *
- *   Live game objects (adventurers, visitors, quests, buildings, rivals) use prefixed
- *   nanoid strings (adv_<nanoid>, vis_<nanoid>, etc.) generated at runtime. Prefixes keep
- *   logs debuggable at thousands-of-adventurer scale. Record<string, T> preserves O(1)
- *   lookup regardless of ID format. See TODO.md: ID Strategy Decision for full rationale.
- *
- * Template numeric values are stubs pending the dedicated design passes
- * for economy and quest systems. Do not rely on numeric values here for balance.
+ *   Templates use named slugs ('Warblade', 'guild-hall') — authored, bounded, O(1) by ID.
+ *   Live game objects use prefixed nanoid (adv_, vis_, qst_, bld_, rvl_) — generated at
+ *   runtime, still O(1) via Record<string, T>. See TODO.md: ID Strategy Decision.
  */
 
 import { z } from 'zod';

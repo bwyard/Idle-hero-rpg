@@ -70,6 +70,26 @@ Priority tiers:
 - [ ] `processRivals` — rival NPC guild tick progression, S/SS graduate population, minimum tenure enforcement
 - [ ] `processHero` — passive ability effects, action point regen, career milestone tracking
 - [ ] `processConclave` — dynasty growth measurement, Skill Borrow reset, tick→year conversion (blocked on P0 tick conversion)
+- [ ] **TEMPLATE REGISTRY SCALING** — Current registry is a dev shape fixture only. When authored game content grows (100+ quest variants, building upgrade trees, archetype skill tables), the MCP tool needs a real data pipeline.
+  - Option A: Load from JSON files per template type (lazy, on first query). O(n) parse once, O(1) lookup after.
+  - Option B: SQLite or similar for MCP-side querying with filter/sort/pagination. Adds complexity but handles 10k+ entries cleanly — worthwhile if content editors need to query across types.
+  - Option C: Keep in-memory Record but load from a versioned game-data package rather than hardcoded source. Simplest to start.
+  - At hundreds of templates: O(n) list-all is fine. At thousands: add pagination to the MCP tool response rather than returning unbounded JSON blobs.
+  - Action: revisit when content design is far enough along to know true template counts. Do not prematurely optimise.
+- [ ] **BIG O — TICK PIPE QUERY PATTERNS** — Systems that process collections in the tick pipe.
+  - By-ID lookups: `Record<string, T>` is O(1) everywhere. Keep. ✓
+  - Filtering within a tick system (e.g. "all adventurers in city X", "all quests of type Combat"): currently O(n) over the full collection. At hundreds of adventurers this is fine. At thousands this fires every tick.
+  - **When to act**: if tick profiling shows filter scans are a hotspot, add secondary indexes to GameState: `adventurersByCity: Record<string, string[]>`, `questsByType: Record<string, string[]>`. O(1) group lookup + O(k) iteration where k = group size.
+  - Secondary indexes must be kept in sync inside the tick pipe — adds correctness risk. Don't add until profiling proves it necessary.
+  - Sorting (roster view, kingdom view aggregates): O(n log n) — unavoidable. Belongs in UI layer, not in tick. Do not sort inside tick systems.
+  - Event log append: O(1) amortised with a bounded max-length trim. ✓
+  - **Action**: add a performance profiling task before the first public build. Keep this note as the reference for what to index if profiling flags a hotspot.
+- [ ] **BIG O — MCP TOOL OPERATIONS** — Current honest Big O for each tool:
+  - `game_state_inspector`: O(1) section lookup ✓
+  - `template_registry`: O(1) by-ID, O(n) list-all — n is bounded by authored template count ✓
+  - `balance_config_reader`: O(n) line parse (unavoidable), O(n) keyword filter (unavoidable without inverted index — not worth it for a dev tool) ✓
+  - `event_log_tail`: O(n) filter over log, O(k) slice where k = count — both unavoidable ✓
+  - None of these are in the hot path. O(n) is acceptable for all MCP tools since they are called interactively by developers, not on every game tick.
 - [ ] MCP `balance_config_reader` — cache parsed constants per file mtime so repeated calls don't re-read disk on every invocation
 - [ ] MCP `event_log_tail` — support reading from a real MMKV dump when available (not just dev fixture)
 - [ ] Set up GitHub Actions CI — lint, typecheck, unit, property tests on every push; E2E on PRs to Main only
@@ -103,6 +123,6 @@ Priority tiers:
 - [x] MCP server scaffolded with 4 tools (stubs → implemented)
 - [x] MCP `balance_config_reader` — reads real `balance.ts`, functional reduce parser, O(n) single pass
 - [x] MCP `game_state_inspector` — reads dev fixture, O(1) section lookup
-- [x] MCP `template_registry` — static data, O(1) ID lookup via Record
+- [x] MCP `template_registry` — dev shape fixture, O(1) ID lookup via Record; not a production data system
 - [x] MCP `event_log_tail` — reads dev fixture event log, filter + slice
 - [x] MCP tests: 30 tests across 4 tools (Kent Dodds trophy: integration-heavy, unit for pure parsers)
