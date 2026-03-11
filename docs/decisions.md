@@ -177,7 +177,7 @@ These tests are the acceptance criteria for any live implementation.
 
 ## Session Log
 
-### 2026-03-11 — Foundation Complete + Interface-First Pattern
+### 2026-03-11 — Foundation Complete + Interface-First Pattern + Lint CI Fix
 **Topics covered:**
 - Project status audit: foundation complete, no screens exist yet
 - Roadmap built: 7 phases, 3-column timeline (no AI / with AI / actual)
@@ -187,6 +187,14 @@ These tests are the acceptance criteria for any live implementation.
 - `processHero` bug found by contract tests: AP could go negative — fixed
 - Git workflow gap identified: zero commits have reached `develop`
 - Economy design confirmed NOT a blocker — pattern handles it
+- Lint CI failing on all 3 PRs — root cause found and fixed:
+  - `@eslint/js` and `typescript-eslint` missing from root `package.json`
+  - `parserOptions.projectService` not configured (required for typed linting)
+  - `"type": "module"` missing from root (ESM config treated as CJS)
+  - MCP tools: `server.tool()` deprecated → `server.registerTool()`
+  - MCP tools: `readFileSync` → `await readFile` (fs/promises); properly async now
+  - Various rule violations fixed: array-type, no-non-null-assertion in tests,
+    varsIgnorePattern for `_`-prefixed destructured vars, restrict-template-expressions
 
 **Outputs:**
 - `docs/ROADMAP.md` — full phase plan, 3-column timeline, portfolio milestone
@@ -196,15 +204,19 @@ These tests are the acceptance criteria for any live implementation.
 - All 6 stub systems updated with impl injection + typed default
 - `balance.ts` — `HERO_ACTION_POINT_MAX` added
 - `docs/design/economy.md` — interface-first pattern documented
-- `docs/decisions.md` — interface-first decision closed
 - `docs/sessions/current-sprint.md` — updated for Phase 1
+- `package.json` — eslint deps added, `"type": "module"` added
+- `eslint.config.js` — `parserOptions.projectService`, test overrides, `varsIgnorePattern`
+- `packages/mcp/src/index.ts` — `registerTool` API
+- `packages/mcp/src/tools/*.ts` — async file reads, handler fixes
 
-**Branches created this session:**
-- `claude/mcp-server-tools-PhKCs` — MCP implementation + tests
-- `claude/interface-first-pattern-PhKCs` — interface pattern + contract tests
-- `claude/process-update-PhKCs` — session tracking update (this branch)
+**Branches and PRs open (none merged to `develop` yet):**
+- `claude/setup-project-structure-PhKCs` — PR open, lint now fixed via cherry-pick needed
+- `claude/mcp-server-tools-PhKCs` — PR open, lint now fixed via cherry-pick needed
+- `claude/interface-first-pattern-PhKCs` — PR open, lint now fixed via cherry-pick needed
+- `claude/process-update-PhKCs` — contains the lint fix; needs its own PR
 
-**None of the above have been merged to `develop` yet — first task of next session.**
+**First task of next session: cherry-pick lint fix commit (`2e1b4f5`) into the 3 other branches.**
 
 **Still open:**
 - ID strategy decision (prefixed nanoid preferred — see TODO.md P1)

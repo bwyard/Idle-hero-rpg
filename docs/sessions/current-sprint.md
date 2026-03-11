@@ -34,10 +34,16 @@ Foundation sprint complete. 72 tests passing, 4 typechecks clean.
 | Screens | None |
 
 **Branch status — none of this work has reached `develop` yet.**
-Three `claude/` branches need PRs into `develop` before starting Phase 1 code work:
-- `claude/setup-project-structure-PhKCs`
-- `claude/mcp-server-tools-PhKCs`
-- `claude/interface-first-pattern-PhKCs`
+Four `claude/` branches have open PRs. All are failing CI lint until cherry-pick is done.
+
+| Branch | PR status | Lint |
+|---|---|---|
+| `claude/setup-project-structure-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/mcp-server-tools-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/interface-first-pattern-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/process-update-PhKCs` | Open | Clean — contains the lint fix |
+
+**First task of next session: cherry-pick commit `2e1b4f5` into the 3 other branches, push, confirm CI goes green.**
 
 ---
 
@@ -64,6 +70,9 @@ Three `claude/` branches need PRs into `develop` before starting Phase 1 code wo
 - [ ] `fast-check` property tests: arbitrary `GameState` in, shape invariants out
 
 ### Git Workflow
+- [ ] Cherry-pick lint fix (`2e1b4f5` from `claude/process-update-PhKCs`) into 3 other branches
+- [ ] Confirm CI green on all 4 PRs
+- [ ] Merge `claude/process-update-PhKCs` into `develop`
 - [ ] Merge `claude/setup-project-structure-PhKCs` into `develop`
 - [ ] Merge `claude/mcp-server-tools-PhKCs` into `develop`
 - [ ] Merge `claude/interface-first-pattern-PhKCs` into `develop`
