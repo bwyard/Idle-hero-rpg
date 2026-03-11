@@ -210,13 +210,13 @@ These tests are the acceptance criteria for any live implementation.
 - `packages/mcp/src/index.ts` — `registerTool` API
 - `packages/mcp/src/tools/*.ts` — async file reads, handler fixes
 
-**Branches and PRs open (none merged to `develop` yet):**
-- `claude/setup-project-structure-PhKCs` — PR open, lint now fixed via cherry-pick needed
-- `claude/mcp-server-tools-PhKCs` — PR open, lint now fixed via cherry-pick needed
-- `claude/interface-first-pattern-PhKCs` — PR open, lint now fixed via cherry-pick needed
-- `claude/process-update-PhKCs` — contains the lint fix; needs its own PR
+**Branches and PRs (none merged to `develop` yet):**
+- `claude/setup-project-structure-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/mcp-server-tools-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/interface-first-pattern-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/process-update-PhKCs` — branch pushed, **no PR yet**, contains the lint fix
 
-**First task of next session: cherry-pick lint fix commit (`2e1b4f5`) into the 3 other branches.**
+**First task of next session:** cherry-pick `2e1b4f5` into the 3 branches, open a PR for `process-update`, confirm CI green on all 4, then merge.
 
 **Still open:**
 - ID strategy decision (prefixed nanoid preferred — see TODO.md P1)

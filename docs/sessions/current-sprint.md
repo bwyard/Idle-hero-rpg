@@ -34,16 +34,19 @@ Foundation sprint complete. 72 tests passing, 4 typechecks clean.
 | Screens | None |
 
 **Branch status — none of this work has reached `develop` yet.**
-Four `claude/` branches have open PRs. All are failing CI lint until cherry-pick is done.
+3 open PRs, all failing CI lint. `claude/process-update-PhKCs` (this branch) has no PR yet.
 
-| Branch | PR status | Lint |
+| Branch | PR | Lint |
 |---|---|---|
 | `claude/setup-project-structure-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
 | `claude/mcp-server-tools-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
 | `claude/interface-first-pattern-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
-| `claude/process-update-PhKCs` | Open | Clean — contains the lint fix |
+| `claude/process-update-PhKCs` | **No PR yet** | Clean — contains the lint fix |
 
-**First task of next session: cherry-pick commit `2e1b4f5` into the 3 other branches, push, confirm CI goes green.**
+**First task of next session:**
+1. Cherry-pick `2e1b4f5` into the 3 other branches and push
+2. Open a PR for `claude/process-update-PhKCs`
+3. Confirm CI green on all 4 PRs before merging anything
 
 ---
 
