@@ -36,5 +36,5 @@ export interface Dynasty {
   /** Permanent bonuses accumulated across runs. */
   permanentBonuses: Record<string, number>;
   /** Adventurers enshrined in the Hall of Heroes. */
-  hallOfHeroes: ReadonlyArray<HallOfHeroesEntry>;
+  hallOfHeroes: readonly HallOfHeroesEntry[];
 }

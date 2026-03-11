@@ -10,7 +10,7 @@
  *   - No nested loops — single reduce pass over lines.
  */
 
-import { readFileSync } from 'fs';
+import { readFile } from 'fs/promises';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 import { z } from 'zod';
@@ -18,11 +18,11 @@ import { z } from 'zod';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 export const BALANCE_PATH = resolve(__dirname, '../../../../apps/game/src/data/balance.ts');
 
-export type BalanceConstant = {
+export interface BalanceConstant {
   readonly name: string;
   readonly rawValue: string;
   readonly comment: string | null;
-};
+}
 
 // Compiled once at module load — not re-instantiated per call.
 const COMMENT_RE = /^\s*\/\*\*\s*(.+?)\s*\*\/\s*$|^\s*\/\/\s*(.+)$/;
@@ -30,7 +30,7 @@ const EXPORT_RE = /^export const (\w+)(?::\s*[^=]+)?\s*=\s*(.+?);?\s*(\/\/.*)?$/
 const INLINE_COMMENT_RE = /^\/\/\s*/;
 const BLANK_OR_COMMENT_RE = /^\s*$|^\s*\/\/|^\s*\*/;
 
-type ParseAccum = { pendingComment: string | null; constants: BalanceConstant[] };
+interface ParseAccum { pendingComment: string | null; constants: BalanceConstant[] }
 
 /**
  * Parse exported constants from balance.ts source.
@@ -89,7 +89,7 @@ export const balanceConfigReader = {
   handler: async (args: z.infer<typeof inputSchema>) => {
     let source: string;
     try {
-      source = readFileSync(BALANCE_PATH, 'utf-8');
+      source = await readFile(BALANCE_PATH, 'utf-8');
     } catch (err) {
       return {
         content: [
@@ -108,8 +108,9 @@ export const balanceConfigReader = {
     const all = parseBalanceConstants(source);
 
     // O(n) keyword scan — unavoidable for unindexed search.
-    const constants = args.filter
-      ? all.filter((c) => c.name.toUpperCase().includes(args.filter!.toUpperCase()))
+    const { filter } = args;
+    const constants = filter
+      ? all.filter((c) => c.name.toUpperCase().includes(filter.toUpperCase()))
       : all;
 
     return {

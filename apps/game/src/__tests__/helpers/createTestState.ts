@@ -42,7 +42,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
 
   const buildings: Record<string, import('@idle-hero-rpg/shared').Building> = {};
   for (let i = 0; i < buildingCount; i++) {
-    const id = `bld_test${i + 1}`;
+    const id = `bld_test${String(i + 1)}`;
     buildings[id] = {
       id,
       templateId: 'guild-hall',
@@ -53,7 +53,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
 
   const quests: Record<string, Quest> = {};
   if (activeQuestTicks !== undefined) {
-    quests['qst_test1'] = {
+    quests.qst_test1 = {
       id: 'qst_test1',
       templateId: 'patrol',
       assignedAdventurerId: 'adv_test1',
