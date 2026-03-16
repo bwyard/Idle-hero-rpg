@@ -22,11 +22,16 @@ export interface BuildBuildingAction {
   readonly cityId: string;
 }
 
-/** Start a quest, assigning an adventurer. */
+/** Assign an existing unassigned quest to an adventurer. */
 export interface StartQuestAction {
   readonly type: 'START_QUEST';
-  readonly questTemplateId: string;
+  readonly questId: string;
   readonly adventurerId: string;
+}
+
+/** Generate new quests on the quest board. */
+export interface GenerateQuestsAction {
+  readonly type: 'GENERATE_QUESTS';
 }
 
 /** Hold a feast — costs gold, boosts all adventurer XP. */
@@ -58,6 +63,7 @@ export type GameAction =
   | RecruitAdventurerAction
   | BuildBuildingAction
   | StartQuestAction
+  | GenerateQuestsAction
   | HoldFeastAction
   | HoldVisitorAction
   | EngageVisitorAction

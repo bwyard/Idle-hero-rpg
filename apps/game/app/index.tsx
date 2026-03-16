@@ -1,10 +1,11 @@
 /**
  * Demo Dashboard — wires the Zustand gameStore to a live UI.
  *
- * Shows guild header, stats, hero card, adventurer roster, event log,
- * action buttons, and tick controls. Designed for mobile (Android primary).
+ * Shows guild header, stats, hero card, adventurer roster, quest board,
+ * event log, action buttons, and tick controls. Designed for mobile (Android primary).
  */
 
+import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useGameStore } from '../src/stores/gameStore';
 import { useTickLoop } from '../src/hooks/useTickLoop';
@@ -13,27 +14,40 @@ import { GuildHeader } from '../src/components/GuildHeader';
 import { StatsBar } from '../src/components/StatsBar';
 import { HeroCard } from '../src/components/HeroCard';
 import { AdventurerRoster } from '../src/components/AdventurerRoster';
+import { QuestBoard } from '../src/components/QuestBoard';
+import { AdventurerPicker } from '../src/components/AdventurerPicker';
 import { EventLog } from '../src/components/EventLog';
 import { ActionButtons } from '../src/components/ActionButtons';
 import { TickControls } from '../src/components/TickControls';
 import { VisitorCard } from '../src/components/VisitorCard';
-
-/** Demo action types — cast through dispatch until the other agent adds proper types. */
-interface DemoAction {
-  readonly type: string;
-}
 
 export default function DemoScreen() {
   const state = useGameStore((s) => s.state);
   const dispatch = useGameStore((s) => s.dispatch);
   const { isRunning, togglePlayPause, tickOnce } = useTickLoop();
 
+  const [pickerQuestId, setPickerQuestId] = useState<string | null>(null);
+
   const adventurerList = Object.values(state.adventurers);
   const visitorList = Object.values(state.transientVisitors);
+  const questList = Object.values(state.quests);
   const recentEvents = [...state.eventLog].reverse().slice(0, 5);
 
   const handleAction = (actionType: string) => {
-    dispatch({ type: actionType } as unknown as DemoAction as Parameters<typeof dispatch>[0]);
+    if (actionType === 'GENERATE_QUESTS') {
+      dispatch({ type: 'GENERATE_QUESTS' });
+      return;
+    }
+    dispatch({ type: actionType } as Parameters<typeof dispatch>[0]);
+  };
+
+  const handleAssignQuest = (questId: string) => {
+    setPickerQuestId(questId);
+  };
+
+  const handlePickAdventurer = (questId: string, adventurerId: string) => {
+    dispatch({ type: 'START_QUEST', questId, adventurerId });
+    setPickerQuestId(null);
   };
 
   const handleHoldVisitor = (visitorId: string) => {
@@ -73,6 +87,17 @@ export default function DemoScreen() {
       />
 
       <AdventurerRoster adventurers={adventurerList} />
+
+      <QuestBoard quests={questList} onAssignQuest={handleAssignQuest} />
+
+      <AdventurerPicker
+        visible={pickerQuestId !== null}
+        questId={pickerQuestId}
+        adventurers={adventurerList}
+        activeQuests={questList}
+        onSelect={handlePickAdventurer}
+        onClose={() => setPickerQuestId(null)}
+      />
 
       <View style={styles.visitorsSection}>
         <Text style={styles.sectionTitle}>Visitors ({visitorList.length})</Text>

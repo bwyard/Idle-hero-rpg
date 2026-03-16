@@ -21,14 +21,19 @@ Repository Structure
 /
 ├── apps/
 │   └── game/                        # React Native / Expo app
+│       ├── app/                     # Expo Router file-based routes
+│       │   ├── _layout.tsx          # Root Stack navigator
+│       │   ├── index.tsx            # Demo dashboard
+│       │   └── adventurer/[id].tsx  # Adventurer detail (dynamic route)
 │       └── src/
 │           ├── data/
 │           │   └── balance.ts       # ALL numeric constants live here
 │           ├── engine/              # Pure functional tick and dispatch
 │           ├── systems/             # Individual system processors
 │           ├── stores/              # Zustand stores (game state + UI state)
-│           ├── screens/
-│           ├── components/
+│           ├── components/          # UI components (8 demo components)
+│           ├── hooks/               # useTickLoop etc.
+│           ├── utils/               # tierColors etc.
 │           └── __tests__/
 ├── packages/
 │   ├── shared/                      # Shared TypeScript types, barrel exports by domain
@@ -80,11 +85,11 @@ Cypress on Expo Web target
 Types
 TypeScript strict, project references, barrel exports
 Linting
-ESLint with TypeScript strict ruleset, no-any as error
+ESLint with TypeScript strictTypeChecked, no-any as error. lint-staged runs eslint --fix + prettier on commit.
 Formatting
 Prettier
 Commits
-Conventional commits, enforced via Husky + lint-staged
+Conventional commits, enforced via Husky + lint-staged + commitlint
 CI
 GitHub Actions
 Tick Pipe — System Order
@@ -176,8 +181,8 @@ Unlocked hero classes and cities
 Legacy guild history
 Hall of Heroes
 NPC guilds from previous runs populate the world. S and SS rank graduates are most likely to appear as rivals in future runs — with real history.
-Economy — Design Incomplete
-The following are flagged for a dedicated design pass. Do not hardcode values for these systems. Use balance.ts stubs and leave TODO comments.
+Economy — Placeholder Values Active
+Placeholder implementations are live (PLACEHOLDER_ prefixed constants in balance.ts). These produce visible movement for demo/testing but are not final. The interface-first pattern (EconomyImpl etc. in systemImpls.ts) means values are swappable without changing system code.
 Gold earning rates (per building level, active vs passive)
 Gold costs (building upgrades, city expansion, recruitment, feasts, all expenditures)
 Negative gold is intentional friction at high scale but needs guardrails
@@ -205,14 +210,22 @@ Integration is deferred until the core loop is complete and a Play Console accou
 However, from day one:
 Include AchievementKey type in shared types
 Include achievementKey field on GameEvent as a stub (nullable)
-Testing Standards
+Testing Standards — TDD Required
+**Test-Driven Development is mandatory.** Write tests before or alongside implementation, never after.
+Every feature branch must include tests for new behavior. PRs without tests for new logic will not be merged.
+
+Workflow:
+1. Write a failing test for the new behavior
+2. Implement the minimum code to make it pass
+3. Refactor if needed, keeping tests green
+4. Run full suite (`npx vitest run` + `npx tsc --noEmit` + `npx eslint src --ext .ts,.tsx`) before committing
+
 Tests live in __tests__/ folders alongside the code they test
-Tests are written alongside features, not after
 Property-based tests with fast-check for engine logic (tick, dispatch, system processors)
 Unit tests for all system functions
-E2E (Cypress) runs against Expo Web — only on PRs to main
+E2E (Cypress) runs against Expo Web — only on PRs to main/develop
 CI gates (every push): lint, typecheck, unit tests, property tests
-CI gates (PRs to main only): E2E
+CI gates (PRs to develop): E2E
 Git Workflow
 main          ← stable releases only, never commit directly
 develop       ← integration branch, never commit directly
@@ -280,12 +293,27 @@ Hero ability system scope — Option 3: whether all leaders share one hero abili
 NPC guild minimum tenure numbers — principle is locked (NPC guilds have minimum lifespans), specific numbers need tuning.
 Development dashboard — revisit after core systems are built.
 Detox mobile E2E — revisit if a Mac becomes available.
+Pre-Push Checklist — Run Before Every Push
+```bash
+cd apps/game && npx vitest run && npx tsc --noEmit && npx eslint src --ext .ts,.tsx
+```
+All three must pass. lint-staged catches lint/format on commit, but tsc and vitest must be run manually.
+
 What "Done" Means
 A feature is done when:
+[ ] Tests written FIRST (TDD) — failing test exists before implementation
 [ ] Engine logic is pure functions with no side effects
 [ ] All numeric constants are in balance.ts
-[ ] Tests are written (unit + property where applicable)
 [ ] Types are in packages/shared with barrel exports
 [ ] CI passes (lint, typecheck, unit, property)
 [ ] PR description explains the decisions, not the code generation
-Last updated: project kickoff. Update this file when architecture decisions change — do not let it drift from reality.
+
+Current Status (updated 2026-03-16)
+- Phase 1 (Core Loop MVP): Complete — demo dashboard renders, ticks, dispatches
+- Phase 2 (Adventurers & Quests): In progress — roster + detail exist, quest board + visitors next
+- 66 tests, 8 test files, Vitest 4.1.0
+- ID strategy: prefixed nanoid (closed)
+- Prestige design: locked (2026-03-10)
+- Dispatch actions: RECRUIT_ADVENTURER, BUILD_BUILDING, START_QUEST, HOLD_FEAST
+- UI components: 8 demo components + adventurer detail page
+- Placeholder impls active for: economy, adventurers, buildings, hero, quests

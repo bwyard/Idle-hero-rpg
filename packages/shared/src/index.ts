@@ -47,6 +47,7 @@ export type {
   RecruitAdventurerAction,
   BuildBuildingAction,
   StartQuestAction,
+  GenerateQuestsAction,
   HoldFeastAction,
   HoldVisitorAction,
   EngageVisitorAction,
