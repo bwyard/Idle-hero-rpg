@@ -54,7 +54,8 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       if (state.guild.gold < PLACEHOLDER_RECRUIT_COST) return state;
 
       const advId = createId('adv');
-      const name = ADVENTURER_NAMES[Math.floor(Math.random() * ADVENTURER_NAMES.length)] as string;
+      const name =
+        ADVENTURER_NAMES[Math.floor(Math.random() * ADVENTURER_NAMES.length)] ?? 'Unknown';
 
       const event = {
         id: createId('evt'),

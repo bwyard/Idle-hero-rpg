@@ -34,7 +34,9 @@ export function AdventurerRoster({ adventurers }: AdventurerRosterProps) {
                 styles.adventurerRow,
                 pressed && styles.adventurerRowPressed,
               ]}
-              onPress={() => router.push(`/adventurer/${adv.id}`)}
+              onPress={() => {
+                router.push(`/adventurer/${adv.id}`);
+              }}
               accessibilityLabel={`View ${adv.name}, tier ${adv.tier}`}
               accessibilityRole="button"
             >
@@ -46,7 +48,7 @@ export function AdventurerRoster({ adventurers }: AdventurerRosterProps) {
                       style={[
                         styles.xpBarFill,
                         {
-                          width: `${xpProgress * 100}%`,
+                          width: `${String(xpProgress * 100)}%` as `${number}%`,
                           backgroundColor: tierColor,
                         },
                       ]}

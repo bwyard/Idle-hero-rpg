@@ -12,7 +12,7 @@
  * Pure function — no mutations, no side effects.
  */
 
-import type { GameState, AdventurerProgressionImpl, AdventurerTier } from '@idle-hero-rpg/shared';
+import type { GameState, AdventurerProgressionImpl } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
 import {
   ADVENTURER_TIERS,
@@ -39,7 +39,7 @@ export const placeholderAdventurerProgressionImpl: AdventurerProgressionImpl = {
   nextTier: (current) => {
     const idx = ADVENTURER_TIERS.indexOf(current);
     if (idx < 0 || idx >= ADVENTURER_TIERS.length - 1) return null;
-    return ADVENTURER_TIERS[idx + 1] as AdventurerTier; // placeholder — tune during balance pass
+    return ADVENTURER_TIERS[idx + 1] ?? null; // placeholder — tune during balance pass
   },
   shouldRetire: (adventurer, state) => {
     if (adventurer.tier !== 'Legendary') return false;
