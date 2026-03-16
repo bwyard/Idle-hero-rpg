@@ -1,10 +1,14 @@
 import { describe, it, expect } from 'vitest';
 import { projectStatus } from '../tools/projectStatus.js';
 
+function parseResult(result: { content: { type: string; text: string }[] }): Record<string, unknown> {
+  return JSON.parse(result.content[0]?.text ?? '{}') as Record<string, unknown>;
+}
+
 describe('project_status', () => {
   it('returns blockers by default', async () => {
     const result = await projectStatus.handler({ section: 'blockers' });
-    const parsed = JSON.parse(result.content[0]?.text ?? '{}');
+    const parsed = parseResult(result);
     expect(parsed).toHaveProperty('p0_blockers');
     expect(parsed).toHaveProperty('open_design_questions');
     expect(parsed).toHaveProperty('blocker_count');
@@ -32,7 +36,7 @@ describe('project_status', () => {
 
   it('returns all sections when requested', async () => {
     const result = await projectStatus.handler({ section: 'all' });
-    const parsed = JSON.parse(result.content[0]?.text ?? '{}');
+    const parsed = parseResult(result);
     expect(parsed).toHaveProperty('p0_blockers');
     expect(parsed).toHaveProperty('roadmap');
     expect(parsed).toHaveProperty('todo');

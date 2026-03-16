@@ -14,7 +14,6 @@ import { z } from 'zod';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(__dirname, '../../../../');
 const CLAUDE_MD_PATH = resolve(PROJECT_ROOT, 'CLAUDE.md');
-const BALANCE_PATH = resolve(PROJECT_ROOT, 'apps/game/src/data/balance.ts');
 
 const SECTIONS: Record<string, RegExp> = {
   'architecture': /Architecture Rules|Non-Negotiable/i,

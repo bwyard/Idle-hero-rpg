@@ -14,7 +14,6 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const PROJECT_ROOT = resolve(__dirname, '../../../../');
 const SYSTEM_IMPLS_PATH = resolve(PROJECT_ROOT, 'packages/shared/src/types/systemImpls.ts');
 const SYSTEMS_DIR = resolve(PROJECT_ROOT, 'apps/game/src/systems');
-const BALANCE_PATH = resolve(PROJECT_ROOT, 'apps/game/src/data/balance.ts');
 
 interface SystemStatus {
   readonly name: string;

@@ -20,22 +20,20 @@ const FILES = {
   sprint: resolve(PROJECT_ROOT, 'docs/sessions/current-sprint.md'),
 } as const;
 
-type StatusSection = 'all' | 'roadmap' | 'todo' | 'decisions' | 'sprint' | 'blockers';
-
 function extractBlockers(todoContent: string): string[] {
   const blockers: string[] = [];
   const lines = todoContent.split('\n');
   let inP0 = false;
 
   for (const line of lines) {
-    if (/^## P0/.test(line)) {
+    if (line.startsWith('## P0')) {
       inP0 = true;
       continue;
     }
-    if (/^## P[1-9]/.test(line) || /^## Completed/.test(line)) {
+    if (line.startsWith('## P') || line.startsWith('## Completed')) {
       inP0 = false;
     }
-    if (inP0 && /^- \[ \]/.test(line)) {
+    if (inP0 && line.startsWith('- [ ]')) {
       blockers.push(line.replace(/^- \[ \]\s*/, '').trim());
     }
   }
@@ -50,21 +48,21 @@ function extractOpenQuestions(decisionsContent: string): string[] {
   let headerPassed = false;
 
   for (const line of lines) {
-    if (/^## Open Questions/.test(line)) {
+    if (line.startsWith('## Open Questions')) {
       inTable = true;
       continue;
     }
-    if (inTable && /^\|---/.test(line)) {
+    if (inTable && line.startsWith('|---')) {
       headerPassed = true;
       continue;
     }
-    if (inTable && headerPassed && /^\|/.test(line)) {
+    if (inTable && headerPassed && line.startsWith('|')) {
       const cols = line.split('|').map((c) => c.trim()).filter(Boolean);
       if (cols.length >= 2 && !cols[1]?.toUpperCase().includes('CLOSED')) {
-        questions.push(`${cols[0]} — ${cols[1]}`);
+        questions.push(`${cols[0] ?? ''} — ${cols[1] ?? ''}`);
       }
     }
-    if (inTable && /^---/.test(line)) {
+    if (inTable && line.startsWith('---')) {
       inTable = false;
     }
   }
