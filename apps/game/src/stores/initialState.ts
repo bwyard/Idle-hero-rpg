@@ -6,6 +6,7 @@
  */
 
 import type { GameState } from '@idle-hero-rpg/shared';
+import { PLACEHOLDER_STARTING_GOLD } from '../data/balance';
 
 export function createInitialGameState(): GameState {
   return {
@@ -16,20 +17,57 @@ export function createInitialGameState(): GameState {
     },
     hero: {
       id: 'hero-001',
-      name: '',
+      name: 'Aldric',
       heroClass: 'Warblade',
       actionPoints: 3,
     },
     guild: {
-      name: '',
+      name: 'The Iron Hearth',
       type: 'Combat',
-      gold: 0,
+      gold: PLACEHOLDER_STARTING_GOLD, // placeholder — tune during balance pass
       reputation: 0,
     },
-    adventurers: {},
+    adventurers: {
+      adv_starter_1: {
+        id: 'adv_starter_1',
+        name: 'Kira',
+        tier: 'F',
+        archetype: 'Fighter',
+        xp: 0,
+        milestones: [],
+        skillBorrowUsed: false,
+        recruitedYear: 0,
+        retiredYear: null,
+      },
+      adv_starter_2: {
+        id: 'adv_starter_2',
+        name: 'Tomas',
+        tier: 'F',
+        archetype: 'Mage',
+        xp: 0,
+        milestones: [],
+        skillBorrowUsed: false,
+        recruitedYear: 0,
+        retiredYear: null,
+      },
+    },
     transientVisitors: {},
-    cities: {},
-    buildings: {},
+    cities: {
+      cty_heartlands: {
+        id: 'cty_heartlands',
+        name: 'Millhaven',
+        region: 'Heartlands',
+        isUnlocked: true,
+      },
+    },
+    buildings: {
+      bld_guildhall: {
+        id: 'bld_guildhall',
+        templateId: 'guild-hall',
+        level: 1,
+        cityId: 'cty_heartlands',
+      },
+    },
     quests: {},
     dynasty: {
       prestigeCount: 0,
