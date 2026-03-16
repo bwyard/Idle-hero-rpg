@@ -13,6 +13,11 @@
  */
 
 import type { GameState, EconomyImpl } from '@idle-hero-rpg/shared';
+import {
+  PLACEHOLDER_BASE_INCOME_PER_TICK,
+  PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK,
+  PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK,
+} from '../data/balance';
 
 export const stubEconomyImpl: EconomyImpl = {
   calculatePassiveIncome: () => 0,
@@ -20,9 +25,25 @@ export const stubEconomyImpl: EconomyImpl = {
   shouldTriggerMagicRewind: () => false,
 };
 
+/** placeholder — tune during balance pass */
+export const placeholderEconomyImpl: EconomyImpl = {
+  calculatePassiveIncome: (state) => {
+    const buildingLevelsSum = Object.values(state.buildings).reduce((sum, b) => sum + b.level, 0);
+    return (
+      PLACEHOLDER_BASE_INCOME_PER_TICK +
+      buildingLevelsSum * PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK
+    ); // placeholder — tune during balance pass
+  },
+  calculateUpkeep: (state) => {
+    const adventurerCount = Object.keys(state.adventurers).length;
+    return adventurerCount * PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK; // placeholder — tune during balance pass
+  },
+  shouldTriggerMagicRewind: () => false, // placeholder — kept disabled for now
+};
+
 export function processEconomy(
   state: GameState,
-  impl: EconomyImpl = stubEconomyImpl,
+  impl: EconomyImpl = placeholderEconomyImpl,
 ): GameState {
   const income = impl.calculatePassiveIncome(state);
   const upkeep = impl.calculateUpkeep(state);
