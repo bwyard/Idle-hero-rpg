@@ -78,6 +78,19 @@ It is NOT CLAUDE.md. CLAUDE.md points here for detail. Read sections on demand.
 - Magic Rewind safety mechanic exists in early prestiges, removed at a tuning-defined threshold
 - Do not hardcode economy values — use balance.ts stubs with TODO comments
 
+### Interface-First Pattern for Pending Design Decisions (CLOSED 2026-03-11)
+When a system depends on values or rules not yet designed, build against a typed
+interface rather than blocking on the design conversation. A stub implementation
+satisfies the interface, keeps CI green, and ships with the system as the default.
+The design conversation happens when values need to be tuned — not before.
+
+Implemented for: `EconomyImpl`, `BuildingProductionImpl`, `AdventurerProgressionImpl`,
+`QuestRewardImpl`, `HeroAbilityImpl`, `RivalProgressionImpl`
+
+Interfaces live in `packages/shared/src/types/systemImpls.ts`.
+Contract tests live in `apps/game/src/__tests__/systemContracts.test.ts`.
+These tests are the acceptance criteria for any live implementation.
+
 ### Architecture Flexibility Principle
 - Open design decisions are not blockers — they are test cases for architecture flexibility
 - Build interfaces and stub multiple implementations

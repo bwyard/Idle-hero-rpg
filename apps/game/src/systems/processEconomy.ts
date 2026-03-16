@@ -1,20 +1,43 @@
 /**
  * processEconomy — System 2 of 12 in the tick pipe.
  *
- * Calculates gold income from all sources and applies expenses.
+ * Calculates gold income from all passive sources and applies upkeep.
+ * Checks Magic Rewind condition for early prestiges.
  *
- * TODO: Economy values are stubs pending the dedicated design pass.
- *       See balance.ts for TODO-marked constants.
+ * Design decisions pending: gold earning rates, cost schedule, Magic Rewind
+ * threshold. stubEconomyImpl satisfies the contract and keeps CI green.
+ * Swap in a live EconomyImpl when the design pass closes those values —
+ * this function does not change.
  *
  * Pure function — no mutations, no side effects.
  */
 
-import type { GameState } from '@idle-hero-rpg/shared';
+import type { GameState, EconomyImpl } from '@idle-hero-rpg/shared';
 
-export function processEconomy(state: GameState): GameState {
-  // TODO: Implement gold income from buildings (per level, active vs passive)
-  // TODO: Implement gold expenses (recruitment, feasts, building upgrades)
-  // TODO: Implement Magic Rewind safety mechanic for early prestiges
-  // TODO: Implement negative gold consequences for late prestiges
-  return state;
+export const stubEconomyImpl: EconomyImpl = {
+  calculatePassiveIncome: () => 0,
+  calculateUpkeep: () => 0,
+  shouldTriggerMagicRewind: () => false,
+};
+
+export function processEconomy(
+  state: GameState,
+  impl: EconomyImpl = stubEconomyImpl,
+): GameState {
+  const income = impl.calculatePassiveIncome(state);
+  const upkeep = impl.calculateUpkeep(state);
+  const projectedGold = state.guild.gold + income - upkeep;
+
+  if (impl.shouldTriggerMagicRewind(state, projectedGold)) {
+    // TODO: restore last decision checkpoint when Magic Rewind is implemented
+    return state;
+  }
+
+  return {
+    ...state,
+    guild: {
+      ...state.guild,
+      gold: projectedGold,
+    },
+  };
 }

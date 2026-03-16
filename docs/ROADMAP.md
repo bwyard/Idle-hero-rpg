@@ -96,16 +96,22 @@ gold and see adventurers exist.
 **Estimated duration:** 4–6 weeks part-time / 2–3 weeks full-time
 
 ### Blockers to clear first
-- Close ID strategy decision → `createId(prefix)` factory in `packages/shared`
-- Economy design pass → fill `balance.ts` stubs (earning rates, costs, guard
-  rails). This is the longest-lead item: it requires a design conversation
-  before code can be written.
+- Close ID strategy decision → `createId(prefix)` factory in `packages/shared`.
+  This is the only true Phase 1 blocker — it gates any system that creates a
+  live game object.
+
+> Economy design pass is **not** a Phase 1 blocker. All economy systems now use
+> the interface-first pattern: `EconomyImpl`, `BuildingProductionImpl`, and
+> `AdventurerProgressionImpl` interfaces are defined in `packages/shared`.
+> Stub implementations keep CI green and the tick pipe running. Live
+> implementations slot in without touching the system functions. The design
+> conversation happens when we're ready to tune values — not before.
+> See `docs/design/economy.md` for the pattern detail.
 
 ### Deliverables
 - [ ] `processEventLog` — collect `pendingEvents`, append, trim to max length
 - [ ] `advanceTime` tick→year conversion (real math, not stub)
-- [ ] `processEconomy` — passive income per tick, negative gold detection,
-  Magic Rewind trigger condition
+- [ ] `processEconomy` contract live (stub impl already running via `EconomyImpl`)
 - [ ] Wire MMKV to Zustand `loadActiveRun` — active run loads on launch
 - [ ] State migration runner — load version, run migrations in sequence
 - [ ] First screen: guild overview — name, year, gold, adventurer count, tick
@@ -368,15 +374,16 @@ not on code being written.
 The items below directly gate the next milestone. Delaying any of them delays
 everything downstream.
 
-1. **Economy design conversation** — gates `processEconomy`, `processBuildings`,
-   Magic Rewind, and cost systems across Phases 1–3. Longest-lead design item
-   in the project.
-2. **Close ID strategy decision** — gates recruitment, visitor system, quest
-   assignment, and any system that creates a live game object.
-3. **Merge `claude/` branches to `develop`** — gates the actual git history
+1. **Close ID strategy decision** — gates recruitment, visitor system, quest
+   assignment, and any system that creates a live game object. This is the
+   only Phase 1 code blocker remaining.
+2. **Merge `claude/` branches to `develop`** — gates the actual git history
    being coherent. Currently zero commits have reached `develop`.
-4. **Option 3 resolution (shared vs per-leader hero ability system)** — must
+3. **Option 3 resolution (shared vs per-leader hero ability system)** — must
    close before Phase 4 hero system implementation begins.
+4. **Economy design conversation** — no longer on the critical path. Interface
+   and stub impl are live; the design conversation closes when we're ready to
+   tune values in Phase 3. Do not treat it as a blocker before then.
 
 ---
 

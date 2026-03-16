@@ -92,6 +92,11 @@ export const GOLD_COST_RECRUIT_ADVENTURER = 0; // stub
 /** TODO: Gold cost to hold a feast. Needs design pass. */
 export const GOLD_COST_FEAST = 0; // stub
 
+// ─── Hero ─────────────────────────────────────────────────────────────────────
+
+/** Maximum action points the hero can hold at one time. */
+export const HERO_ACTION_POINT_MAX = 10; // TODO: tune during hero system design pass
+
 // ─── World Awareness ─────────────────────────────────────────────────────────
 
 /** Prestige counts at which world awareness tiers unlock. */
