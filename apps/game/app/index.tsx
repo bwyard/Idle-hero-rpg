@@ -19,6 +19,7 @@ import { AdventurerPicker } from '../src/components/AdventurerPicker';
 import { EventLog } from '../src/components/EventLog';
 import { ActionButtons } from '../src/components/ActionButtons';
 import { TickControls } from '../src/components/TickControls';
+import { VisitorCard } from '../src/components/VisitorCard';
 
 export default function DemoScreen() {
   const state = useGameStore((s) => s.state);
@@ -28,6 +29,7 @@ export default function DemoScreen() {
   const [pickerQuestId, setPickerQuestId] = useState<string | null>(null);
 
   const adventurerList = Object.values(state.adventurers);
+  const visitorList = Object.values(state.transientVisitors);
   const questList = Object.values(state.quests);
   const recentEvents = [...state.eventLog].reverse().slice(0, 5);
 
@@ -46,6 +48,18 @@ export default function DemoScreen() {
   const handlePickAdventurer = (questId: string, adventurerId: string) => {
     dispatch({ type: 'START_QUEST', questId, adventurerId });
     setPickerQuestId(null);
+  };
+
+  const handleHoldVisitor = (visitorId: string) => {
+    dispatch({ type: 'HOLD_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
+  };
+
+  const handleEngageVisitor = (visitorId: string) => {
+    dispatch({ type: 'ENGAGE_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
+  };
+
+  const handleDismissVisitor = (visitorId: string) => {
+    dispatch({ type: 'DISMISS_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
   };
 
   return (
@@ -85,6 +99,24 @@ export default function DemoScreen() {
         onClose={() => setPickerQuestId(null)}
       />
 
+      <View style={styles.visitorsSection}>
+        <Text style={styles.sectionTitle}>Visitors ({visitorList.length})</Text>
+        {visitorList.length === 0 ? (
+          <Text style={styles.placeholderText}>No visitors at the guild house</Text>
+        ) : (
+          visitorList.map((visitor) => (
+            <VisitorCard
+              key={visitor.id}
+              visitor={visitor}
+              currentTick={state.time.ticksElapsed}
+              onHold={handleHoldVisitor}
+              onEngage={handleEngageVisitor}
+              onDismiss={handleDismissVisitor}
+            />
+          ))
+        )}
+      </View>
+
       <EventLog events={recentEvents} />
 
       <ActionButtons onAction={handleAction} />
@@ -97,7 +129,7 @@ export default function DemoScreen() {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>Engine: 12-system tick pipe | v{state.version}</Text>
+        <Text style={styles.footerText}>Engine: 13-system tick pipe | v{state.version}</Text>
       </View>
     </ScrollView>
   );
@@ -114,6 +146,24 @@ const styles = StyleSheet.create({
     maxWidth: 480,
     alignSelf: 'center',
     width: '100%',
+  },
+  visitorsSection: {
+    marginBottom: 16,
+  },
+  sectionTitle: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#b0a090',
+    textTransform: 'uppercase',
+    letterSpacing: 1.5,
+    marginBottom: 10,
+  },
+  placeholderText: {
+    fontSize: 14,
+    color: '#8a7a6a',
+    fontStyle: 'italic',
+    textAlign: 'center',
+    paddingVertical: 12,
   },
   footer: {
     marginTop: 20,

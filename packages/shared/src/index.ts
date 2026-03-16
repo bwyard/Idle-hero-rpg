@@ -49,6 +49,9 @@ export type {
   StartQuestAction,
   GenerateQuestsAction,
   HoldFeastAction,
+  HoldVisitorAction,
+  EngageVisitorAction,
+  DismissVisitorAction,
 } from './types/actions';
 
 // ID generation

@@ -39,6 +39,24 @@ export interface HoldFeastAction {
   readonly type: 'HOLD_FEAST';
 }
 
+/** Put a transient visitor on hold — extends their stay with diminishing duration. */
+export interface HoldVisitorAction {
+  readonly type: 'HOLD_VISITOR';
+  readonly visitorId: string;
+}
+
+/** Engage a transient visitor — converts them to a guild adventurer. Costs gold. */
+export interface EngageVisitorAction {
+  readonly type: 'ENGAGE_VISITOR';
+  readonly visitorId: string;
+}
+
+/** Dismiss a transient visitor — removes them immediately. */
+export interface DismissVisitorAction {
+  readonly type: 'DISMISS_VISITOR';
+  readonly visitorId: string;
+}
+
 /** All possible player actions. Add new action types here as features are built. */
 export type GameAction =
   | NoOpAction
@@ -46,4 +64,7 @@ export type GameAction =
   | BuildBuildingAction
   | StartQuestAction
   | GenerateQuestsAction
-  | HoldFeastAction;
+  | HoldFeastAction
+  | HoldVisitorAction
+  | EngageVisitorAction
+  | DismissVisitorAction;

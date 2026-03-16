@@ -12,13 +12,14 @@
  * 3. processAdventurers
  * 4. processQuests
  * 5. processBuildings
- * 6. processHero
- * 7. processRivals
- * 8. processConclave
- * 9. checkPrestigeConditions
- * 10. checkLeaderPressure
- * 11. checkForcedPrestige
- * 12. processEventLog
+ * 6. processTransientVisitors
+ * 7. processHero
+ * 8. processRivals
+ * 9. processConclave
+ * 10. checkPrestigeConditions
+ * 11. checkLeaderPressure
+ * 12. checkForcedPrestige
+ * 13. processEventLog
  */
 
 import type { GameState } from '@idle-hero-rpg/shared';
@@ -28,6 +29,7 @@ import { processEconomy } from '../systems/processEconomy';
 import { processAdventurers } from '../systems/processAdventurers';
 import { processQuests } from '../systems/processQuests';
 import { processBuildings } from '../systems/processBuildings';
+import { processTransientVisitors } from '../systems/processTransientVisitors';
 import { processHero } from '../systems/processHero';
 import { processRivals } from '../systems/processRivals';
 import { processConclave } from '../systems/processConclave';
@@ -50,6 +52,7 @@ export function tick(state: GameState): GameState {
     processAdventurers,
     processQuests,
     processBuildings,
+    processTransientVisitors,
     processHero,
     processRivals,
     processConclave,
