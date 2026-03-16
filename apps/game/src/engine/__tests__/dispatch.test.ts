@@ -192,13 +192,13 @@ describe('dispatch', () => {
   });
 
   describe('HOLD_VISITOR', () => {
-    it('extends visitor stay by setting heldUntilTick', () => {
-      const visitor = makeVisitor({ id: 'vis_1', holdCount: 0 });
+    it('extends visitor stay by setting heldUntilTick relative to expiry', () => {
+      const visitor = makeVisitor({ id: 'vis_1', holdCount: 0, expiresAtTick: 100 });
       const state = stateWithVisitorAndGold(visitor, 500, 10);
 
       const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
       const held = next.transientVisitors['vis_1']!;
-      expect(held.heldUntilTick).toBe(10 + PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY);
+      expect(held.heldUntilTick).toBe(100 + PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY);
     });
 
     it('increments holdCount', () => {
@@ -210,14 +210,15 @@ describe('dispatch', () => {
     });
 
     it('diminishes hold duration with each subsequent hold', () => {
-      const visitor = makeVisitor({ id: 'vis_1', holdCount: 1 });
+      const visitor = makeVisitor({ id: 'vis_1', holdCount: 1, expiresAtTick: 100 });
       const state = stateWithVisitorAndGold(visitor, 500, 10);
 
       const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
       const held = next.transientVisitors['vis_1']!;
       // duration = base / (holdCount + 1) = (30 * 4) / (1 + 1) = 60
+      // Added to expiry (100), not current tick (10)
       expect(held.heldUntilTick).toBe(
-        10 + Math.floor((PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / 2),
+        100 + Math.floor((PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / 2),
       );
     });
 
@@ -228,6 +229,37 @@ describe('dispatch', () => {
       const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
       const holdEvents = next.pendingEvents.filter((e) => e.type === 'VISITOR_HOLD');
       expect(holdEvents).toHaveLength(1);
+    });
+
+    it('adds hold duration to expiry deadline, not current tick', () => {
+      // Visitor expires at tick 100, current tick is 10
+      // Hold should extend from expiry (100), not from now (10)
+      const visitor = makeVisitor({ id: 'vis_1', holdCount: 0, expiresAtTick: 100 });
+      const state = stateWithVisitorAndGold(visitor, 500, 10);
+
+      const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
+      const held = next.transientVisitors['vis_1']!;
+      const holdDuration = PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY;
+      // Should be relative to expiry (100), not current tick (10)
+      expect(held.heldUntilTick).toBe(100 + holdDuration);
+    });
+
+    it('adds hold duration to existing heldUntilTick when already held', () => {
+      // Already held until tick 150, holding again should extend from 150
+      const visitor = makeVisitor({
+        id: 'vis_1',
+        holdCount: 1,
+        expiresAtTick: 100,
+        heldUntilTick: 150,
+      });
+      const state = stateWithVisitorAndGold(visitor, 500, 10);
+
+      const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
+      const held = next.transientVisitors['vis_1']!;
+      // holdCount becomes 2, so duration = base / 2
+      const holdDuration = Math.floor((PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / 2);
+      // Should extend from max(expiresAtTick=100, heldUntilTick=150) = 150
+      expect(held.heldUntilTick).toBe(150 + holdDuration);
     });
 
     it('returns state unchanged if visitor does not exist', () => {
