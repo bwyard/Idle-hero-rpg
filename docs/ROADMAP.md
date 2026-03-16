@@ -1,7 +1,7 @@
 # Retired Hero's Guild — Development Roadmap
 
-**Last updated:** 2026-03-11
-**Status:** Phase 0 complete. Phase 1 in progress.
+**Last updated:** 2026-03-16
+**Status:** Phase 0 complete. Phase 1 in progress (calendar system done, close-out next).
 
 This document tracks the full development arc from first commit to Google Play
 launch. It also calls out the portfolio milestone — the point where the project
@@ -26,30 +26,33 @@ player can interact with is the entire application layer.
 | Monorepo + tooling | Complete |
 | Shared types | Complete |
 | Pure engine (pipe, dispatch, tick) | Complete |
-| All 12 system stubs | Stubbed — not implemented |
-| Zustand stores | Shape defined, not wired |
+| 13-system tick pipe | Complete (all stubs wired) |
+| Zustand stores | Shape defined, not wired to MMKV |
 | MMKV persistence | Not wired |
 | State migrations | Not implemented |
 | MCP server (4 tools) | Complete + tested |
 | CI (lint, typecheck, unit, property) | Complete |
-| Screens | **None** |
+| Demo dashboard | Complete (8 components) |
+| Calendar system | Complete (365 days/yr, 4 seasons) |
+| Quest board | Complete (10 templates, generation, assignment) |
+| Transient visitors | Complete (arrive/hold/engage/dismiss) |
+| Adventurer detail | Complete (roster, tiers, XP bars) |
 
-52 tests pass. The architecture decisions are locked. The game has never been
-seen by a human.
+122 tests pass across 13 test files. The game renders and ticks.
 
 ---
 
 ## Milestone Map
 
 ```
-Phase 0   Foundation                    ████████████████  COMPLETE
-Phase 1   Core Loop MVP                 ░░░░░░░░░░░░░░░░  next
-Phase 2   Adventurers & Quests          ░░░░░░░░░░░░░░░░
-Phase 3   Buildings & Economy           ░░░░░░░░░░░░░░░░
-Phase 4   Prestige & Hero System        ░░░░░░░░░░░░░░░░
-Phase 5   Kingdom & Depth               ░░░░░░░░░░░░░░░░
-Phase 6   Polish & Optimization         ░░░░░░░░░░░░░░░░
-Phase 7   Pre-Launch & Submission       ░░░░░░░░░░░░░░░░
+Phase 0   Foundation                    ████████████████  COMPLETE  (Mar 10-11)
+Phase 1   Core Loop MVP                 ██████████░░░░░░  IN PROGRESS → Mar 20
+Phase 2   Adventurers & Quests          ░░░░░░░░░░░░░░░░  → Mar 28
+Phase 3   Buildings & Economy           ░░░░░░░░░░░░░░░░  → Apr 7
+Phase 4   Prestige & Hero System        ░░░░░░░░░░░░░░░░  → Apr 20  ★ PORTFOLIO
+Phase 5   Kingdom & Depth               ░░░░░░░░░░░░░░░░  → May 10
+Phase 6   Polish & Optimization         ░░░░░░░░░░░░░░░░  → May 25
+Phase 7   Pre-Launch & Submission       ░░░░░░░░░░░░░░░░  → Aug 1   ★ GOOGLE PLAY
 ```
 
 **Portfolio milestone:** end of Phase 4. Architecture is demonstrated,
@@ -342,16 +345,16 @@ Working assumptions:
 - Design conversation time is not compressible regardless of AI assistance —
   it requires your thinking, not code generation
 
-| Phase | Without AI (part-time) | With AI (part-time) | Actual |
-|---|---|---|---|
-| Phase 0 — Foundation | 3–4 weeks | 3–5 days | **2 days** (Mar 10–11 2026) |
-| Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | — |
-| Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | — |
-| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | — |
-| Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | — |
-| Phase 5 — Kingdom & Depth | 10–16 weeks | 5–8 days | — |
-| Phase 6 — Polish & Optimization | 6–10 weeks | 3–5 days | — |
-| Phase 7 — Pre-Launch & Submission | 8–12 weeks | 8–12 weeks* | — |
+| Phase | Without AI (part-time) | With AI (part-time) | Target Date | Actual |
+|---|---|---|---|---|
+| Phase 0 — Foundation | 3–4 weeks | 3–5 days | — | **2 days** (Mar 10–11) |
+| Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | **Mar 20** | In progress |
+| Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | **Mar 28** | — |
+| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | **Apr 7** | — |
+| Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | **Apr 20** | — |
+| Phase 5 — Kingdom & Depth | 10–16 weeks | 5–8 days | **May 10** | — |
+| Phase 6 — Polish & Optimization | 6–10 weeks | 3–5 days | **May 25** | — |
+| Phase 7 — Pre-Launch & Submission | 8–12 weeks | 8–12 weeks* | **Aug 1** | — |
 
 *Phase 7 is not compressible — Google Play review, beta testing tracks, and
 real-device testing all run on calendar time, not coding time.
@@ -374,16 +377,12 @@ not on code being written.
 The items below directly gate the next milestone. Delaying any of them delays
 everything downstream.
 
-1. **Close ID strategy decision** — gates recruitment, visitor system, quest
-   assignment, and any system that creates a live game object. This is the
-   only Phase 1 code blocker remaining.
-2. **Merge `claude/` branches to `develop`** — gates the actual git history
-   being coherent. Currently zero commits have reached `develop`.
+1. ~~**Close ID strategy decision**~~ — CLOSED. Prefixed nanoid adopted.
+2. ~~**Merge `claude/` branches to `develop`**~~ — CLOSED. All PRs merged to dev.
 3. **Option 3 resolution (shared vs per-leader hero ability system)** — must
-   close before Phase 4 hero system implementation begins.
-4. **Economy design conversation** — no longer on the critical path. Interface
-   and stub impl are live; the design conversation closes when we're ready to
-   tune values in Phase 3. Do not treat it as a blocker before then.
+   close before Phase 4 hero system implementation begins. **Gates Apr 20 target.**
+4. **Economy design conversation (t016)** — must close before Phase 3 begins.
+   Interface and stub impl are live; values need tuning. **Gates Apr 7 target.**
 
 ---
 

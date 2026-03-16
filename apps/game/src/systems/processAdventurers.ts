@@ -1,13 +1,13 @@
 /**
- * processAdventurers — System 3 of 12 in the tick pipe.
+ * processAdventurers — System 3 of 13 in the tick pipe.
  *
  * Advances adventurer XP, handles tier-ups, and triggers retirement for
  * Legendary adventurers (which sets the prestige condition).
  *
- * Design decisions pending: XP rates per tier, tier advancement thresholds,
- * retirement criteria. stubAdventurerProgressionImpl satisfies the contract
- * and keeps CI green. Swap in a live impl when those values are tuned —
- * this function does not change.
+ * XP model:
+ * - Idle adventurers earn ambient XP per tick (lower tiers gain more)
+ * - Adventurers on quests earn 0 passive XP (they get bulk XP on quest completion)
+ * - Training, feasts, and mentoring provide additional XP through other systems
  *
  * Pure function — no mutations, no side effects.
  */
@@ -16,11 +16,18 @@ import type { GameState, AdventurerProgressionImpl } from '@idle-hero-rpg/shared
 import { createId } from '@idle-hero-rpg/shared';
 import {
   ADVENTURER_TIERS,
-  PLACEHOLDER_XP_PER_TICK,
+  PLACEHOLDER_AMBIENT_XP_PER_TICK,
   PLACEHOLDER_TIER_XP_THRESHOLDS,
   PLACEHOLDER_LEGENDARY_RETIRE_DAYS,
   TICKS_PER_DAY,
 } from '../data/balance';
+
+/** Check if an adventurer is currently assigned to an active quest. */
+function isOnQuest(adventurerId: string, state: GameState): boolean {
+  return Object.values(state.quests).some(
+    (q) => q.assignedAdventurerId === adventurerId && !q.isComplete,
+  );
+}
 
 export const stubAdventurerProgressionImpl: AdventurerProgressionImpl = {
   xpGainPerTick: () => 0,
@@ -31,21 +38,27 @@ export const stubAdventurerProgressionImpl: AdventurerProgressionImpl = {
 
 /** placeholder — tune during balance pass */
 export const placeholderAdventurerProgressionImpl: AdventurerProgressionImpl = {
-  xpGainPerTick: () => PLACEHOLDER_XP_PER_TICK, // placeholder — tune during balance pass
+  xpGainPerTick: (adventurer, state) => {
+    // Adventurers on quests earn XP on completion, not per tick
+    if (isOnQuest(adventurer.id, state)) return 0;
+
+    // Idle adventurers earn ambient XP (lower tiers learn more from observation)
+    return PLACEHOLDER_AMBIENT_XP_PER_TICK[adventurer.tier] ?? 0;
+  },
   isReadyForTierUp: (adventurer) => {
     const threshold = PLACEHOLDER_TIER_XP_THRESHOLDS[adventurer.tier];
-    if (threshold === undefined) return false; // Legendary has no tier-up
-    return adventurer.xp >= threshold; // placeholder — tune during balance pass
+    if (threshold === undefined) return false;
+    return adventurer.xp >= threshold;
   },
   nextTier: (current) => {
     const idx = ADVENTURER_TIERS.indexOf(current);
     if (idx < 0 || idx >= ADVENTURER_TIERS.length - 1) return null;
-    return ADVENTURER_TIERS[idx + 1] ?? null; // placeholder — tune during balance pass
+    return ADVENTURER_TIERS[idx + 1] ?? null;
   },
   shouldRetire: (adventurer, state) => {
     if (adventurer.tier !== 'Legendary') return false;
     const ticksInGuild = state.time.ticksElapsed - adventurer.recruitedYear;
-    return ticksInGuild >= PLACEHOLDER_LEGENDARY_RETIRE_DAYS * TICKS_PER_DAY; // placeholder — tune during balance pass
+    return ticksInGuild >= PLACEHOLDER_LEGENDARY_RETIRE_DAYS * TICKS_PER_DAY;
   },
 };
 
@@ -60,20 +73,20 @@ export function processAdventurers(
     const updated = { ...adventurer, xp: adventurer.xp + xpGain };
 
     if (impl.isReadyForTierUp(updated)) {
-      const nextTier = impl.nextTier(updated.tier);
-      if (nextTier !== null) {
+      const tierUpNext = impl.nextTier(updated.tier);
+      if (tierUpNext !== null) {
         const tierUpEvent = {
           id: createId('evt'),
           tick: state.time.ticksElapsed,
           type: 'TIER_UP',
-          message: `${updated.name} advanced to tier ${nextTier}!`,
+          message: `${updated.name} advanced to tier ${tierUpNext}!`,
           achievementKey: null,
         } as const;
         next = {
           ...next,
           adventurers: {
             ...next.adventurers,
-            [id]: { ...updated, tier: nextTier, xp: 0 },
+            [id]: { ...updated, tier: tierUpNext, xp: 0 },
           },
           pendingEvents: [...next.pendingEvents, tierUpEvent],
         };
@@ -82,9 +95,7 @@ export function processAdventurers(
     }
 
     if (impl.shouldRetire(updated, state)) {
-      // Remove from roster — checkPrestigeConditions reads flags after this
       const { [id]: _retired, ...remaining } = next.adventurers;
-      // TODO: add retired adventurer to dynasty Hall of Heroes
       next = {
         ...next,
         adventurers: remaining,
