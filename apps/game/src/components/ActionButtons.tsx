@@ -20,7 +20,9 @@ interface ActionDef {
 
 const ACTIONS: readonly ActionDef[] = [
   { type: 'RECRUIT_ADVENTURER', label: 'Recruit (50g)' },
-  { type: 'BUILD_BUILDING', label: 'Build', disabled: true },
+  { type: 'BUILD_BUILDING', label: 'Build (100g)' },
+  { type: 'UPGRADE_BUILDING', label: 'Upgrade' },
+  { type: 'EXPAND_CITY', label: 'Expand City' },
   { type: 'GENERATE_QUESTS', label: 'New Quests' },
   { type: 'HOLD_FEAST', label: 'Feast (75g)' },
 ];
