@@ -177,6 +177,54 @@ These tests are the acceptance criteria for any live implementation.
 
 ## Session Log
 
+### 2026-03-11 — Foundation Complete + Interface-First Pattern + Lint CI Fix
+**Topics covered:**
+- Project status audit: foundation complete, no screens exist yet
+- Roadmap built: 7 phases, 3-column timeline (no AI / with AI / actual)
+- Phase 0 actual duration: 2 days vs 3–4 week human estimate
+- Interface-first pattern established for systems with pending design decisions:
+  economy, adventurers, buildings, hero, quests, rivals no longer block on design
+- `processHero` bug found by contract tests: AP could go negative — fixed
+- Git workflow gap identified: zero commits have reached `develop`
+- Economy design confirmed NOT a blocker — pattern handles it
+- Lint CI failing on all 3 PRs — root cause found and fixed:
+  - `@eslint/js` and `typescript-eslint` missing from root `package.json`
+  - `parserOptions.projectService` not configured (required for typed linting)
+  - `"type": "module"` missing from root (ESM config treated as CJS)
+  - MCP tools: `server.tool()` deprecated → `server.registerTool()`
+  - MCP tools: `readFileSync` → `await readFile` (fs/promises); properly async now
+  - Various rule violations fixed: array-type, no-non-null-assertion in tests,
+    varsIgnorePattern for `_`-prefixed destructured vars, restrict-template-expressions
+
+**Outputs:**
+- `docs/ROADMAP.md` — full phase plan, 3-column timeline, portfolio milestone
+- `packages/shared/src/types/systemImpls.ts` — 6 typed interfaces
+- `apps/game/src/__tests__/systemContracts.test.ts` — 42 contract tests
+- `apps/game/src/__tests__/helpers/createTestState.ts` — test factory
+- All 6 stub systems updated with impl injection + typed default
+- `balance.ts` — `HERO_ACTION_POINT_MAX` added
+- `docs/design/economy.md` — interface-first pattern documented
+- `docs/sessions/current-sprint.md` — updated for Phase 1
+- `package.json` — eslint deps added, `"type": "module"` added
+- `eslint.config.js` — `parserOptions.projectService`, test overrides, `varsIgnorePattern`
+- `packages/mcp/src/index.ts` — `registerTool` API
+- `packages/mcp/src/tools/*.ts` — async file reads, handler fixes
+
+**Branches and PRs (none merged to `develop` yet):**
+- `claude/setup-project-structure-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/mcp-server-tools-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/interface-first-pattern-PhKCs` — PR open, needs cherry-pick of `2e1b4f5`
+- `claude/process-update-PhKCs` — branch pushed, **no PR yet**, contains the lint fix
+
+**First task of next session:** cherry-pick `2e1b4f5` into the 3 branches, open a PR for `process-update`, confirm CI green on all 4, then merge.
+
+**Still open:**
+- ID strategy decision (prefixed nanoid preferred — see TODO.md P1)
+- Option 3: shared vs per-leader hero ability system (gates Phase 4 only)
+- Economy values (design conversation when tuning is needed, not before)
+
+---
+
 ### 2026-03-10 — Prestige System Design Lock
 **Topics covered:**
 - Full prestige design recovered and locked

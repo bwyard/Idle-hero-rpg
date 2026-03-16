@@ -1,60 +1,111 @@
 # Current Sprint
 
-## Sprint: Project Foundation
-**Status:** In progress
-**Started:** 2026-03-10
+## Sprint: Phase 1 — Core Loop MVP
+**Status:** Starting
+**Started:** 2026-03-11
+**Previous sprint:** Project Foundation (complete — see session log in decisions.md)
 
 ---
 
 ## Goal
 
-Establish the full monorepo scaffold so that every future feature branch has a clean, tested, CI-gated foundation to build on. No game logic ships this sprint — only structure, contracts, and guardrails.
+Make the game tick visibly. A player launches the app, sees a guild screen, watches
+the year counter advance, and sees gold change. No recruitment, no quests.
+Just a live ticking game state rendered on screen with save/load working.
 
 ---
 
-## Deliverables
+## Where We Are Right Now
 
-### Done
-- [x] Turborepo monorepo with npm workspaces (`apps/game`, `packages/shared`, `packages/mcp`, `e2e`)
-- [x] Strict TypeScript config (root + per-package)
-- [x] ESLint strict, Prettier, Husky + commitlint, lint-staged
-- [x] `CLAUDE.md` — authoritative project briefing
-- [x] `docs/decisions.md` — closed decisions, open questions, session log
-- [x] All 10 ADRs written (`docs/adr/001` through `010`)
-- [x] `apps/game/src/data/balance.ts` — all numeric constants, economy stubs with TODOs
-- [x] `packages/shared` — TypeScript types for all domains, barrel exports
-- [x] Pure functional engine: `pipe`, `tick`, `dispatch`
-- [x] All 12 system stubs in tick-pipe order, each with TODO comments
-- [x] Zustand stores: `gameStore` (persisted), `uiStore` (non-persisted), `initialState`
-- [x] Vitest + fast-check: unit tests for `pipe` and `advanceTime`, property tests for `tick`
-- [x] MCP server with 4 Zod-validated tool stubs
-- [x] Cypress E2E config + smoke test (Expo Web target)
-- [x] GitHub Actions CI (lint/typecheck/unit on push; E2E gated to PRs targeting main/develop)
-- [x] PR template
-- [x] `docs/sessions/`, `docs/architecture/`, `docs/design/` pointer files
+Foundation sprint complete. 72 tests passing, 4 typechecks clean.
 
-### Not Started (next sprints)
-- [ ] PowerShell profile — git safeguards, session load scripts
-- [ ] MCP server wired to live game state (currently stubs)
-- [ ] Prestige trigger design (BLOCKED — see decisions.md open questions)
-- [ ] Economy design pass (pending dedicated session)
-- [ ] First real system implementation (advanceTime is the only non-stub)
-
----
-
-## Next Sprint Options
-
-Priority order based on decisions.md:
-
-1. **Workflow & tooling sprint** — PowerShell profile, session update scripts, MCP wiring, docs folder conventions
-2. **Prestige trigger design session** — recover lost design, lock down, update decisions.md immediately
-3. **Economy design pass** — dedicated session to close all economy open questions, then implement as swappable component
-
----
-
-## Blocked Items
-
-| Item | Blocker |
+| Layer | Status |
 |---|---|
-| Prestige trigger implementation | Full trigger conditions lost in session transfer — needs design redo before any code |
-| Economy implementation | Design pass pending — all values are stubs in balance.ts |
+| Monorepo + tooling | Complete |
+| Shared types | Complete |
+| Pure engine (pipe, dispatch, tick) | Complete |
+| All 12 system stubs | Stubbed — interface-first pattern applied to 6 systems |
+| System contracts (interface-first) | Complete — 6 interfaces, 6 stubs, contract tests live |
+| Zustand stores | Shape defined, not wired to MMKV |
+| MMKV persistence | Not wired |
+| State migrations | Not implemented |
+| MCP server (4 tools) | Complete — 30 tests |
+| CI (lint, typecheck, unit, property) | Complete |
+| Screens | None |
+
+**Branch status — none of this work has reached `develop` yet.**
+3 open PRs, all failing CI lint. `claude/process-update-PhKCs` (this branch) has no PR yet.
+
+| Branch | PR | Lint |
+|---|---|---|
+| `claude/setup-project-structure-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/mcp-server-tools-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/interface-first-pattern-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
+| `claude/process-update-PhKCs` | **No PR yet** | Clean — contains the lint fix |
+
+**First task of next session:**
+1. Cherry-pick `2e1b4f5` into the 3 other branches and push
+2. Open a PR for `claude/process-update-PhKCs`
+3. Confirm CI green on all 4 PRs before merging anything
+
+---
+
+## Phase 1 Deliverables
+
+### Only Real Blocker
+- [ ] **Close ID strategy decision** → `createId(prefix)` factory in
+  `packages/shared/src/utils/id.ts`. Gates any system that creates a live game
+  object. See TODO.md P1 for full option analysis (prefixed nanoid is preferred).
+
+### Core Engine
+- [ ] `processEventLog` — collect `pendingEvents`, append to `eventLog`, trim to
+  max length, clear pending
+- [ ] `advanceTime` tick→year conversion — real formula, replace stub
+- [ ] Wire MMKV to Zustand `loadActiveRun` — active run loads on launch
+- [ ] State migration runner — load version, run migrations in sequence
+
+### First Screen
+- [ ] Navigation shell (Expo Router entry point)
+- [ ] Guild overview screen — name, year, gold, adventurer count, tick timer
+
+### Tests
+- [ ] Integration tests for full tick pipeline (all 12 systems piped)
+- [ ] `fast-check` property tests: arbitrary `GameState` in, shape invariants out
+
+### Git Workflow
+- [ ] Cherry-pick lint fix (`2e1b4f5` from `claude/process-update-PhKCs`) into 3 other branches
+- [ ] Confirm CI green on all 4 PRs
+- [ ] Merge `claude/process-update-PhKCs` into `develop`
+- [ ] Merge `claude/setup-project-structure-PhKCs` into `develop`
+- [ ] Merge `claude/mcp-server-tools-PhKCs` into `develop`
+- [ ] Merge `claude/interface-first-pattern-PhKCs` into `develop`
+
+---
+
+## Not Blockers This Sprint
+
+These are deferred by design — interface-first pattern handles them:
+
+| Item | Why not a blocker |
+|---|---|
+| Economy design pass (rates, costs) | `EconomyImpl` interface live, stub running |
+| Adventurer XP/tier tuning | `AdventurerProgressionImpl` stub running |
+| Building income rates | `BuildingProductionImpl` stub running |
+| Option 3 (hero ability system scope) | `HeroAbilityImpl` stub running, decision gates Phase 4 |
+| NPC guild tenure numbers | `RivalProgressionImpl` stub running |
+
+---
+
+## Key Files for Next Session
+
+| What | Where |
+|---|---|
+| Architecture rules (non-negotiables) | `CLAUDE.md` |
+| All closed decisions + session log | `docs/decisions.md` |
+| Full phase plan + timeline | `docs/ROADMAP.md` |
+| Prioritised task list | `TODO.md` |
+| System interfaces (interface-first) | `packages/shared/src/types/systemImpls.ts` |
+| Contract tests | `apps/game/src/__tests__/systemContracts.test.ts` |
+| Balance constants | `apps/game/src/data/balance.ts` |
+| ADRs | `docs/adr/` |
+| Design docs per domain | `docs/design/` |
