@@ -19,16 +19,21 @@ import type { GameState, GameAction } from '@idle-hero-rpg/shared';
 import { tick } from '../engine/tick';
 import { dispatch as engineDispatch } from '../engine/dispatch';
 import { createInitialGameState } from './initialState';
+import { saveActiveRun, loadActiveRun, clearActiveRun } from './storage';
+import type { KVStorage } from './storage';
+import { migrateState } from './migrations';
 
 interface GameStore {
   state: GameState;
   tick: () => void;
   dispatch: (action: GameAction) => void;
-  loadActiveRun: () => void;
+  initFromStorage: (storage: KVStorage) => void;
+  saveToStorage: (storage: KVStorage) => void;
+  resetGame: (storage: KVStorage) => void;
   loadDynastyLayer: () => Promise<void>;
 }
 
-export const useGameStore = create<GameStore>((set) => ({
+export const useGameStore = create<GameStore>((set, get) => ({
   state: createInitialGameState(),
 
   tick: () => {
@@ -39,9 +44,23 @@ export const useGameStore = create<GameStore>((set) => ({
     set((store) => ({ state: engineDispatch(store.state, action) }));
   },
 
-  loadActiveRun: () => {
-    // TODO: Load active run state from MMKV
-    // TODO: Run state migrations before handing state to systems
+  initFromStorage: (storage: KVStorage) => {
+    const raw = loadActiveRun(storage);
+    if (raw === undefined) return; // No save — keep initial state
+
+    const migrated = migrateState(raw);
+    if (migrated === null) return; // Migration failed — keep initial state
+
+    set({ state: migrated });
+  },
+
+  saveToStorage: (storage: KVStorage) => {
+    saveActiveRun(storage, get().state);
+  },
+
+  resetGame: (storage: KVStorage) => {
+    clearActiveRun(storage);
+    set({ state: createInitialGameState() });
   },
 
   loadDynastyLayer: async () => {
