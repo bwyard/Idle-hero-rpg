@@ -30,8 +30,8 @@ describe('processEventLog', () => {
     };
     const next = processEventLog(state);
     expect(next.eventLog).toHaveLength(2);
-    expect(next.eventLog[0].id).toBe('e1');
-    expect(next.eventLog[1].id).toBe('e2');
+    expect(next.eventLog[0]!.id).toBe('e1');
+    expect(next.eventLog[1]!.id).toBe('e2');
   });
 
   it('clears pendingEvents after processing', () => {
@@ -52,9 +52,9 @@ describe('processEventLog', () => {
     };
     const next = processEventLog(state);
     expect(next.eventLog).toHaveLength(3);
-    expect(next.eventLog[0].id).toBe('old1');
-    expect(next.eventLog[1].id).toBe('old2');
-    expect(next.eventLog[2].id).toBe('new1');
+    expect(next.eventLog[0]!.id).toBe('old1');
+    expect(next.eventLog[1]!.id).toBe('old2');
+    expect(next.eventLog[2]!.id).toBe('new1');
   });
 
   it('trims eventLog to EVENT_LOG_MAX_LENGTH, keeping newest events', () => {
@@ -70,10 +70,10 @@ describe('processEventLog', () => {
     const next = processEventLog(state);
     expect(next.eventLog).toHaveLength(EVENT_LOG_MAX_LENGTH);
     // Oldest events should be trimmed, newest kept
-    expect(next.eventLog[next.eventLog.length - 1].id).toBe('overflow-2');
-    expect(next.eventLog[next.eventLog.length - 2].id).toBe('overflow-1');
+    expect(next.eventLog[next.eventLog.length - 1]!.id).toBe('overflow-2');
+    expect(next.eventLog[next.eventLog.length - 2]!.id).toBe('overflow-1');
     // First two old events should be gone
-    expect(next.eventLog[0].id).toBe('old-2');
+    expect(next.eventLog[0]!.id).toBe('old-2');
   });
 
   it('does not mutate the input state', () => {
