@@ -13,17 +13,17 @@ Priority tiers:
 
 ## P0 — Core Loop Blockers
 
-- [ ] Merge `claude/` branches into `develop` — git workflow gap; no work has reached `develop` yet
-- [ ] Implement `processEventLog` — collect `pendingEvents`, append to `eventLog`, clear pending, trim log to max length (prevent unbounded growth)
-- [ ] Implement `advanceTime` tick→year conversion so all systems that read in-game years work correctly
-- [ ] Wire Zustand `loadActiveRun` to MMKV — active run state must load on launch before first render
-- [ ] State migration runner — load version from save, run migrations in sequence before handing state to systems
+- [x] Merge `claude/` branches into `develop` — DONE
+- [x] Implement `processEventLog` — collect `pendingEvents`, append to `eventLog`, clear pending, trim log to max length — DONE
+- [x] Implement `advanceTime` tick→year conversion — DONE (365-day calendar, 4 seasons)
+- [x] Wire Zustand `loadActiveRun` to MMKV — DONE
+- [x] State migration runner — DONE
 
 > `processEconomy`, `processBuildings`, `processAdventurers` and other design-pending systems
 > are **not** P0 blockers. Interface-first pattern is live: typed interfaces in
 > `packages/shared/src/types/systemImpls.ts`, stub impls run by default, CI green.
 > Design conversations happen when values need tuning — not before.
-- [ ] First playable screen — guild view that renders current `GameState` and advances on a timer
+- [x] First playable screen — guild view that renders current `GameState` and advances on a timer — DONE (demo dashboard)
 
 ---
 
