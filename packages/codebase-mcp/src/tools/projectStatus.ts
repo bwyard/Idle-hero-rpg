@@ -57,7 +57,10 @@ function extractOpenQuestions(decisionsContent: string): string[] {
       continue;
     }
     if (inTable && headerPassed && line.startsWith('|')) {
-      const cols = line.split('|').map((c) => c.trim()).filter(Boolean);
+      const cols = line
+        .split('|')
+        .map((c) => c.trim())
+        .filter(Boolean);
       if (cols.length >= 2 && !cols[1]?.toUpperCase().includes('CLOSED')) {
         questions.push(`${cols[0] ?? ''} — ${cols[1] ?? ''}`);
       }
@@ -70,11 +73,128 @@ function extractOpenQuestions(decisionsContent: string): string[] {
   return questions;
 }
 
+function extractRoadmapSummary(roadmapContent: string): {
+  status_line: string;
+  current_phase: string;
+  upcoming_phases: string[];
+} {
+  const lines = roadmapContent.split('\n');
+  let statusLine = '';
+  let currentPhase = '';
+  const upcoming: string[] = [];
+
+  for (const line of lines) {
+    // Grab the **Status:** line near the top
+    if (line.startsWith('**Status:') || line.startsWith('Status:')) {
+      statusLine = line.replace(/^\*?\*?Status:\*?\*?\s*/, '').trim();
+      continue;
+    }
+    // Find phase headings (## Phase N — ...) and categorize
+    const phaseMatch = line.match(/^##\s+(Phase\s+\d+\S*)\s*[—–-]\s*(.*)/);
+    if (phaseMatch) {
+      const phaseName = phaseMatch[1] ?? '';
+      const phaseDesc = (phaseMatch[2] ?? '').trim();
+      const label = `${phaseName}: ${phaseDesc}`;
+      // Check subsequent lines for status markers
+      const idx = lines.indexOf(line);
+      const nextLines = lines
+        .slice(idx + 1, idx + 5)
+        .join(' ')
+        .toLowerCase();
+      if (nextLines.includes('in progress') || nextLines.includes('in-progress')) {
+        currentPhase = label;
+      } else if (!nextLines.includes('complete') && !nextLines.includes('done')) {
+        upcoming.push(label);
+      }
+    }
+  }
+
+  return {
+    status_line: statusLine || 'Unknown',
+    current_phase: currentPhase || 'Unknown',
+    upcoming_phases: upcoming.slice(0, 5),
+  };
+}
+
+function extractTodoSummary(todoContent: string): {
+  p0_count: number;
+  p1_count: number;
+  p2_count: number;
+  completed_count: number;
+  p0_items: string[];
+  p1_items: string[];
+} {
+  const lines = todoContent.split('\n');
+  let currentSection = '';
+  let p0Count = 0;
+  let p1Count = 0;
+  let p2Count = 0;
+  let completedCount = 0;
+  const p0Items: string[] = [];
+  const p1Items: string[] = [];
+
+  for (const line of lines) {
+    if (line.startsWith('## P0')) {
+      currentSection = 'p0';
+      continue;
+    }
+    if (line.startsWith('## P1')) {
+      currentSection = 'p1';
+      continue;
+    }
+    if (line.startsWith('## P2')) {
+      currentSection = 'p2';
+      continue;
+    }
+    if (line.startsWith('## Completed')) {
+      currentSection = 'completed';
+      continue;
+    }
+    if (line.startsWith('## ')) {
+      currentSection = '';
+      continue;
+    }
+
+    if (line.startsWith('- [ ]')) {
+      const text = line.replace(/^- \[ \]\s*/, '').trim();
+      if (currentSection === 'p0') {
+        p0Count++;
+        p0Items.push(text);
+      } else if (currentSection === 'p1') {
+        p1Count++;
+        p1Items.push(text);
+      } else if (currentSection === 'p2') {
+        p2Count++;
+      }
+    }
+    if (line.startsWith('- [x]')) {
+      completedCount++;
+    }
+  }
+
+  return {
+    p0_count: p0Count,
+    p1_count: p1Count,
+    p2_count: p2Count,
+    completed_count: completedCount,
+    p0_items: p0Items,
+    p1_items: p1Items,
+  };
+}
+
+function extractSprintSummary(sprintContent: string): string {
+  // Return first 20 non-empty lines as a compact summary
+  const lines = sprintContent.split('\n').filter((l) => l.trim().length > 0);
+  return lines.slice(0, 20).join('\n');
+}
+
 const inputSchema = z.object({
   section: z
     .enum(['all', 'roadmap', 'todo', 'decisions', 'sprint', 'blockers'])
     .default('blockers')
-    .describe('Which status view to return. "blockers" gives P0 items + open questions. "all" returns everything.'),
+    .describe(
+      'Which status view to return. "blockers" (default) gives P0 items + open questions. "all" returns summarized view of roadmap, todos, sprint, and blockers. Individual sections ("roadmap", "todo", "decisions", "sprint") return full file content.',
+    ),
 });
 
 export const projectStatus = {
@@ -128,15 +248,14 @@ export const projectStatus = {
       };
     }
 
-    // "all" — everything
+    // "all" — summarized view of everything (not raw file dumps)
     const roadmapContent = await readSafe(FILES.roadmap);
     const result = {
       p0_blockers: blockers,
       open_design_questions: openQuestions,
-      roadmap: roadmapContent,
-      todo: todoContent,
-      decisions: decisionsContent,
-      sprint: sprintContent,
+      roadmap: extractRoadmapSummary(roadmapContent),
+      todo: extractTodoSummary(todoContent),
+      sprint: extractSprintSummary(sprintContent),
     };
     return {
       content: [{ type: 'text' as const, text: JSON.stringify(result, null, 2) }],

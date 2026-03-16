@@ -14,8 +14,9 @@ import {
   PLACEHOLDER_BUILD_COST,
   PLACEHOLDER_FEAST_COST,
   PLACEHOLDER_FEAST_XP_BONUS,
-  PLACEHOLDER_HOLD_DURATION_TICKS,
+  PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
+  TICKS_PER_DAY,
 } from '../data/balance';
 import { generateQuests } from '../systems/generateQuests';
 
@@ -192,7 +193,9 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       if (!visitor) return state;
 
       const newHoldCount = visitor.holdCount + 1;
-      const holdDuration = Math.floor(PLACEHOLDER_HOLD_DURATION_TICKS / newHoldCount);
+      const holdDuration = Math.floor(
+        (PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / newHoldCount,
+      );
 
       const event = {
         id: createId('evt'),

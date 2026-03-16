@@ -1,16 +1,18 @@
 /**
- * StatsBar — Year counter, gold, reputation, adventurer count.
+ * StatsBar — Season, day, year counter, gold, reputation, adventurer count.
  */
 
 import { StyleSheet, Text, View } from 'react-native';
+import type { Season } from '@idle-hero-rpg/shared';
+import { DAYS_PER_YEAR } from '../data/balance';
 
 interface StatsBarProps {
   currentYear: number;
+  currentDay: number;
+  currentSeason: Season;
   gold: number;
   reputation: number;
   adventurerCount: number;
-  ticksElapsed: number;
-  ticksPerYear: number;
 }
 
 function StatItem({ label, value }: { label: string; value: string }) {
@@ -24,21 +26,21 @@ function StatItem({ label, value }: { label: string; value: string }) {
 
 export function StatsBar({
   currentYear,
+  currentDay,
+  currentSeason,
   gold,
   reputation,
   adventurerCount,
-  ticksElapsed,
-  ticksPerYear,
 }: StatsBarProps) {
-  const tickInYear = ticksElapsed % ticksPerYear;
+  const dayOfYear = (currentDay % DAYS_PER_YEAR) + 1; // 1-indexed for display
 
   return (
     <View style={styles.container}>
-      <StatItem label="Year" value={String(currentYear)} />
+      <StatItem label={currentSeason} value={`Y${String(currentYear + 1)}`} />
+      <StatItem label="Day" value={`${String(dayOfYear)}/${String(DAYS_PER_YEAR)}`} />
       <StatItem label="Gold" value={String(gold)} />
       <StatItem label="Rep" value={String(reputation)} />
       <StatItem label="Advntr" value={String(adventurerCount)} />
-      <StatItem label="Tick" value={`${String(tickInYear)}/${String(ticksPerYear)}`} />
     </View>
   );
 }

@@ -31,12 +31,25 @@ describe('project_status', () => {
     expect(text).toContain('Closed Decisions');
   });
 
-  it('returns all sections when requested', async () => {
+  it('"all" response is compact (under 5KB)', async () => {
+    const result = await projectStatus.handler({ section: 'all' });
+    const text = extractText(result);
+    expect(text.length).toBeLessThan(8000);
+  });
+
+  it('returns summarized all sections when requested', async () => {
     const result = await projectStatus.handler({ section: 'all' });
     const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('p0_blockers');
-    expect(parsed).toHaveProperty('roadmap');
-    expect(parsed).toHaveProperty('todo');
-    expect(parsed).toHaveProperty('decisions');
+    expect(parsed).toHaveProperty('open_design_questions');
+    // Roadmap is now a summary object, not raw string
+    expect(parsed.roadmap).toHaveProperty('status_line');
+    expect(parsed.roadmap).toHaveProperty('current_phase');
+    expect(parsed.roadmap).toHaveProperty('upcoming_phases');
+    // Todo is now a summary object with counts
+    expect(parsed.todo).toHaveProperty('p0_count');
+    expect(parsed.todo).toHaveProperty('p0_items');
+    // Sprint is a truncated string, not full file
+    expect(typeof parsed.sprint).toBe('string');
   });
 });

@@ -27,7 +27,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
   } = overrides;
 
   const adventurers: Record<string, Adventurer> = {
-    'adv_test1': {
+    adv_test1: {
       id: 'adv_test1',
       name: 'Test Adventurer',
       tier: adventurerTier,
@@ -64,7 +64,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
 
   return {
     version: 1,
-    time: { ticksElapsed: 0, currentYear: 0 },
+    time: { ticksElapsed: 0, currentDay: 0, currentSeason: 'Spring', currentYear: 0 },
     hero: {
       id: 'hero_test1',
       name: 'Test Hero',

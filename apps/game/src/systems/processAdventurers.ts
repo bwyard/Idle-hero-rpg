@@ -18,7 +18,8 @@ import {
   ADVENTURER_TIERS,
   PLACEHOLDER_XP_PER_TICK,
   PLACEHOLDER_TIER_XP_THRESHOLDS,
-  PLACEHOLDER_LEGENDARY_RETIRE_TICKS,
+  PLACEHOLDER_LEGENDARY_RETIRE_DAYS,
+  TICKS_PER_DAY,
 } from '../data/balance';
 
 export const stubAdventurerProgressionImpl: AdventurerProgressionImpl = {
@@ -44,7 +45,7 @@ export const placeholderAdventurerProgressionImpl: AdventurerProgressionImpl = {
   shouldRetire: (adventurer, state) => {
     if (adventurer.tier !== 'Legendary') return false;
     const ticksInGuild = state.time.ticksElapsed - adventurer.recruitedYear;
-    return ticksInGuild >= PLACEHOLDER_LEGENDARY_RETIRE_TICKS; // placeholder — tune during balance pass
+    return ticksInGuild >= PLACEHOLDER_LEGENDARY_RETIRE_DAYS * TICKS_PER_DAY; // placeholder — tune during balance pass
   },
 };
 
