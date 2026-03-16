@@ -10,10 +10,26 @@
  */
 
 import type { GameState } from '@idle-hero-rpg/shared';
+import { EVENT_LOG_MAX_LENGTH } from '../data/balance';
 
 export function processEventLog(state: GameState): GameState {
-  // TODO: Implement event collection from state.pendingEvents
-  // TODO: Append to state.eventLog and clear pendingEvents
-  // TODO: Trim eventLog to max length to prevent unbounded growth
-  return state;
+  // Nothing to do if no pending events
+  if (state.pendingEvents.length === 0) {
+    return state;
+  }
+
+  // Append pending events to the log
+  const combined = [...state.eventLog, ...state.pendingEvents];
+
+  // Trim from the front (oldest first) to stay within max length
+  const trimmed =
+    combined.length > EVENT_LOG_MAX_LENGTH
+      ? combined.slice(combined.length - EVENT_LOG_MAX_LENGTH)
+      : combined;
+
+  return {
+    ...state,
+    eventLog: trimmed,
+    pendingEvents: [],
+  };
 }
