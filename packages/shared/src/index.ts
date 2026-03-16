@@ -41,7 +41,14 @@ export type { GameEvent, AchievementKey } from './types/event';
 export type { GameState } from './types/gameState';
 
 // Actions
-export type { GameAction, NoOpAction } from './types/actions';
+export type {
+  GameAction,
+  NoOpAction,
+  RecruitAdventurerAction,
+  BuildBuildingAction,
+  StartQuestAction,
+  HoldFeastAction,
+} from './types/actions';
 
 // ID generation
 export { createId } from './utils/id';

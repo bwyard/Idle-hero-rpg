@@ -95,6 +95,70 @@ export const GOLD_COST_RECRUIT_ADVENTURER = 0; // stub
 /** TODO: Gold cost to hold a feast. Needs design pass. */
 export const GOLD_COST_FEAST = 0; // stub
 
+// ─── Placeholder Economy Values ─────────────────────────────────────────────
+// These produce visible movement in the demo. Not final — tune during balance pass.
+
+/** Base passive gold income per tick, before building bonuses. */
+export const PLACEHOLDER_BASE_INCOME_PER_TICK = 10; // placeholder — tune during balance pass
+
+/** Additional gold per building level per tick. */
+export const PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK = 5; // placeholder — tune during balance pass
+
+/** Gold deducted per adventurer per tick for upkeep. */
+export const PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK = 2; // placeholder — tune during balance pass
+
+/** Gold cost to recruit a new adventurer via dispatch action. */
+export const PLACEHOLDER_RECRUIT_COST = 50; // placeholder — tune during balance pass
+
+/** Gold cost to construct a new building via dispatch action. */
+export const PLACEHOLDER_BUILD_COST = 100; // placeholder — tune during balance pass
+
+/** Gold cost to hold a feast via dispatch action. */
+export const PLACEHOLDER_FEAST_COST = 75; // placeholder — tune during balance pass
+
+/** XP bonus each adventurer receives from a feast. */
+export const PLACEHOLDER_FEAST_XP_BONUS = 3; // placeholder — tune during balance pass
+
+/** Gold earned on quest completion. */
+export const PLACEHOLDER_QUEST_GOLD_REWARD = 50; // placeholder — tune during balance pass
+
+/** XP earned by adventurer on quest completion. */
+export const PLACEHOLDER_QUEST_XP_REWARD = 5; // placeholder — tune during balance pass
+
+/** Ticks required to complete a quest. */
+export const PLACEHOLDER_QUEST_DURATION_TICKS = 30; // placeholder — tune during balance pass
+
+/** Starting gold for a new game. */
+export const PLACEHOLDER_STARTING_GOLD = 500; // placeholder — tune during balance pass
+
+/** Building income per level per tick (for building production system). */
+export const PLACEHOLDER_BUILDING_INCOME_PER_LEVEL = 5; // placeholder — tune during balance pass
+
+// ─── Placeholder Adventurer Progression ─────────────────────────────────────
+
+/** XP gained per tick by each adventurer. */
+export const PLACEHOLDER_XP_PER_TICK = 1; // placeholder — tune during balance pass
+
+/** XP thresholds for tier-up, keyed by current tier. */
+export const PLACEHOLDER_TIER_XP_THRESHOLDS: Record<string, number> = {
+  F: 10, // placeholder — tune during balance pass
+  E: 25, // placeholder — tune during balance pass
+  D: 50, // placeholder — tune during balance pass
+  C: 100, // placeholder — tune during balance pass
+  B: 200, // placeholder — tune during balance pass
+  A: 400, // placeholder — tune during balance pass
+  S: 800, // placeholder — tune during balance pass
+  SS: 1600, // placeholder — tune during balance pass
+};
+
+/** Ticks a Legendary adventurer stays before retiring. */
+export const PLACEHOLDER_LEGENDARY_RETIRE_TICKS = 500; // placeholder — tune during balance pass
+
+// ─── Placeholder Hero ───────────────────────────────────────────────────────
+
+/** Hero regenerates 1 AP every this many ticks. */
+export const PLACEHOLDER_AP_REGEN_INTERVAL_TICKS = 10; // placeholder — tune during balance pass
+
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
 /** Maximum action points the hero can hold at one time. */
