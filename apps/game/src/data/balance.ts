@@ -12,6 +12,9 @@
 /** Duration of one in-game tick in milliseconds (real time). */
 export const TICK_INTERVAL_MS = 1000;
 
+/** Number of game ticks that make up one in-game year. */
+export const TICKS_PER_YEAR = 120;
+
 /** Total active years in a single run. */
 export const RUN_DURATION_YEARS = 50;
 
