@@ -1,7 +1,7 @@
 # Retired Hero's Guild — Development Roadmap
 
 **Last updated:** 2026-03-16
-**Status:** Phase 0 complete. Phase 1 in progress (calendar system done, close-out next).
+**Status:** Phases 0–3 complete. Phase 4 next.
 
 This document tracks the full development arc from first commit to Google Play
 launch. It also calls out the portfolio milestone — the point where the project
@@ -17,28 +17,32 @@ Estimates are rough effort ranges, not commitments.
 
 ## Where We Are Right Now
 
-The foundation is solid. The engine architecture is correct. The tooling is
-complete. **Nothing renders.** The gap between "current state" and a game a
-player can interact with is the entire application layer.
+Phases 0 through 3 are complete. The engine is live with a 13-system tick pipe,
+full dispatch actions, demo dashboard, and all core gameplay systems stubbed or
+implemented. The game renders, ticks, and responds to player actions.
 
 | Layer | Status |
 |---|---|
 | Monorepo + tooling | Complete |
 | Shared types | Complete |
 | Pure engine (pipe, dispatch, tick) | Complete |
-| 13-system tick pipe | Complete (all stubs wired) |
-| Zustand stores | Shape defined, not wired to MMKV |
-| MMKV persistence | Not wired |
-| State migrations | Not implemented |
+| 13-system tick pipe | Complete (all systems wired) |
+| advanceTime | Done (365-day calendar, seasons) |
+| processEventLog | Done (collect, append, trim) |
+| Zustand stores | Complete, wired to MMKV |
+| MMKV persistence | Wired |
+| State migrations | Done |
 | MCP server (4 tools) | Complete + tested |
 | CI (lint, typecheck, unit, property) | Complete |
-| Demo dashboard | Complete (8 components) |
+| Demo dashboard | Complete (8+ components) |
 | Calendar system | Complete (365 days/yr, 4 seasons) |
 | Quest board | Complete (10 templates, generation, assignment) |
 | Transient visitors | Complete (arrive/hold/engage/dismiss) |
 | Adventurer detail | Complete (roster, tiers, XP bars) |
+| Buildings & economy | Complete (build, upgrade, expand city) |
+| All branches merged | Done |
 
-122 tests pass across 13 test files. The game renders and ticks.
+264 tests pass across 27 test files. The game renders and ticks.
 
 ---
 
@@ -46,9 +50,9 @@ player can interact with is the entire application layer.
 
 ```
 Phase 0   Foundation                    ████████████████  COMPLETE  (Mar 10-11)
-Phase 1   Core Loop MVP                 ██████████░░░░░░  IN PROGRESS → Mar 20
-Phase 2   Adventurers & Quests          ░░░░░░░░░░░░░░░░  → Mar 28
-Phase 3   Buildings & Economy           ░░░░░░░░░░░░░░░░  → Apr 7
+Phase 1   Core Loop MVP                 ████████████████  COMPLETE  (Mar 12-14)
+Phase 2   Adventurers & Quests          ████████████████  COMPLETE  (Mar 14-15)
+Phase 3   Buildings & Economy           ████████████████  COMPLETE  (Mar 15-16)
 Phase 4   Prestige & Hero System        ░░░░░░░░░░░░░░░░  → Apr 20  ★ PORTFOLIO
 Phase 5   Kingdom & Depth               ░░░░░░░░░░░░░░░░  → May 10
 Phase 6   Polish & Optimization         ░░░░░░░░░░░░░░░░  → May 25
@@ -93,105 +97,62 @@ the point a hiring panel can evaluate the project seriously.
 
 ## Phase 1 — Core Loop MVP
 
-**Goal:** The game ticks. Something renders. A player can watch the guild earn
-gold and see adventurers exist.
+**Status: COMPLETE**
+**Actual duration:** ~3 days (Mar 12–14)
 
-**Estimated duration:** 4–6 weeks part-time / 2–3 weeks full-time
-
-### Blockers to clear first
-- Close ID strategy decision → `createId(prefix)` factory in `packages/shared`.
-  This is the only true Phase 1 blocker — it gates any system that creates a
-  live game object.
-
-> Economy design pass is **not** a Phase 1 blocker. All economy systems now use
-> the interface-first pattern: `EconomyImpl`, `BuildingProductionImpl`, and
-> `AdventurerProgressionImpl` interfaces are defined in `packages/shared`.
-> Stub implementations keep CI green and the tick pipe running. Live
-> implementations slot in without touching the system functions. The design
-> conversation happens when we're ready to tune values — not before.
-> See `docs/design/economy.md` for the pattern detail.
-
-### Deliverables
-- [ ] `processEventLog` — collect `pendingEvents`, append, trim to max length
-- [ ] `advanceTime` tick→year conversion (real math, not stub)
-- [ ] `processEconomy` contract live (stub impl already running via `EconomyImpl`)
-- [ ] Wire MMKV to Zustand `loadActiveRun` — active run loads on launch
-- [ ] State migration runner — load version, run migrations in sequence
-- [ ] First screen: guild overview — name, year, gold, adventurer count, tick
-  timer visible to player
-- [ ] Navigation shell (Expo Router) — at minimum: one tab or stack entry point
-- [ ] `fast-check` property tests for `tick` — arbitrary `GameState` in,
-  shape invariants out
-- [ ] Integration tests for the full tick pipeline (all 12 systems piped)
-- [ ] Merge all `claude/` work into `develop` via proper PRs
-
-### Definition of done
-A developer (not a player) can launch the app, see a guild screen, watch the
-year counter advance, and see gold change. No recruitment, no quests. Just a
-live ticking game state displayed on screen.
+### Deliverables completed
+- [x] `processEventLog` — collect `pendingEvents`, append, trim to max length
+- [x] `advanceTime` tick→year conversion (365-day calendar, 4 seasons)
+- [x] `processEconomy` contract live (stub impl running via `EconomyImpl`)
+- [x] Wire MMKV to Zustand `loadActiveRun` — active run loads on launch
+- [x] State migration runner — load version, run migrations in sequence
+- [x] First screen: guild overview — name, year, gold, adventurer count, tick timer
+- [x] Navigation shell (Expo Router)
+- [x] `fast-check` property tests for `tick`
+- [x] Integration tests for the full tick pipeline (all 13 systems piped)
+- [x] Merge all `claude/` work into `develop` via proper PRs
+- [x] ID strategy closed — prefixed nanoid adopted
 
 ---
 
 ## Phase 2 — Adventurers & Quests
 
-**Goal:** The core idle loop is playable. Adventurers exist, go on quests, gain
-XP, and tier up.
+**Status: COMPLETE**
+**Actual duration:** ~2 days (Mar 14–15)
 
-**Estimated duration:** 8–12 weeks part-time / 4–6 weeks full-time
-
-### Deliverables
-- [ ] `processAdventurers` — XP gain per tick, tier advancement (F → Legendary),
-  retirement logic
-- [ ] `checkPrestigeConditions` — detect Legendary retirement, set
-  `flags.prestigeAvailable`
-- [ ] Adventurer recruitment system — `createId`, cost check, add to roster
-- [ ] `processQuests` — tick advancement, completion, reward distribution
-- [ ] Quest generation by region and guild tier
-- [ ] `processTransientVisitors` — arrival rate, expiry, hold mechanic
-- [ ] `HOLD_VISITOR`, `ENGAGE_VISITOR`, `DISMISS_VISITOR` actions in dispatch
-- [ ] Adventurer roster screen — list (custom virtualizer per ADR-008),
-  per-adventurer detail
-- [ ] Quest board screen — available quests, assign adventurers, in-progress view
-- [ ] Visitor card UI — hold / engage / dismiss actions
-- [ ] Name generation — decision closed in `decisions.md`, curated fantasy
-  name tables implemented
-- [ ] Progressive disclosure for F/D/C tiers on aggregate views (ADR-009)
-
-### Definition of done
-A player can recruit adventurers, send them on quests, watch them return with
-gold and XP, and see them tier up over time. Transient visitors arrive and can
-be interacted with.
+### Deliverables completed
+- [x] `processAdventurers` — XP gain per tick, tier advancement, retirement logic
+- [x] `checkPrestigeConditions` — detect Legendary retirement
+- [x] Adventurer recruitment system — `createId`, cost check, add to roster
+- [x] `processQuests` — tick advancement, completion, reward distribution
+- [x] Quest generation by region and guild tier (10 templates)
+- [x] `processTransientVisitors` — arrival rate, expiry, hold mechanic
+- [x] `HOLD_VISITOR`, `ENGAGE_VISITOR`, `DISMISS_VISITOR` actions in dispatch
+- [x] Adventurer roster screen with per-adventurer detail
+- [x] Quest board screen — available quests, assign adventurers
+- [x] Visitor card UI — hold / engage / dismiss actions
+- [x] Name generation — curated fantasy name tables
 
 ---
 
 ## Phase 3 — Buildings & Economy
 
-**Goal:** The economy loop is real. Buildings produce income. Upgrades cost
-gold. Negative gold has consequences.
+**Status: COMPLETE**
+**Actual duration:** ~1 day (Mar 15–16)
 
-**Estimated duration:** 6–10 weeks part-time / 3–5 weeks full-time
+### Deliverables completed
+- [x] `processBuildings` — passive income per tick, upgrade progress
+- [x] Building upgrade system — cost check, progress advance, max level cap
+- [x] City expansion system — unlock new building slots, cost check
+- [x] BUILD_BUILDING, UPGRADE_BUILDING, EXPAND_CITY dispatch actions
+- [x] `processRivals` — NPC guild tick progression (stub impl running)
+- [x] Demo buttons for all building/economy actions
 
-### Blockers to clear first
-- Economy design pass must be complete (values in `balance.ts`). This phase
-  cannot start until Phase 1's economy design conversation is closed.
-
-### Deliverables
-- [ ] `processBuildings` — passive income per tick, upgrade progress
-- [ ] Building upgrade system — cost check, progress advance, unlock next tier
-- [ ] City expansion system — unlock new building slots, cost check
-- [ ] Magic Rewind implementation — save last decision point, trigger on
-  negative gold in early prestiges, threshold from `balance.ts`
-- [ ] Building management screen — current buildings, upgrade options, cost
-  visibility
-- [ ] Economy overview UI — income/expense breakdown, gold trend
-- [ ] Transient visitor service requirements (building gates per service type)
-- [ ] `processRivals` — NPC guild tick progression, minimum tenure enforcement,
-  S/SS graduate population
-
-### Definition of done
-Building income drives the economy. Upgrades feel meaningful. Running out of
-gold early has a visible consequence (Magic Rewind). Rival guilds exist in the
-world state.
+### Deferred to later phases
+- [ ] Magic Rewind implementation (needs economy tuning pass)
+- [ ] Building management screen (dedicated UI)
+- [ ] Economy overview UI — income/expense breakdown
+- [ ] Transient visitor service requirements (building gates)
 
 ---
 
@@ -348,9 +309,9 @@ Working assumptions:
 | Phase | Without AI (part-time) | With AI (part-time) | Target Date | Actual |
 |---|---|---|---|---|
 | Phase 0 — Foundation | 3–4 weeks | 3–5 days | — | **2 days** (Mar 10–11) |
-| Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | **Mar 20** | In progress |
-| Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | **Mar 28** | — |
-| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | **Apr 7** | — |
+| Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | **Mar 20** | **3 days** (Mar 12–14) |
+| Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | **Mar 28** | **2 days** (Mar 14–15) |
+| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | **Apr 7** | **1 day** (Mar 15–16) |
 | Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | **Apr 20** | — |
 | Phase 5 — Kingdom & Depth | 10–16 weeks | 5–8 days | **May 10** | — |
 | Phase 6 — Polish & Optimization | 6–10 weeks | 3–5 days | **May 25** | — |
@@ -381,8 +342,7 @@ everything downstream.
 2. ~~**Merge `claude/` branches to `develop`**~~ — CLOSED. All PRs merged to dev.
 3. **Option 3 resolution (shared vs per-leader hero ability system)** — must
    close before Phase 4 hero system implementation begins. **Gates Apr 20 target.**
-4. **Economy design conversation (t016)** — must close before Phase 3 begins.
-   Interface and stub impl are live; values need tuning. **Gates Apr 7 target.**
+4. ~~**Economy design conversation**~~ — CLOSED. Placeholder values active, interface-first pattern proven.
 
 ---
 

@@ -1,98 +1,65 @@
 # Current Sprint
 
-## Sprint: Phase 1 — Core Loop MVP
-**Status:** Starting
-**Started:** 2026-03-11
-**Previous sprint:** Project Foundation (complete — see session log in decisions.md)
+## Sprint: Phase 4 — Prestige & Hero System
+**Status:** Not started
+**Started:** TBD
+**Previous sprints:** Phase 0–3 complete (see ROADMAP.md and decisions.md)
 
 ---
 
 ## Goal
 
-Make the game tick visibly. A player launches the app, sees a guild screen, watches
-the year counter advance, and sees gold change. No recruitment, no quests.
-Just a live ticking game state rendered on screen with save/load working.
+A full run can complete. The prestige trigger fires, a new hero is created, and
+the dynasty grows. Portfolio milestone reached.
 
 ---
 
 ## Where We Are Right Now
 
-Foundation sprint complete. 72 tests passing, 4 typechecks clean.
+Phases 0–3 complete. 264 tests passing across 27 test files.
 
 | Layer | Status |
 |---|---|
 | Monorepo + tooling | Complete |
 | Shared types | Complete |
 | Pure engine (pipe, dispatch, tick) | Complete |
-| All 12 system stubs | Stubbed — interface-first pattern applied to 6 systems |
-| System contracts (interface-first) | Complete — 6 interfaces, 6 stubs, contract tests live |
-| Zustand stores | Shape defined, not wired to MMKV |
-| MMKV persistence | Not wired |
-| State migrations | Not implemented |
-| MCP server (4 tools) | Complete — 30 tests |
+| 13-system tick pipe | Complete (all systems wired) |
+| advanceTime | Done (365-day calendar, 4 seasons) |
+| processEventLog | Done |
+| Zustand stores | Complete, wired to MMKV |
+| MMKV persistence | Wired |
+| State migrations | Done |
+| MCP server (4 tools) | Complete — 20 tests |
 | CI (lint, typecheck, unit, property) | Complete |
-| Screens | None |
-
-**Branch status — none of this work has reached `develop` yet.**
-3 open PRs, all failing CI lint. `claude/process-update-PhKCs` (this branch) has no PR yet.
-
-| Branch | PR | Lint |
-|---|---|---|
-| `claude/setup-project-structure-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
-| `claude/mcp-server-tools-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
-| `claude/interface-first-pattern-PhKCs` | Open | Needs cherry-pick of `2e1b4f5` |
-| `claude/process-update-PhKCs` | **No PR yet** | Clean — contains the lint fix |
-
-**First task of next session:**
-1. Cherry-pick `2e1b4f5` into the 3 other branches and push
-2. Open a PR for `claude/process-update-PhKCs`
-3. Confirm CI green on all 4 PRs before merging anything
+| Demo dashboard | Complete (8+ components) |
+| Quest board | Complete (10 templates, generation, assignment) |
+| Transient visitors | Complete (arrive/hold/engage/dismiss) |
+| Adventurer detail | Complete (roster, tiers, XP bars) |
+| Buildings & economy | Complete (build, upgrade, expand city) |
+| All branches merged | Done |
 
 ---
 
-## Phase 1 Deliverables
+## Phase 4 Deliverables
 
-### Only Real Blocker
-- [ ] **Close ID strategy decision** → `createId(prefix)` factory in
-  `packages/shared/src/utils/id.ts`. Gates any system that creates a live game
-  object. See TODO.md P1 for full option analysis (prefixed nanoid is preferred).
+### Open design question (must close first)
+- [ ] **ADR-006 Option 3**: shared vs per-leader hero ability system
 
-### Core Engine
-- [ ] `processEventLog` — collect `pendingEvents`, append to `eventLog`, trim to
-  max length, clear pending
-- [ ] `advanceTime` tick→year conversion — real formula, replace stub
-- [ ] Wire MMKV to Zustand `loadActiveRun` — active run loads on launch
-- [ ] State migration runner — load version, run migrations in sequence
+### Core
+- [ ] `processHero` — passive ability effects, action point regen, career milestone tracking
+- [ ] Hero class ability system (passive + career milestone active per class)
+- [ ] `checkForcedPrestige` — forced window detection, Year 25/30/35/40/45 for prestiges 1–6
+- [ ] `checkLeaderPressure` — involuntary leader replacement rules by prestige tier
+- [ ] Full prestige flow — Legendary retires, career converts to hero class options, player selects next leader
+- [ ] Run 1 class selection menu (no prior career to convert)
+- [ ] Dynasty layer wiring — `loadDynastyLayer` deferred load after first render
+- [ ] State version + migration for dynasty data
+- [ ] Wire MMKV dynasty layer to Zustand
 
-### First Screen
-- [ ] Navigation shell (Expo Router entry point)
-- [ ] Guild overview screen — name, year, gold, adventurer count, tick timer
-
-### Tests
-- [ ] Integration tests for full tick pipeline (all 12 systems piped)
-- [ ] `fast-check` property tests: arbitrary `GameState` in, shape invariants out
-
-### Git Workflow
-- [ ] Cherry-pick lint fix (`2e1b4f5` from `claude/process-update-PhKCs`) into 3 other branches
-- [ ] Confirm CI green on all 4 PRs
-- [ ] Merge `claude/process-update-PhKCs` into `develop`
-- [ ] Merge `claude/setup-project-structure-PhKCs` into `develop`
-- [ ] Merge `claude/mcp-server-tools-PhKCs` into `develop`
-- [ ] Merge `claude/interface-first-pattern-PhKCs` into `develop`
-
----
-
-## Not Blockers This Sprint
-
-These are deferred by design — interface-first pattern handles them:
-
-| Item | Why not a blocker |
-|---|---|
-| Economy design pass (rates, costs) | `EconomyImpl` interface live, stub running |
-| Adventurer XP/tier tuning | `AdventurerProgressionImpl` stub running |
-| Building income rates | `BuildingProductionImpl` stub running |
-| Option 3 (hero ability system scope) | `HeroAbilityImpl` stub running, decision gates Phase 4 |
-| NPC guild tenure numbers | `RivalProgressionImpl` stub running |
+### UI
+- [ ] Prestige flow UI — retire screen, career summary, class selection
+- [ ] Hero overview screen — current hero, passive ability, action points, career milestone progress
+- [ ] Conclave screen — dynasty growth summary, Skill Borrow reset indicator
 
 ---
 

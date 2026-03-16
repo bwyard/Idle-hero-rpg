@@ -9,6 +9,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useGameStore } from '../src/stores/gameStore';
 import { useTickLoop } from '../src/hooks/useTickLoop';
+import { createId } from '@idle-hero-rpg/shared';
 import { HERO_ACTION_POINT_MAX } from '../src/data/balance';
 import { GuildHeader } from '../src/components/GuildHeader';
 import { StatsBar } from '../src/components/StatsBar';
@@ -34,11 +35,34 @@ export default function DemoScreen() {
   const recentEvents = [...state.eventLog].reverse().slice(0, 5);
 
   const handleAction = (actionType: string) => {
-    if (actionType === 'GENERATE_QUESTS') {
-      dispatch({ type: 'GENERATE_QUESTS' });
-      return;
+    switch (actionType) {
+      case 'GENERATE_QUESTS':
+        dispatch({ type: 'GENERATE_QUESTS' });
+        break;
+      case 'BUILD_BUILDING': {
+        const firstCityId = Object.keys(state.cities)[0];
+        if (firstCityId) {
+          dispatch({
+            type: 'BUILD_BUILDING',
+            buildingTemplateId: 'training-grounds',
+            cityId: firstCityId,
+          });
+        }
+        break;
+      }
+      case 'UPGRADE_BUILDING': {
+        const firstBuildingId = Object.keys(state.buildings)[0];
+        if (firstBuildingId) {
+          dispatch({ type: 'UPGRADE_BUILDING', buildingId: firstBuildingId });
+        }
+        break;
+      }
+      case 'EXPAND_CITY':
+        dispatch({ type: 'EXPAND_CITY', cityId: createId('cty'), cityName: 'New Settlement' });
+        break;
+      default:
+        dispatch({ type: actionType } as Parameters<typeof dispatch>[0]);
     }
-    dispatch({ type: actionType } as Parameters<typeof dispatch>[0]);
   };
 
   const handleAssignQuest = (questId: string) => {
