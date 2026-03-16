@@ -14,6 +14,7 @@ import type { Quest } from './quest';
 import type { Hero } from './hero';
 import type { Dynasty } from './dynasty';
 import type { GameEvent } from './event';
+import type { Rival } from './rival';
 
 /** The complete game state stored in the save file. */
 export interface GameState {
@@ -57,7 +58,7 @@ export interface GameState {
   dynasty: Dynasty;
 
   /** NPC rival guilds, keyed by ID. */
-  rivals: Record<string, unknown>; // TODO: Define Rival type when system is implemented
+  rivals: Record<string, Rival>;
 
   /** The event log — chronological list of notable events. */
   eventLog: readonly GameEvent[];

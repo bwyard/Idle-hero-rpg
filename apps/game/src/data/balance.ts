@@ -30,6 +30,7 @@ export {
   MAGIC_REWIND_SAFETY_MAX_PRESTIGE,
   PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
   PLACEHOLDER_MAX_BUILDING_LEVEL,
+  PLACEHOLDER_RIVAL_SPAWN_CHANCE,
 } from './economy';
 
 // ─── Time ────────────────────────────────────────────────────────────────────

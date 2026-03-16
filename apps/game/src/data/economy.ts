@@ -79,3 +79,8 @@ export const PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL = 60;
 
 /** Maximum building level. */
 export const PLACEHOLDER_MAX_BUILDING_LEVEL = 10;
+
+// ─── Rivals ─────────────────────────────────────────────────────────────────
+
+/** Probability of spawning a new rival guild each tick (0–1). */
+export const PLACEHOLDER_RIVAL_SPAWN_CHANCE = 0.005;
