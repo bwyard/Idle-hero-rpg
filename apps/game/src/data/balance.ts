@@ -128,6 +128,9 @@ export const PLACEHOLDER_QUEST_XP_REWARD = 5; // placeholder — tune during bal
 /** Ticks required to complete a quest. */
 export const PLACEHOLDER_QUEST_DURATION_TICKS = 30; // placeholder — tune during balance pass
 
+/** Maximum number of unassigned quests on the quest board at once. */
+export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5; // placeholder — tune during balance pass
+
 /** Starting gold for a new game. */
 export const PLACEHOLDER_STARTING_GOLD = 500; // placeholder — tune during balance pass
 
