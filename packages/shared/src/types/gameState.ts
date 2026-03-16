@@ -9,7 +9,7 @@
 
 import type { Adventurer, TransientVisitor } from './adventurer';
 import type { Building, Guild } from './guild';
-import type { City } from './kingdom';
+import type { City, Season } from './kingdom';
 import type { Quest } from './quest';
 import type { Hero } from './hero';
 import type { Dynasty } from './dynasty';
@@ -20,9 +20,11 @@ export interface GameState {
   /** Schema version — incremented with every migration. */
   readonly version: number;
 
-  /** In-game time tracking. */
+  /** In-game time tracking. Ticks are the internal clock (4 per day). */
   time: {
     ticksElapsed: number;
+    currentDay: number;
+    currentSeason: Season;
     currentYear: number;
   };
 

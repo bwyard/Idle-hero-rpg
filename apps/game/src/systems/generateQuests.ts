@@ -13,7 +13,7 @@
 
 import type { GameState, Region } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
-import { PLACEHOLDER_MAX_QUEST_BOARD_SIZE } from '../data/balance';
+import { PLACEHOLDER_MAX_QUEST_BOARD_SIZE, TICKS_PER_DAY } from '../data/balance';
 import { QUEST_TEMPLATES } from '../data/questTemplates';
 
 /**
@@ -59,7 +59,7 @@ export function generateQuests(state: GameState): GameState {
       id: questId,
       templateId: template.id,
       assignedAdventurerId: null,
-      ticksRemaining: template.baseDurationTicks,
+      ticksRemaining: template.baseDurationDays * TICKS_PER_DAY,
       isComplete: false,
     };
   }

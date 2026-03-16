@@ -18,7 +18,11 @@
  */
 
 import type { GameState, HeroAbilityImpl } from '@idle-hero-rpg/shared';
-import { HERO_ACTION_POINT_MAX, PLACEHOLDER_AP_REGEN_INTERVAL_TICKS } from '../data/balance';
+import {
+  HERO_ACTION_POINT_MAX,
+  PLACEHOLDER_AP_REGEN_INTERVAL_DAYS,
+  TICKS_PER_DAY,
+} from '../data/balance';
 
 export const stubHeroAbilityImpl: HeroAbilityImpl = {
   actionPointRegen: () => 0,
@@ -29,7 +33,7 @@ export const stubHeroAbilityImpl: HeroAbilityImpl = {
 /** placeholder — tune during balance pass */
 export const placeholderHeroAbilityImpl: HeroAbilityImpl = {
   actionPointRegen: (state) =>
-    state.time.ticksElapsed % PLACEHOLDER_AP_REGEN_INTERVAL_TICKS === 0 ? 1 : 0, // placeholder — tune during balance pass
+    state.time.ticksElapsed % (PLACEHOLDER_AP_REGEN_INTERVAL_DAYS * TICKS_PER_DAY) === 0 ? 1 : 0, // placeholder — tune during balance pass
   applyPassiveAbility: () => ({}), // placeholder — no passive effect yet
   isMilestoneUnlocked: () => false, // placeholder — kept disabled for now
 };

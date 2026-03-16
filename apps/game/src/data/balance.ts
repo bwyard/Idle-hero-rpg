@@ -12,8 +12,26 @@
 /** Duration of one in-game tick in milliseconds (real time). */
 export const TICK_INTERVAL_MS = 1000;
 
-/** Number of game ticks that make up one in-game year. */
-export const TICKS_PER_YEAR = 120;
+/** Number of ticks that make up one in-game day. */
+export const TICKS_PER_DAY = 4;
+
+/** Number of seasons in one year. */
+export const SEASONS_PER_YEAR = 4;
+
+/** Ordered season names — index 0 is the first season of each year. */
+export const SEASON_ORDER = ['Spring', 'Summer', 'Autumn', 'Winter'] as const;
+
+/** Number of days in one in-game year. */
+export const DAYS_PER_YEAR = 365;
+
+/**
+ * Base season lengths in days. Vary per year via getSeasonBoundaries().
+ * Sum must always equal DAYS_PER_YEAR.
+ */
+export const BASE_SEASON_LENGTHS = [91, 93, 91, 90] as const; // Spring, Summer, Autumn, Winter
+
+/** Number of game ticks that make up one in-game year (derived: 365 days × 4 ticks). */
+export const TICKS_PER_YEAR = DAYS_PER_YEAR * TICKS_PER_DAY; // 1460
 
 /** Total active years in a single run. */
 export const RUN_DURATION_YEARS = 50;
@@ -125,8 +143,8 @@ export const PLACEHOLDER_QUEST_GOLD_REWARD = 50; // placeholder — tune during 
 /** XP earned by adventurer on quest completion. */
 export const PLACEHOLDER_QUEST_XP_REWARD = 5; // placeholder — tune during balance pass
 
-/** Ticks required to complete a quest. */
-export const PLACEHOLDER_QUEST_DURATION_TICKS = 30; // placeholder — tune during balance pass
+/** Days required to complete a quest. Systems multiply by TICKS_PER_DAY. */
+export const PLACEHOLDER_QUEST_DURATION_DAYS = 8; // placeholder — tune during balance pass
 
 /** Maximum number of unassigned quests on the quest board at once. */
 export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5; // placeholder — tune during balance pass
@@ -154,13 +172,13 @@ export const PLACEHOLDER_TIER_XP_THRESHOLDS: Record<string, number> = {
   SS: 1600, // placeholder — tune during balance pass
 };
 
-/** Ticks a Legendary adventurer stays before retiring. */
-export const PLACEHOLDER_LEGENDARY_RETIRE_TICKS = 500; // placeholder — tune during balance pass
+/** Days a Legendary adventurer stays before retiring. ~1 year. */
+export const PLACEHOLDER_LEGENDARY_RETIRE_DAYS = 125; // placeholder — tune during balance pass
 
 // ─── Placeholder Hero ───────────────────────────────────────────────────────
 
 /** Hero regenerates 1 AP every this many ticks. */
-export const PLACEHOLDER_AP_REGEN_INTERVAL_TICKS = 10; // placeholder — tune during balance pass
+export const PLACEHOLDER_AP_REGEN_INTERVAL_DAYS = 10; // placeholder — tune during balance pass
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
@@ -191,10 +209,10 @@ export const PLACEHOLDER_VISITOR_SPAWN_CHANCE = 0.05; // placeholder — tune du
 export const PLACEHOLDER_MAX_VISITORS = 3; // placeholder — tune during balance pass
 
 /** Number of ticks a visitor stays before departing. */
-export const PLACEHOLDER_VISITOR_STAY_TICKS = 60; // placeholder — tune during balance pass
+export const PLACEHOLDER_VISITOR_STAY_DAYS = 60; // placeholder — tune during balance pass
 
 /** Base number of ticks a held visitor is retained for. */
-export const PLACEHOLDER_HOLD_DURATION_TICKS = 30; // placeholder — tune during balance pass
+export const PLACEHOLDER_HOLD_DURATION_DAYS = 30; // placeholder — tune during balance pass
 
 /** Gold cost to engage (recruit) a transient visitor. */
 export const PLACEHOLDER_ENGAGE_COST = 25; // placeholder — tune during balance pass

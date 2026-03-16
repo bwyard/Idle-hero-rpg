@@ -3,9 +3,10 @@ import * as fc from 'fast-check';
 import { dispatch } from '../dispatch';
 import { createInitialGameState } from '../../stores/initialState';
 import {
-  PLACEHOLDER_HOLD_DURATION_TICKS,
+  PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_MAX_QUEST_BOARD_SIZE,
+  TICKS_PER_DAY,
 } from '../../data/balance';
 import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
 
@@ -33,7 +34,7 @@ function stateWithVisitorAndGold(
 ): GameState {
   return {
     ...createInitialGameState(),
-    time: { ticksElapsed, currentYear: 0 },
+    time: { ticksElapsed, currentDay: 0, currentSeason: 'Spring' as const, currentYear: 0 },
     guild: { ...createInitialGameState().guild, gold },
     transientVisitors: { [visitor.id]: visitor },
   };
@@ -190,7 +191,7 @@ describe('dispatch', () => {
 
       const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
       const held = next.transientVisitors['vis_1']!;
-      expect(held.heldUntilTick).toBe(10 + PLACEHOLDER_HOLD_DURATION_TICKS);
+      expect(held.heldUntilTick).toBe(10 + PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY);
     });
 
     it('increments holdCount', () => {
@@ -207,8 +208,10 @@ describe('dispatch', () => {
 
       const next = dispatch(state, { type: 'HOLD_VISITOR', visitorId: 'vis_1' });
       const held = next.transientVisitors['vis_1']!;
-      // duration = base / (holdCount + 1) = 30 / (1 + 1) = 15
-      expect(held.heldUntilTick).toBe(10 + Math.floor(PLACEHOLDER_HOLD_DURATION_TICKS / 2));
+      // duration = base / (holdCount + 1) = (30 * 4) / (1 + 1) = 60
+      expect(held.heldUntilTick).toBe(
+        10 + Math.floor((PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / 2),
+      );
     });
 
     it('emits a VISITOR_HOLD event', () => {

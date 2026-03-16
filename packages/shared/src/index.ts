@@ -21,7 +21,7 @@ export type { Hero, HeroClass } from './types/hero';
 export type { Guild, Building, GuildType } from './types/guild';
 
 // Kingdom domain
-export type { City, Region } from './types/kingdom';
+export type { City, Region, Season } from './types/kingdom';
 
 // Quest domain
 export type { Quest } from './types/quest';

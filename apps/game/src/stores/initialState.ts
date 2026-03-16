@@ -13,6 +13,8 @@ export function createInitialGameState(): GameState {
     version: 1,
     time: {
       ticksElapsed: 0,
+      currentDay: 0,
+      currentSeason: 'Spring',
       currentYear: 0,
     },
     hero: {

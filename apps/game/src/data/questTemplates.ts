@@ -7,7 +7,7 @@
 
 import type { Region, AdventurerTier } from '@idle-hero-rpg/shared';
 import {
-  PLACEHOLDER_QUEST_DURATION_TICKS,
+  PLACEHOLDER_QUEST_DURATION_DAYS,
   PLACEHOLDER_QUEST_GOLD_REWARD,
   PLACEHOLDER_QUEST_XP_REWARD,
 } from './balance';
@@ -19,7 +19,7 @@ export interface QuestTemplate {
   readonly description: string;
   readonly region: Region;
   readonly minTier: AdventurerTier;
-  readonly baseDurationTicks: number;
+  readonly baseDurationDays: number;
   readonly baseGoldReward: number;
   readonly baseXpReward: number;
 }
@@ -32,7 +32,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Walk the trade roads and clear out bandits threatening local merchants.',
     region: 'Heartlands',
     minTier: 'F',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -42,7 +42,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Guard a merchant caravan traveling through the Heartlands.',
     region: 'Heartlands',
     minTier: 'F',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -52,7 +52,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Survey the coastal cliffs for signs of smuggler activity.',
     region: 'Coast',
     minTier: 'F',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -62,7 +62,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Recover valuable cargo from a wrecked merchant vessel near shore.',
     region: 'Coast',
     minTier: 'E',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -72,7 +72,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Defeat the monsters blocking the main mountain trade route.',
     region: 'Mountains',
     minTier: 'D',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -82,7 +82,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Investigate reports of strange noises from a disused mine shaft.',
     region: 'Mountains',
     minTier: 'D',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -92,7 +92,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Map uncharted territory deep in the Wilds beyond the frontier.',
     region: 'Wilds',
     minTier: 'C',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -102,7 +102,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Track and subdue a dangerous creature terrorizing frontier settlements.',
     region: 'Wilds',
     minTier: 'C',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -112,7 +112,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Represent the guild at a formal audience with the capital council.',
     region: 'CapitalRegion',
     minTier: 'B',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },
@@ -122,7 +122,7 @@ export const QUEST_TEMPLATES: Record<string, QuestTemplate> = {
     description: 'Compete in the grand tournament held in the capital arena.',
     region: 'CapitalRegion',
     minTier: 'B',
-    baseDurationTicks: PLACEHOLDER_QUEST_DURATION_TICKS,
+    baseDurationDays: PLACEHOLDER_QUEST_DURATION_DAYS,
     baseGoldReward: PLACEHOLDER_QUEST_GOLD_REWARD,
     baseXpReward: PLACEHOLDER_QUEST_XP_REWARD,
   },

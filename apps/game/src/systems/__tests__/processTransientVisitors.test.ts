@@ -2,7 +2,11 @@ import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { processTransientVisitors } from '../processTransientVisitors';
 import { createInitialGameState } from '../../stores/initialState';
-import { PLACEHOLDER_MAX_VISITORS, PLACEHOLDER_VISITOR_STAY_TICKS } from '../../data/balance';
+import {
+  PLACEHOLDER_MAX_VISITORS,
+  PLACEHOLDER_VISITOR_STAY_DAYS,
+  TICKS_PER_DAY,
+} from '../../data/balance';
 import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
 
 /** Helper to create a visitor with sensible defaults. */
@@ -28,7 +32,7 @@ function stateWithVisitors(
 ): GameState {
   return {
     ...createInitialGameState(),
-    time: { ticksElapsed, currentYear: 0 },
+    time: { ticksElapsed, currentDay: 0, currentSeason: 'Spring' as const, currentYear: 0 },
     transientVisitors: visitors,
   };
 }
@@ -138,7 +142,7 @@ describe('processTransientVisitors', () => {
       expect(v.tier).toBeTruthy();
       expect(v.serviceRequest).toBeTruthy();
       expect(v.arrivedAtTick).toBe(42);
-      expect(v.expiresAtTick).toBe(42 + PLACEHOLDER_VISITOR_STAY_TICKS);
+      expect(v.expiresAtTick).toBe(42 + PLACEHOLDER_VISITOR_STAY_DAYS * TICKS_PER_DAY);
       expect(v.heldUntilTick).toBeNull();
       expect(v.holdCount).toBe(0);
     });

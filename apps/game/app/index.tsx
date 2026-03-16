@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { useGameStore } from '../src/stores/gameStore';
 import { useTickLoop } from '../src/hooks/useTickLoop';
-import { HERO_ACTION_POINT_MAX, TICKS_PER_YEAR } from '../src/data/balance';
+import { HERO_ACTION_POINT_MAX } from '../src/data/balance';
 import { GuildHeader } from '../src/components/GuildHeader';
 import { StatsBar } from '../src/components/StatsBar';
 import { HeroCard } from '../src/components/HeroCard';
@@ -75,8 +75,8 @@ export default function DemoScreen() {
         gold={state.guild.gold}
         reputation={state.guild.reputation}
         adventurerCount={adventurerList.length}
-        ticksElapsed={state.time.ticksElapsed}
-        ticksPerYear={TICKS_PER_YEAR}
+        currentDay={state.time.currentDay}
+        currentSeason={state.time.currentSeason}
       />
 
       <HeroCard

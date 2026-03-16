@@ -9,7 +9,11 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { TransientVisitor } from '@idle-hero-rpg/shared';
 import { TIER_COLORS } from '../utils/tierColors';
-import { PLACEHOLDER_ENGAGE_COST, PLACEHOLDER_HOLD_DURATION_TICKS } from '../data/balance';
+import {
+  PLACEHOLDER_ENGAGE_COST,
+  PLACEHOLDER_HOLD_DURATION_DAYS,
+  TICKS_PER_DAY,
+} from '../data/balance';
 
 interface VisitorCardProps {
   readonly visitor: TransientVisitor;
@@ -30,7 +34,9 @@ export function VisitorCard({
   const ticksRemaining = Math.max(0, visitor.expiresAtTick - currentTick);
   const isHeld = visitor.heldUntilTick !== null && visitor.heldUntilTick > currentTick;
   const heldTicksRemaining = isHeld ? Math.max(0, (visitor.heldUntilTick ?? 0) - currentTick) : 0;
-  const nextHoldDuration = Math.floor(PLACEHOLDER_HOLD_DURATION_TICKS / (visitor.holdCount + 1));
+  const nextHoldDuration = Math.floor(
+    (PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / (visitor.holdCount + 1),
+  );
 
   return (
     <View style={styles.card}>

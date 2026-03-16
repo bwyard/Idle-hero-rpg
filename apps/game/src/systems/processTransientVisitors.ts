@@ -21,7 +21,8 @@ import { createId } from '@idle-hero-rpg/shared';
 import {
   PLACEHOLDER_VISITOR_SPAWN_CHANCE,
   PLACEHOLDER_MAX_VISITORS,
-  PLACEHOLDER_VISITOR_STAY_TICKS,
+  PLACEHOLDER_VISITOR_STAY_DAYS,
+  TICKS_PER_DAY,
 } from '../data/balance';
 import { VISITOR_NAMES } from '../data/visitorNames';
 
@@ -94,7 +95,7 @@ function spawnVisitor(ticksElapsed: number, random: () => number): TransientVisi
     archetype,
     serviceRequest,
     arrivedAtTick: ticksElapsed,
-    expiresAtTick: ticksElapsed + PLACEHOLDER_VISITOR_STAY_TICKS,
+    expiresAtTick: ticksElapsed + PLACEHOLDER_VISITOR_STAY_DAYS * TICKS_PER_DAY,
     heldUntilTick: null,
     holdCount: 0,
   };
