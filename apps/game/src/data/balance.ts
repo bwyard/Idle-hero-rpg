@@ -112,3 +112,8 @@ export const WORLD_AWARENESS_HIDDEN_MAX_PRESTIGE = 2;
  * TODO: Exact numbers need tuning. Principle: NPC guilds have minimum lifespans.
  */
 export const NPC_GUILD_MIN_TENURE_YEARS = 0; // stub — needs tuning pass
+
+// ─── Event Log ──────────────────────────────────────────────────────────────
+
+/** Maximum number of events retained in the event log. Oldest trimmed first. */
+export const EVENT_LOG_MAX_LENGTH = 500;
