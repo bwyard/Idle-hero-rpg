@@ -7,7 +7,7 @@
  * - Every GameState carries a version field for migration support
  */
 
-import type { Adventurer } from './adventurer';
+import type { Adventurer, TransientVisitor } from './adventurer';
 import type { Building, Guild } from './guild';
 import type { City } from './kingdom';
 import type { Quest } from './quest';
@@ -31,8 +31,15 @@ export interface GameState {
   /** The guild itself. */
   guild: Guild;
 
-  /** All adventurers in the guild roster, keyed by ID. */
+  /** All adventurers in the guild roster, keyed by adv_<nanoid>. */
   adventurers: Record<string, Adventurer>;
+
+  /**
+   * Non-guild adventurers currently at the guild house (dorm / transient system).
+   * Keyed by vis_<nanoid>. Visitors arrive, seek a service, and leave after expiresAtTick
+   * unless the player engages or holds them.
+   */
+  transientVisitors: Record<string, TransientVisitor>;
 
   /** All cities the guild has a presence in, keyed by ID. */
   cities: Record<string, City>;
@@ -50,13 +57,13 @@ export interface GameState {
   rivals: Record<string, unknown>; // TODO: Define Rival type when system is implemented
 
   /** The event log — chronological list of notable events. */
-  eventLog: ReadonlyArray<GameEvent>;
+  eventLog: readonly GameEvent[];
 
   /**
    * Events generated this tick, waiting to be committed to the log.
    * Cleared by processEventLog at the end of each tick.
    */
-  pendingEvents: ReadonlyArray<GameEvent>;
+  pendingEvents: readonly GameEvent[];
 
   /** Transient flags set by systems, consumed by UI or other systems. */
   flags: {

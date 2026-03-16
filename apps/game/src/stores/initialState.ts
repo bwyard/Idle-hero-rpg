@@ -26,6 +26,7 @@ export function createInitialGameState(): GameState {
       reputation: 0,
     },
     adventurers: {},
+    transientVisitors: {},
     cities: {},
     buildings: {},
     quests: {},
