@@ -13,7 +13,7 @@ interface HeroCardProps {
 }
 
 export function HeroCard({ name, heroClass, actionPoints, maxActionPoints }: HeroCardProps) {
-  const fillPercent = maxActionPoints > 0 ? String((actionPoints / maxActionPoints) * 100) : '0';
+  const fillPercent = maxActionPoints > 0 ? (actionPoints / maxActionPoints) * 100 : 0;
 
   return (
     <View style={styles.container}>
@@ -28,7 +28,7 @@ export function HeroCard({ name, heroClass, actionPoints, maxActionPoints }: Her
             AP {actionPoints}/{maxActionPoints}
           </Text>
           <View style={styles.barTrack}>
-            <View style={[styles.barFill, { width: `${fillPercent}%` }]} />
+            <View style={[styles.barFill, { width: `${String(fillPercent)}%` as `${number}%` }]} />
           </View>
         </View>
       </View>
