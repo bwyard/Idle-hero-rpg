@@ -3,6 +3,8 @@ import * as fc from 'fast-check';
 import { dispatch } from '../dispatch';
 import { createInitialGameState } from '../../stores/initialState';
 import {
+  PLACEHOLDER_RECRUIT_COST,
+  PLACEHOLDER_BUILD_COST,
   PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_MAX_QUEST_BOARD_SIZE,
@@ -388,6 +390,176 @@ describe('dispatch', () => {
       const state = stateWithBuilding(1, 10000);
       const original = JSON.parse(JSON.stringify(state)) as GameState;
       dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('RECRUIT_ADVENTURER', () => {
+    it('creates a new adventurer in the roster', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST + 100 },
+      };
+      const startCount = Object.keys(state.adventurers).length;
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      expect(Object.keys(next.adventurers).length).toBe(startCount + 1);
+    });
+
+    it('deducts PLACEHOLDER_RECRUIT_COST gold', () => {
+      const startGold = PLACEHOLDER_RECRUIT_COST + 200;
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: startGold },
+      };
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      expect(next.guild.gold).toBe(startGold - PLACEHOLDER_RECRUIT_COST);
+    });
+
+    it('returns state unchanged if insufficient gold', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST - 1 },
+      };
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      expect(next).toEqual(state);
+    });
+
+    it('new adventurer has tier F and xp 0', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST + 100 },
+      };
+      const existingIds = new Set(Object.keys(state.adventurers));
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      const newId = Object.keys(next.adventurers).find((id) => !existingIds.has(id));
+      expect(newId).toBeDefined();
+
+      const newAdv = next.adventurers[newId!];
+      expect(newAdv).toBeDefined();
+      expect(newAdv!.tier).toBe('F');
+      expect(newAdv!.xp).toBe(0);
+    });
+
+    it('emits a RECRUIT event', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST + 100 },
+      };
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      const recruitEvents = next.pendingEvents.filter((e) => e.type === 'RECRUIT');
+      expect(recruitEvents).toHaveLength(1);
+    });
+
+    it('does not mutate input state', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST + 100 },
+      };
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+
+      dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('BUILD_BUILDING', () => {
+    it('creates a new building in the buildings record', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST + 100 },
+      };
+      const startCount = Object.keys(state.buildings).length;
+
+      const next = dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
+      expect(Object.keys(next.buildings).length).toBe(startCount + 1);
+    });
+
+    it('deducts PLACEHOLDER_BUILD_COST gold', () => {
+      const startGold = PLACEHOLDER_BUILD_COST + 200;
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: startGold },
+      };
+
+      const next = dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
+      expect(next.guild.gold).toBe(startGold - PLACEHOLDER_BUILD_COST);
+    });
+
+    it('returns state unchanged if insufficient gold', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST - 1 },
+      };
+
+      const next = dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
+      expect(next).toEqual(state);
+    });
+
+    it('new building has level 1 and upgradeTicksRemaining 0', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST + 100 },
+      };
+      const existingIds = new Set(Object.keys(state.buildings));
+
+      const next = dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
+      const newId = Object.keys(next.buildings).find((id) => !existingIds.has(id));
+      expect(newId).toBeDefined();
+
+      const newBuilding = next.buildings[newId!];
+      expect(newBuilding).toBeDefined();
+      expect(newBuilding!.level).toBe(1);
+      expect(newBuilding!.upgradeTicksRemaining).toBe(0);
+    });
+
+    it('emits a BUILD event', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST + 100 },
+      };
+
+      const next = dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
+      const buildEvents = next.pendingEvents.filter((e) => e.type === 'BUILD');
+      expect(buildEvents).toHaveLength(1);
+    });
+
+    it('does not mutate input state', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST + 100 },
+      };
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+
+      dispatch(state, {
+        type: 'BUILD_BUILDING',
+        buildingTemplateId: 'training-grounds',
+        cityId: 'cty_heartlands',
+      });
       expect(state).toEqual(original);
     });
   });
