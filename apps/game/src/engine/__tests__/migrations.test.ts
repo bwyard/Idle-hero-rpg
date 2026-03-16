@@ -8,11 +8,11 @@ import {
 
 describe('runMigrations', () => {
   it('returns state unchanged (except version) when already at current version', () => {
-    const saved = { version: 3, gold: 100 } as Record<string, unknown>;
+    const saved = { version: 3, gold: 100 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, 3, []);
 
     expect(result.version).toBe(3);
-    expect((result as Record<string, unknown>).gold).toBe(100);
+    expect((result as unknown as Record<string, unknown>).gold).toBe(100);
   });
 
   it('defaults missing version field to 0 and runs all migrations', () => {
@@ -21,11 +21,11 @@ describe('runMigrations', () => {
       migrate: (s) => ({ ...s, migrated1: true }),
     };
 
-    const saved = { gold: 50 } as Record<string, unknown>;
+    const saved = { gold: 50 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, 1, [migration1]);
 
     expect(result.version).toBe(1);
-    expect((result as Record<string, unknown>).migrated1).toBe(true);
+    expect((result as unknown as Record<string, unknown>).migrated1).toBe(true);
   });
 
   it('runs only migrations with version > savedState.version', () => {
@@ -42,13 +42,13 @@ describe('runMigrations', () => {
       migrate: (s) => ({ ...s, v3: true }),
     };
 
-    const saved = { version: 1 } as Record<string, unknown>;
+    const saved = { version: 1 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, 3, [migration1, migration2, migration3]);
 
     // migration1 should be skipped (version 1 is not > 1)
-    expect((result as Record<string, unknown>).v1).toBeUndefined();
-    expect((result as Record<string, unknown>).v2).toBe(true);
-    expect((result as Record<string, unknown>).v3).toBe(true);
+    expect((result as unknown as Record<string, unknown>).v1).toBeUndefined();
+    expect((result as unknown as Record<string, unknown>).v2).toBe(true);
+    expect((result as unknown as Record<string, unknown>).v3).toBe(true);
     expect(result.version).toBe(3);
   });
 
@@ -68,7 +68,7 @@ describe('runMigrations', () => {
       migrate: (s) => { order.push(2); return { ...s }; },
     };
 
-    const saved = { version: 0 } as Record<string, unknown>;
+    const saved = { version: 0 } as unknown as Record<string, unknown>;
     runMigrations(saved, 3, [migration3, migration1, migration2]);
 
     expect(order).toEqual([1, 2, 3]);
@@ -88,11 +88,11 @@ describe('runMigrations', () => {
       migrate: (s) => ({ ...s, count: (s.count as number) * 2 }),
     };
 
-    const saved = { version: 0 } as Record<string, unknown>;
+    const saved = { version: 0 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, 3, [migration1, migration2, migration3]);
 
     // v1: count=1, v2: count=11, v3: count=22
-    expect((result as Record<string, unknown>).count).toBe(22);
+    expect((result as unknown as Record<string, unknown>).count).toBe(22);
     expect(result.version).toBe(3);
   });
 
@@ -102,7 +102,7 @@ describe('runMigrations', () => {
       migrate: (s) => ({ ...s, added: true }),
     };
 
-    const saved = { version: 0, original: true } as Record<string, unknown>;
+    const saved = { version: 0, original: true } as unknown as Record<string, unknown>;
     const savedCopy = { ...saved };
 
     runMigrations(saved, 1, [migration1]);
@@ -111,7 +111,7 @@ describe('runMigrations', () => {
   });
 
   it('sets the final version to currentVersion', () => {
-    const saved = { version: 0 } as Record<string, unknown>;
+    const saved = { version: 0 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, 5, []);
 
     expect(result.version).toBe(5);
@@ -127,7 +127,7 @@ describe('runMigrations', () => {
 
   it('uses module migrations registry by default when no list provided', () => {
     // With the empty default registry, no migrations run
-    const saved = { version: 0 } as Record<string, unknown>;
+    const saved = { version: 0 } as unknown as Record<string, unknown>;
     const result = runMigrations(saved, CURRENT_STATE_VERSION);
 
     expect(result.version).toBe(CURRENT_STATE_VERSION);
