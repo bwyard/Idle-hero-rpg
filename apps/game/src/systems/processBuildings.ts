@@ -17,15 +17,22 @@
  */
 
 import type { GameState, BuildingProductionImpl } from '@idle-hero-rpg/shared';
+import { PLACEHOLDER_BUILDING_INCOME_PER_LEVEL } from '../data/balance';
 
 export const stubBuildingProductionImpl: BuildingProductionImpl = {
   incomePerTick: () => 0,
   upgradeCompletesThisTick: () => false,
 };
 
+/** placeholder — tune during balance pass */
+export const placeholderBuildingProductionImpl: BuildingProductionImpl = {
+  incomePerTick: (building) => building.level * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL, // placeholder — tune during balance pass
+  upgradeCompletesThisTick: () => false, // placeholder — kept disabled for now
+};
+
 export function processBuildings(
   state: GameState,
-  impl: BuildingProductionImpl = stubBuildingProductionImpl,
+  impl: BuildingProductionImpl = placeholderBuildingProductionImpl,
 ): GameState {
   let totalIncome = 0;
 

@@ -10,5 +10,34 @@ export interface NoOpAction {
   readonly type: 'NOOP';
 }
 
+/** Recruit a new adventurer to the guild roster. */
+export interface RecruitAdventurerAction {
+  readonly type: 'RECRUIT_ADVENTURER';
+}
+
+/** Construct a new building in a city. */
+export interface BuildBuildingAction {
+  readonly type: 'BUILD_BUILDING';
+  readonly buildingTemplateId: string;
+  readonly cityId: string;
+}
+
+/** Start a quest, assigning an adventurer. */
+export interface StartQuestAction {
+  readonly type: 'START_QUEST';
+  readonly questTemplateId: string;
+  readonly adventurerId: string;
+}
+
+/** Hold a feast — costs gold, boosts all adventurer XP. */
+export interface HoldFeastAction {
+  readonly type: 'HOLD_FEAST';
+}
+
 /** All possible player actions. Add new action types here as features are built. */
-export type GameAction = NoOpAction;
+export type GameAction =
+  | NoOpAction
+  | RecruitAdventurerAction
+  | BuildBuildingAction
+  | StartQuestAction
+  | HoldFeastAction;

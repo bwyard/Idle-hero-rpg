@@ -16,15 +16,22 @@
  */
 
 import type { GameState, QuestRewardImpl } from '@idle-hero-rpg/shared';
+import { PLACEHOLDER_QUEST_GOLD_REWARD, PLACEHOLDER_QUEST_XP_REWARD } from '../data/balance';
 
 export const stubQuestRewardImpl: QuestRewardImpl = {
   goldReward: () => 0,
   adventurerXpReward: () => 0,
 };
 
+/** placeholder — tune during balance pass */
+export const placeholderQuestRewardImpl: QuestRewardImpl = {
+  goldReward: () => PLACEHOLDER_QUEST_GOLD_REWARD, // placeholder — tune during balance pass
+  adventurerXpReward: () => PLACEHOLDER_QUEST_XP_REWARD, // placeholder — tune during balance pass
+};
+
 export function processQuests(
   state: GameState,
-  impl: QuestRewardImpl = stubQuestRewardImpl,
+  impl: QuestRewardImpl = placeholderQuestRewardImpl,
 ): GameState {
   let next = state;
 

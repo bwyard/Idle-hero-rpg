@@ -5,7 +5,6 @@ import tseslint from 'typescript-eslint';
 export default tseslint.config(
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
-  ...tseslint.configs.stylisticTypeChecked,
   {
     languageOptions: {
       parserOptions: {
@@ -16,11 +15,24 @@ export default tseslint.config(
   },
   {
     rules: {
+      // -- Errors we care about --
       '@typescript-eslint/no-explicit-any': 'error',
-      '@typescript-eslint/explicit-function-return-type': 'off',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
+      ],
+
+      // -- Relaxations for practical game dev code --
+      '@typescript-eslint/explicit-function-return-type': 'off',
+      // Numbers in templates are everywhere (gold, XP, ticks, years)
+      '@typescript-eslint/restrict-template-expressions': [
+        'error',
+        { allowNumber: true, allowBoolean: true },
+      ],
+      // Void returns in arrow shorthand (e.g. onPress={() => doThing()) are fine
+      '@typescript-eslint/no-confusing-void-expression': [
+        'error',
+        { ignoreArrowShorthand: true },
       ],
     },
   },
