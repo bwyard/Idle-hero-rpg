@@ -13,10 +13,12 @@
  */
 
 import type { GameState, EconomyImpl } from '@idle-hero-rpg/shared';
+import { createId } from '@idle-hero-rpg/shared';
 import {
   PLACEHOLDER_BASE_INCOME_PER_TICK,
   PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK,
   PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK,
+  MAGIC_REWIND_SAFETY_MAX_PRESTIGE,
 } from '../data/balance';
 
 export const stubEconomyImpl: EconomyImpl = {
@@ -38,7 +40,8 @@ export const placeholderEconomyImpl: EconomyImpl = {
     const adventurerCount = Object.keys(state.adventurers).length;
     return adventurerCount * PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK; // placeholder — tune during balance pass
   },
-  shouldTriggerMagicRewind: () => false, // placeholder — kept disabled for now
+  shouldTriggerMagicRewind: (state, projectedGold) =>
+    projectedGold < 0 && state.dynasty.prestigeCount < MAGIC_REWIND_SAFETY_MAX_PRESTIGE,
 };
 
 export function processEconomy(
@@ -51,7 +54,18 @@ export function processEconomy(
 
   if (impl.shouldTriggerMagicRewind(state, projectedGold)) {
     // TODO: restore last decision checkpoint when Magic Rewind is implemented
-    return state;
+    const rewindEvent = {
+      id: createId('evt'),
+      tick: state.time.ticksElapsed,
+      type: 'MAGIC_REWIND',
+      message: "Magic Rewind triggered! The guild's finances were restored.",
+      achievementKey: null,
+    } as const;
+
+    return {
+      ...state,
+      pendingEvents: [...state.pendingEvents, rewindEvent],
+    };
   }
 
   return {

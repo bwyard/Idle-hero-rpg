@@ -1,23 +1,20 @@
 /**
- * processBuildings — System 5 of 12 in the tick pipe.
+ * processBuildings — System 5 of 13 in the tick pipe.
  *
- * Applies passive income from each building this tick.
- *
- * Design decisions pending: income per building level, active vs passive split,
- * upgrade cost schedule. stubBuildingProductionImpl satisfies the contract and
- * keeps CI green. Swap in a live impl when those values are tuned —
- * this function does not change.
- *
- * Note: building upgrade progress tracking requires a field addition to the
- * Building type — deferred to Phase 3 when the upgrade system is implemented.
- * BuildingProductionImpl.upgradeCompletesThisTick is defined on the interface
- * now so the seam exists; it will always return false until the type catches up.
+ * Each tick:
+ * 1. Collect passive income from all buildings (level × incomePerLevel)
+ * 2. Advance upgrade progress for buildings being upgraded
+ * 3. Level up buildings whose upgrade completes this tick
  *
  * Pure function — no mutations, no side effects.
  */
 
-import type { GameState, BuildingProductionImpl } from '@idle-hero-rpg/shared';
-import { PLACEHOLDER_BUILDING_INCOME_PER_LEVEL } from '../data/balance';
+import type { GameState, BuildingProductionImpl, Building } from '@idle-hero-rpg/shared';
+import { createId } from '@idle-hero-rpg/shared';
+import {
+  PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
+  PLACEHOLDER_MAX_BUILDING_LEVEL,
+} from '../data/balance';
 
 export const stubBuildingProductionImpl: BuildingProductionImpl = {
   incomePerTick: () => 0,
@@ -26,23 +23,65 @@ export const stubBuildingProductionImpl: BuildingProductionImpl = {
 
 /** placeholder — tune during balance pass */
 export const placeholderBuildingProductionImpl: BuildingProductionImpl = {
-  incomePerTick: (building) => building.level * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL, // placeholder — tune during balance pass
-  upgradeCompletesThisTick: () => false, // placeholder — kept disabled for now
+  incomePerTick: (building) => building.level * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
+  upgradeCompletesThisTick: (building) =>
+    building.upgradeTicksRemaining === 1 && building.level < PLACEHOLDER_MAX_BUILDING_LEVEL,
 };
 
 export function processBuildings(
   state: GameState,
   impl: BuildingProductionImpl = placeholderBuildingProductionImpl,
 ): GameState {
-  let totalIncome = 0;
+  const entries = Object.entries(state.buildings);
+  if (entries.length === 0) return state;
 
-  for (const building of Object.values(state.buildings)) {
+  let totalIncome = 0;
+  let updatedBuildings: Record<string, Building> | null = null;
+  const pendingEvents = [...state.pendingEvents];
+
+  for (const [id, building] of entries) {
     totalIncome += impl.incomePerTick(building, state);
-    // TODO: handle impl.upgradeCompletesThisTick once Building type has
-    //       upgradeProgressTicks field (Phase 3)
+
+    if (building.upgradeTicksRemaining > 0) {
+      if (updatedBuildings === null) {
+        updatedBuildings = { ...state.buildings };
+      }
+
+      if (impl.upgradeCompletesThisTick(building, state)) {
+        // Level up
+        updatedBuildings[id] = {
+          ...building,
+          level: building.level + 1,
+          upgradeTicksRemaining: 0,
+        };
+        pendingEvents.push({
+          id: createId('evt'),
+          tick: state.time.ticksElapsed,
+          type: 'BUILDING_UPGRADE',
+          message: `${building.templateId} upgraded to level ${String(building.level + 1)}!`,
+          achievementKey: null,
+        });
+      } else if (
+        building.upgradeTicksRemaining === 1 &&
+        building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL
+      ) {
+        // At max level — just clear the upgrade
+        updatedBuildings[id] = { ...building, upgradeTicksRemaining: 0 };
+      } else {
+        // Tick down
+        updatedBuildings[id] = {
+          ...building,
+          upgradeTicksRemaining: building.upgradeTicksRemaining - 1,
+        };
+      }
+    }
   }
 
-  if (totalIncome === 0) return state;
+  const hasChanges =
+    totalIncome !== 0 ||
+    updatedBuildings !== null ||
+    pendingEvents.length > state.pendingEvents.length;
+  if (!hasChanges) return state;
 
   return {
     ...state,
@@ -50,5 +89,7 @@ export function processBuildings(
       ...state.guild,
       gold: state.guild.gold + totalIncome,
     },
+    buildings: updatedBuildings ?? state.buildings,
+    pendingEvents,
   };
 }

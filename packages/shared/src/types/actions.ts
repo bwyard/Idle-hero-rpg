@@ -57,6 +57,19 @@ export interface DismissVisitorAction {
   readonly visitorId: string;
 }
 
+/** Upgrade an existing building to the next level. */
+export interface UpgradeBuildingAction {
+  readonly type: 'UPGRADE_BUILDING';
+  readonly buildingId: string;
+}
+
+/** Expand the guild to a new city. */
+export interface ExpandCityAction {
+  readonly type: 'EXPAND_CITY';
+  readonly cityId: string;
+  readonly cityName: string;
+}
+
 /** All possible player actions. Add new action types here as features are built. */
 export type GameAction =
   | NoOpAction
@@ -67,4 +80,6 @@ export type GameAction =
   | HoldFeastAction
   | HoldVisitorAction
   | EngageVisitorAction
-  | DismissVisitorAction;
+  | DismissVisitorAction
+  | UpgradeBuildingAction
+  | ExpandCityAction;

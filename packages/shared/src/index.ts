@@ -34,6 +34,9 @@ export type {
   HallOfHeroesEntry,
 } from './types/dynasty';
 
+// Rival domain
+export type { Rival } from './types/rival';
+
 // Event domain
 export type { GameEvent, AchievementKey } from './types/event';
 
@@ -52,6 +55,8 @@ export type {
   HoldVisitorAction,
   EngageVisitorAction,
   DismissVisitorAction,
+  UpgradeBuildingAction,
+  ExpandCityAction,
 } from './types/actions';
 
 // ID generation
