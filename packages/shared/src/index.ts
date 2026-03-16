@@ -43,6 +43,10 @@ export type { GameState } from './types/gameState';
 // Actions
 export type { GameAction, NoOpAction } from './types/actions';
 
+// ID generation
+export { createId } from './utils/id';
+export type { IdPrefix } from './utils/id';
+
 // System implementation contracts (interface-first pattern for pending design decisions)
 export type {
   EconomyImpl,

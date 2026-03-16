@@ -91,6 +91,14 @@ Interfaces live in `packages/shared/src/types/systemImpls.ts`.
 Contract tests live in `apps/game/src/__tests__/systemContracts.test.ts`.
 These tests are the acceptance criteria for any live implementation.
 
+### ID Strategy — Prefixed Nanoid (CLOSED 2026-03-15)
+- Live game objects use prefixed nanoid IDs: `<prefix>_<nanoid>`
+- Prefixes: `adv` (adventurer), `vis` (visitor), `qst` (quest), `bld` (building), `rvl` (rival), `evt` (event), `cty` (city)
+- Factory: `createId(prefix)` in `packages/shared/src/utils/id.ts`
+- nanoid installed in `packages/shared`
+- Rationale: collision-free, human-readable in logs/saves, no counter state, 130-byte library
+- `Record<string, T>` keyed by these IDs keeps O(1) lookup
+
 ### Architecture Flexibility Principle
 - Open design decisions are not blockers — they are test cases for architecture flexibility
 - Build interfaces and stub multiple implementations

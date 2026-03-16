@@ -1,5 +1,16 @@
 CLAUDE.md — Retired Hero's Guild
 This file is the authoritative project briefing for Claude Code. Read it fully before touching any file.
+
+## Session & Todo System
+Shared session state and todos live in `../claude-resources/` (one level up from this repo).
+
+- Session file:    `../claude-resources/sessions/idle-hero/current.md`
+- Session history: `../claude-resources/sessions/idle-hero/s000-s009/` etc.
+- Todo CLI:        `node ../claude-resources/todos/todo.js list --project idle-hero`
+- Dashboard:       `node ../claude-resources/todos/todo.js dashboard`
+- Nav hub:         `../claude-resources/CLAUDE.md`
+
+Read `current.md` at the start of every session. Update it and write a closed session log at the end.
 Project Overview
 Retired Hero's Guild is a mobile idle clicker tycoon built with React Native and Expo.
 The player is a retired legendary adventurer who founds a guild and builds it into a dynasty empire across a Fiore-scale kingdom. The goal is to be the greatest guild in the world. There is no demon lord, no forced story ending. Empire building is the point.
@@ -208,6 +219,16 @@ feature/*     ← branch from develop
 fix/*         ← branch from develop
 chore/*       ← branch from develop
 PRs go to develop. develop → main via PR when stable.
+
+**Claude Code workflow rules — non-negotiable:**
+- NEVER commit directly to Main or Dev. Always create a feature/fix/chore branch first.
+- Every unit of work gets its own branch and PR. No batching unrelated changes.
+- PRs must have clear titles and descriptions explaining decisions, not just listing changes.
+- Commit early and often on the feature branch. Keep commits focused and conventional.
+- Update session notes (`../claude-resources/sessions/idle-hero/current.md`) at the end of every session.
+- Write a closed session log (`sNNN-slug.md`) at the end of every session.
+- This is a portfolio project — every PR, commit message, and ADR should demonstrate professional engineering practices.
+
 Commit Convention
 feat:     new feature
 fix:      bug fix

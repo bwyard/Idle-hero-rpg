@@ -11,5 +11,8 @@
   },
   "devDependencies": {
     "typescript": "^5.4.0"
+  },
+  "dependencies": {
+    "nanoid": "^5.1.7"
   }
 }
