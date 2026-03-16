@@ -6,8 +6,8 @@ describe('system_contracts', () => {
   it('lists all systems with status summary', async () => {
     const result = await systemContracts.handler({});
     const parsed = parseJsonResponse(result);
-    expect(parsed).toHaveProperty('total', 12);
-    expect(parsed.systems).toHaveLength(12);
+    expect(parsed).toHaveProperty('total', 14);
+    expect(parsed.systems).toHaveLength(14);
     expect(parsed).toHaveProperty('live');
     expect(parsed).toHaveProperty('stubs');
     expect(parsed).toHaveProperty('withInterface');
