@@ -93,6 +93,7 @@ processEconomy
 processAdventurers
 processQuests
 processBuildings
+processTransientVisitors
 processHero
 processRivals
 processConclave
