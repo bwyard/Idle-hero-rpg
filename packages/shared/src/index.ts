@@ -48,6 +48,9 @@ export type {
   BuildBuildingAction,
   StartQuestAction,
   HoldFeastAction,
+  HoldVisitorAction,
+  EngageVisitorAction,
+  DismissVisitorAction,
 } from './types/actions';
 
 // ID generation

@@ -179,5 +179,24 @@ export const NPC_GUILD_MIN_TENURE_YEARS = 0; // stub — needs tuning pass
 
 // ─── Event Log ──────────────────────────────────────────────────────────────
 
+// ─── Transient Visitors ─────────────────────────────────────────────────────
+
+/** Probability of spawning a new visitor each tick (0–1). */
+export const PLACEHOLDER_VISITOR_SPAWN_CHANCE = 0.05; // placeholder — tune during balance pass
+
+/** Maximum concurrent transient visitors at the guild house. */
+export const PLACEHOLDER_MAX_VISITORS = 3; // placeholder — tune during balance pass
+
+/** Number of ticks a visitor stays before departing. */
+export const PLACEHOLDER_VISITOR_STAY_TICKS = 60; // placeholder — tune during balance pass
+
+/** Base number of ticks a held visitor is retained for. */
+export const PLACEHOLDER_HOLD_DURATION_TICKS = 30; // placeholder — tune during balance pass
+
+/** Gold cost to engage (recruit) a transient visitor. */
+export const PLACEHOLDER_ENGAGE_COST = 25; // placeholder — tune during balance pass
+
+// ─── Event Log ──────────────────────────────────────────────────────────────
+
 /** Maximum number of events retained in the event log. Oldest trimmed first. */
 export const EVENT_LOG_MAX_LENGTH = 500;
