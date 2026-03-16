@@ -16,6 +16,11 @@ import {
   PLACEHOLDER_FEAST_XP_BONUS,
   PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
+  PLACEHOLDER_UPGRADE_COST_BASE,
+  PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
+  PLACEHOLDER_MAX_BUILDING_LEVEL,
+  PLACEHOLDER_CITY_EXPANSION_BASE,
+  PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
 } from '../data/balance';
 import { generateQuests } from '../systems/generateQuests';
@@ -278,6 +283,76 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       return {
         ...state,
         transientVisitors: remainingVisitors,
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'UPGRADE_BUILDING': {
+      const building = state.buildings[action.buildingId];
+      if (!building) return state;
+      if (building.upgradeTicksRemaining > 0) return state;
+      if (building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL) return state;
+
+      const targetLevel = building.level + 1;
+      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      if (state.guild.gold < cost) return state;
+
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'UPGRADE_START',
+        message: `${building.templateId} upgrade to level ${targetLevel} started!`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        guild: {
+          ...state.guild,
+          gold: state.guild.gold - cost,
+        },
+        buildings: {
+          ...state.buildings,
+          [action.buildingId]: {
+            ...building,
+            upgradeTicksRemaining: PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL * targetLevel,
+          },
+        },
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'EXPAND_CITY': {
+      const citiesOwned = Object.keys(state.cities).length;
+      const cost =
+        PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
+      if (state.guild.gold < cost) return state;
+
+      const cityId = createId('cty');
+
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'CITY_EXPANSION',
+        message: `The guild expanded to ${action.cityName}!`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        guild: {
+          ...state.guild,
+          gold: state.guild.gold - cost,
+        },
+        cities: {
+          ...state.cities,
+          [cityId]: {
+            id: cityId,
+            name: action.cityName,
+            region: 'Coast' as const,
+            isUnlocked: true,
+          },
+        },
         pendingEvents: [...state.pendingEvents, event],
       };
     }

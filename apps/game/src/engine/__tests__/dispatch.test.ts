@@ -6,6 +6,11 @@ import {
   PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_MAX_QUEST_BOARD_SIZE,
+  PLACEHOLDER_UPGRADE_COST_BASE,
+  PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
+  PLACEHOLDER_MAX_BUILDING_LEVEL,
+  PLACEHOLDER_CITY_EXPANSION_BASE,
+  PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
 } from '../../data/balance';
 import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
@@ -303,6 +308,185 @@ describe('dispatch', () => {
       const state = createInitialGameState();
       const next = dispatch(state, { type: 'DISMISS_VISITOR', visitorId: 'vis_nonexistent' });
       expect(next).toEqual(state);
+    });
+  });
+
+  describe('UPGRADE_BUILDING', () => {
+    function stateWithBuilding(level: number, gold: number, upgrading = false): GameState {
+      return {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold },
+        buildings: {
+          bld_test_1: {
+            id: 'bld_test_1',
+            templateId: 'guild-hall',
+            level,
+            cityId: 'cty_heartlands',
+            upgradeTicksRemaining: upgrading ? 100 : 0,
+          },
+        },
+      };
+    }
+
+    it('starts an upgrade for a valid building with enough gold', () => {
+      const targetLevel = 2;
+      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const state = stateWithBuilding(1, cost + 100);
+
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next.buildings['bld_test_1']!.upgradeTicksRemaining).toBe(
+        PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL * targetLevel,
+      );
+      expect(next.guild.gold).toBe(cost + 100 - cost);
+    });
+
+    it('deducts correct cost based on target level squared', () => {
+      const currentLevel = 3;
+      const targetLevel = 4;
+      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const state = stateWithBuilding(currentLevel, 100000);
+
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next.guild.gold).toBe(100000 - cost);
+    });
+
+    it('returns state unchanged if building does not exist', () => {
+      const state = stateWithBuilding(1, 10000);
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_nonexistent' });
+      expect(next).toEqual(state);
+    });
+
+    it('returns state unchanged if building is already upgrading', () => {
+      const state = stateWithBuilding(1, 10000, true);
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next).toEqual(state);
+    });
+
+    it('returns state unchanged if building is at max level', () => {
+      const state = stateWithBuilding(PLACEHOLDER_MAX_BUILDING_LEVEL, 100000);
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next).toEqual(state);
+    });
+
+    it('returns state unchanged if not enough gold', () => {
+      const targetLevel = 2;
+      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const state = stateWithBuilding(1, cost - 1);
+
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next).toEqual(state);
+    });
+
+    it('emits an UPGRADE_START event', () => {
+      const state = stateWithBuilding(1, 10000);
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      const upgradeEvents = next.pendingEvents.filter((e) => e.type === 'UPGRADE_START');
+      expect(upgradeEvents).toHaveLength(1);
+    });
+
+    it('does not mutate input state', () => {
+      const state = stateWithBuilding(1, 10000);
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+      dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('EXPAND_CITY', () => {
+    it('creates a new city when player has enough gold', () => {
+      const state = createInitialGameState();
+      const citiesOwned = Object.keys(state.cities).length;
+      const cost =
+        PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
+      const richState: GameState = {
+        ...state,
+        guild: { ...state.guild, gold: cost + 100 },
+      };
+
+      const next = dispatch(richState, {
+        type: 'EXPAND_CITY',
+        cityId: 'cty_coast',
+        cityName: 'Seaside Haven',
+      });
+
+      const newCities = Object.values(next.cities).filter((c) => c.name === 'Seaside Haven');
+      expect(newCities).toHaveLength(1);
+      expect(newCities[0]!.isUnlocked).toBe(true);
+    });
+
+    it('deducts correct cost based on cities owned', () => {
+      const state = createInitialGameState();
+      const citiesOwned = Object.keys(state.cities).length; // 1
+      const cost =
+        PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
+      const richState: GameState = {
+        ...state,
+        guild: { ...state.guild, gold: 10000 },
+      };
+
+      const next = dispatch(richState, {
+        type: 'EXPAND_CITY',
+        cityId: 'cty_coast',
+        cityName: 'Seaside Haven',
+      });
+      expect(next.guild.gold).toBe(10000 - cost);
+    });
+
+    it('returns state unchanged if not enough gold', () => {
+      const state = createInitialGameState();
+      const poorState: GameState = {
+        ...state,
+        guild: { ...state.guild, gold: 0 },
+      };
+
+      const next = dispatch(poorState, {
+        type: 'EXPAND_CITY',
+        cityId: 'cty_coast',
+        cityName: 'Seaside Haven',
+      });
+      expect(Object.keys(next.cities).length).toBe(Object.keys(state.cities).length);
+    });
+
+    it('new city ID starts with cty_', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: 10000 },
+      };
+
+      const next = dispatch(state, {
+        type: 'EXPAND_CITY',
+        cityId: 'cty_coast',
+        cityName: 'Seaside Haven',
+      });
+
+      const newCityIds = Object.keys(next.cities).filter((id) => !state.cities[id]);
+      expect(newCityIds).toHaveLength(1);
+      expect(newCityIds[0]).toMatch(/^cty_/);
+    });
+
+    it('emits a CITY_EXPANSION event', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: 10000 },
+      };
+
+      const next = dispatch(state, {
+        type: 'EXPAND_CITY',
+        cityId: 'cty_coast',
+        cityName: 'Seaside Haven',
+      });
+      const expansionEvents = next.pendingEvents.filter((e) => e.type === 'CITY_EXPANSION');
+      expect(expansionEvents).toHaveLength(1);
+    });
+
+    it('does not mutate input state', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: 10000 },
+      };
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+      dispatch(state, { type: 'EXPAND_CITY', cityId: 'cty_coast', cityName: 'Seaside Haven' });
+      expect(state).toEqual(original);
     });
   });
 });

@@ -52,6 +52,8 @@ export type {
   HoldVisitorAction,
   EngageVisitorAction,
   DismissVisitorAction,
+  UpgradeBuildingAction,
+  ExpandCityAction,
 } from './types/actions';
 
 // ID generation
