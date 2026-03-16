@@ -16,6 +16,7 @@
  */
 
 import type { GameState, QuestRewardImpl } from '@idle-hero-rpg/shared';
+import { createId } from '@idle-hero-rpg/shared';
 import { PLACEHOLDER_QUEST_GOLD_REWARD, PLACEHOLDER_QUEST_XP_REWARD } from '../data/balance';
 
 export const stubQuestRewardImpl: QuestRewardImpl = {
@@ -58,7 +59,14 @@ export function processQuests(
     const advId = quest.assignedAdventurerId;
     const adv = next.adventurers[advId];
 
-    // TODO: emit quest-completed event to pendingEvents
+    const questCompleteEvent = {
+      id: createId('evt'),
+      tick: state.time.ticksElapsed,
+      type: 'QUEST_COMPLETE',
+      message: `Quest complete! ${adv?.name ?? 'Unknown'} earned ${String(goldEarned)} gold and ${String(advXp)} XP.`,
+      achievementKey: null,
+    } as const;
+
     next = {
       ...next,
       quests: {
@@ -69,6 +77,7 @@ export function processQuests(
         ? { ...next.adventurers, [advId]: { ...adv, xp: adv.xp + advXp } }
         : next.adventurers,
       guild: { ...next.guild, gold: next.guild.gold + goldEarned },
+      pendingEvents: [...next.pendingEvents, questCompleteEvent],
     };
   }
 
