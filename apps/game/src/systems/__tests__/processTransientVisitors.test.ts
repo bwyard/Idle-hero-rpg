@@ -25,15 +25,63 @@ function makeVisitor(overrides: Partial<TransientVisitor> = {}): TransientVisito
   };
 }
 
-/** Helper to create a state with specific visitors and tick count. */
+/** Buildings that enable all visitor services, for testing. */
+const SERVICE_ENABLED_BUILDINGS: GameState['buildings'] = {
+  bld_guildhall: {
+    id: 'bld_guildhall',
+    templateId: 'guild-hall',
+    level: 1,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+  bld_training: {
+    id: 'bld_training',
+    templateId: 'training-grounds',
+    level: 1,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+  bld_tavern: {
+    id: 'bld_tavern',
+    templateId: 'tavern',
+    level: 2,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+  bld_smithy: {
+    id: 'bld_smithy',
+    templateId: 'smithy',
+    level: 1,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+  bld_infirmary: {
+    id: 'bld_infirmary',
+    templateId: 'infirmary',
+    level: 1,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+  bld_questboard: {
+    id: 'bld_questboard',
+    templateId: 'quest-board',
+    level: 1,
+    cityId: 'cty_heartlands',
+    upgradeTicksRemaining: 0,
+  },
+};
+
+/** Helper to create a state with specific visitors and tick count. Includes service-enabling buildings. */
 function stateWithVisitors(
   visitors: Record<string, TransientVisitor>,
   ticksElapsed = 100,
+  buildings: GameState['buildings'] = SERVICE_ENABLED_BUILDINGS,
 ): GameState {
   return {
     ...createInitialGameState(),
     time: { ticksElapsed, currentDay: 0, currentSeason: 'Spring' as const, currentYear: 0 },
     transientVisitors: visitors,
+    buildings,
   };
 }
 
@@ -183,6 +231,58 @@ describe('processTransientVisitors', () => {
           },
         ),
       );
+    });
+  });
+
+  describe('service gating', () => {
+    it('does not spawn visitors when no buildings enable any service', () => {
+      // guild-hall has enablesService: null
+      const noServiceBuildings: GameState['buildings'] = {
+        bld_guildhall: {
+          id: 'bld_guildhall',
+          templateId: 'guild-hall',
+          level: 5,
+          cityId: 'cty_heartlands',
+          upgradeTicksRemaining: 0,
+        },
+      };
+      const state = stateWithVisitors({}, 10, noServiceBuildings);
+      const next = processTransientVisitors(state, () => 0);
+      expect(Object.keys(next.transientVisitors)).toHaveLength(0);
+    });
+
+    it('spawns visitors when at least one service-enabling building exists', () => {
+      const oneServiceBuilding: GameState['buildings'] = {
+        bld_smithy: {
+          id: 'bld_smithy',
+          templateId: 'smithy',
+          level: 1,
+          cityId: 'cty_heartlands',
+          upgradeTicksRemaining: 0,
+        },
+      };
+      const state = stateWithVisitors({}, 10, oneServiceBuilding);
+      const next = processTransientVisitors(state, () => 0);
+      expect(Object.keys(next.transientVisitors)).toHaveLength(1);
+      // Visitor should be requesting Repair (only fulfillable service)
+      const visitor = Object.values(next.transientVisitors)[0]!;
+      expect(visitor.serviceRequest).toBe('Repair');
+    });
+
+    it('does not spawn visitors when building level is too low for service', () => {
+      // tavern enables Lodging at level 2+, but this one is only level 1
+      const lowLevelBuilding: GameState['buildings'] = {
+        bld_tavern: {
+          id: 'bld_tavern',
+          templateId: 'tavern',
+          level: 1,
+          cityId: 'cty_heartlands',
+          upgradeTicksRemaining: 0,
+        },
+      };
+      const state = stateWithVisitors({}, 10, lowLevelBuilding);
+      const next = processTransientVisitors(state, () => 0);
+      expect(Object.keys(next.transientVisitors)).toHaveLength(0);
     });
   });
 });

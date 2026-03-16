@@ -25,6 +25,7 @@ import {
   TICKS_PER_DAY,
 } from '../data/balance';
 import { VISITOR_NAMES } from '../data/visitorNames';
+import { canFulfillService } from '../utils/serviceGates';
 
 /** Weighted tier selection — favors F and D tiers for visitors. */
 const VISITOR_TIER_WEIGHTS: readonly { tier: AdventurerTier; weight: number }[] = [
@@ -80,13 +81,17 @@ function isExpired(visitor: TransientVisitor, ticksElapsed: number): boolean {
   return true;
 }
 
-/** Create a new random visitor. */
-function spawnVisitor(ticksElapsed: number, random: () => number): TransientVisitor {
+/** Create a new random visitor, picking only from fulfillable services. */
+function spawnVisitor(
+  ticksElapsed: number,
+  random: () => number,
+  fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
+): TransientVisitor {
   const name = VISITOR_NAMES[Math.floor(random() * VISITOR_NAMES.length)] ?? 'Traveler';
   const tier = pickWeightedTier(random());
   const archetype = VISITOR_ARCHETYPES[Math.floor(random() * VISITOR_ARCHETYPES.length)] ?? null;
   const serviceRequest =
-    SERVICE_REQUESTS[Math.floor(random() * SERVICE_REQUESTS.length)] ?? 'Quest';
+    fulfillableServices[Math.floor(random() * fulfillableServices.length)] ?? 'Quest';
 
   return {
     id: createId('vis'),
@@ -132,10 +137,18 @@ export function processTransientVisitors(
     }
   }
 
-  // Phase 2: Attempt to spawn a new visitor
+  // Phase 2: Attempt to spawn a new visitor (only for fulfillable services)
   const visitorCount = Object.keys(newVisitors).length;
-  if (visitorCount < PLACEHOLDER_MAX_VISITORS && random() < PLACEHOLDER_VISITOR_SPAWN_CHANCE) {
-    const visitor = spawnVisitor(ticksElapsed, random);
+  const fulfillableServices = SERVICE_REQUESTS.filter((service) =>
+    canFulfillService(service, state.buildings),
+  );
+
+  if (
+    fulfillableServices.length > 0 &&
+    visitorCount < PLACEHOLDER_MAX_VISITORS &&
+    random() < PLACEHOLDER_VISITOR_SPAWN_CHANCE
+  ) {
+    const visitor = spawnVisitor(ticksElapsed, random, fulfillableServices);
     newVisitors[visitor.id] = visitor;
 
     pendingEvents.push({
