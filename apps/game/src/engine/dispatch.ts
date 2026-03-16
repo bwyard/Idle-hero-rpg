@@ -12,10 +12,10 @@ import { createId } from '@idle-hero-rpg/shared';
 import {
   PLACEHOLDER_RECRUIT_COST,
   PLACEHOLDER_BUILD_COST,
-  PLACEHOLDER_QUEST_DURATION_TICKS,
   PLACEHOLDER_FEAST_COST,
   PLACEHOLDER_FEAST_XP_BONUS,
 } from '../data/balance';
+import { generateQuests } from '../systems/generateQuests';
 
 /** Small pool of fantasy names for recruited adventurers (display data). */
 const ADVENTURER_NAMES = [
@@ -122,13 +122,19 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     }
 
     case 'START_QUEST': {
-      const qstId = createId('qst');
+      // Assign an existing unassigned quest to an adventurer
+      const quest = state.quests[action.questId];
+      if (!quest || quest.assignedAdventurerId !== null) return state;
+
+      // Verify adventurer exists
+      const adventurer = state.adventurers[action.adventurerId];
+      if (!adventurer) return state;
 
       const event = {
         id: createId('evt'),
         tick: state.time.ticksElapsed,
         type: 'QUEST_START',
-        message: `${action.adventurerId} embarked on quest ${action.questTemplateId}!`,
+        message: `${adventurer.name} embarked on quest ${quest.templateId}!`,
         achievementKey: null,
       } as const;
 
@@ -136,16 +142,17 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         quests: {
           ...state.quests,
-          [qstId]: {
-            id: qstId,
-            templateId: action.questTemplateId,
+          [action.questId]: {
+            ...quest,
             assignedAdventurerId: action.adventurerId,
-            ticksRemaining: PLACEHOLDER_QUEST_DURATION_TICKS,
-            isComplete: false,
           },
         },
         pendingEvents: [...state.pendingEvents, event],
       };
+    }
+
+    case 'GENERATE_QUESTS': {
+      return generateQuests(state);
     }
 
     case 'HOLD_FEAST': {
