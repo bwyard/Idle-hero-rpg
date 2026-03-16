@@ -23,6 +23,7 @@ export interface GameState {
   /** In-game time tracking. */
   time: {
     ticksElapsed: number;
+    currentYear: number;
   };
 
   /** The current guild leader (founding hero or successor). */

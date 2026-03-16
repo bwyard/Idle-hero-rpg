@@ -64,7 +64,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
 
   return {
     version: 1,
-    time: { ticksElapsed: 0 },
+    time: { ticksElapsed: 0, currentYear: 0 },
     hero: {
       id: 'hero_test1',
       name: 'Test Hero',

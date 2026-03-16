@@ -12,6 +12,7 @@ export function createInitialGameState(): GameState {
     version: 1,
     time: {
       ticksElapsed: 0,
+      currentYear: 0,
     },
     hero: {
       id: 'hero-001',

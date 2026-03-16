@@ -11,6 +11,7 @@ import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { tick } from '../tick';
 import { createInitialGameState } from '../../stores/initialState';
+import { TICKS_PER_YEAR } from '../../data/balance';
 
 describe('tick — property tests', () => {
   it('always increments ticksElapsed by exactly 1', () => {
@@ -18,7 +19,10 @@ describe('tick — property tests', () => {
       fc.property(
         fc.nat({ max: 1_000_000 }),
         (startTick) => {
-          const state = { ...createInitialGameState(), time: { ticksElapsed: startTick } };
+          const state = {
+            ...createInitialGameState(),
+            time: { ticksElapsed: startTick, currentYear: Math.floor(startTick / TICKS_PER_YEAR) },
+          };
           const next = tick(state);
           return next.time.ticksElapsed === startTick + 1;
         },
@@ -31,7 +35,10 @@ describe('tick — property tests', () => {
       fc.property(
         fc.nat({ max: 100 }),
         (startTick) => {
-          const state = { ...createInitialGameState(), time: { ticksElapsed: startTick } };
+          const state = {
+            ...createInitialGameState(),
+            time: { ticksElapsed: startTick, currentYear: Math.floor(startTick / TICKS_PER_YEAR) },
+          };
           const result1 = tick(state);
           const result2 = tick(state);
           return result1.time.ticksElapsed === result2.time.ticksElapsed;

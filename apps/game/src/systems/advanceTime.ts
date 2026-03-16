@@ -8,13 +8,18 @@
  */
 
 import type { GameState } from '@idle-hero-rpg/shared';
+import { TICKS_PER_YEAR } from '../data/balance';
 
 export function advanceTime(state: GameState): GameState {
+  const ticksElapsed = state.time.ticksElapsed + 1;
+  const currentYear = Math.floor(ticksElapsed / TICKS_PER_YEAR);
+
   return {
     ...state,
     time: {
       ...state.time,
-      ticksElapsed: state.time.ticksElapsed + 1,
+      ticksElapsed,
+      currentYear,
     },
   };
 }
