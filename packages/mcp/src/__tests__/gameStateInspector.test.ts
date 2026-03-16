@@ -1,13 +1,12 @@
 import { describe, it, expect } from 'vitest';
 import { gameStateInspector } from '../tools/gameStateInspector.js';
+import { parseJsonResponse } from './helpers.js';
 
 describe('gameStateInspector handler', () => {
   it('returns full state when section is "all"', async () => {
     const result = await gameStateInspector.handler({ section: 'all' });
-     
-    const item = result.content[0]!;
-    expect(item.type).toBe('text');
-    const parsed = JSON.parse(item.text) as Record<string, unknown>;
+    expect(result.content[0]!.type).toBe('text');
+    const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('version');
     expect(parsed).toHaveProperty('hero');
     expect(parsed).toHaveProperty('guild');
@@ -16,8 +15,7 @@ describe('gameStateInspector handler', () => {
 
   it('returns only the hero section when requested', async () => {
     const result = await gameStateInspector.handler({ section: 'hero' });
-     
-    const parsed = JSON.parse(result.content[0]!.text) as Record<string, unknown>;
+    const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('hero');
     expect(parsed).not.toHaveProperty('guild');
     expect(parsed).not.toHaveProperty('adventurers');
@@ -25,24 +23,21 @@ describe('gameStateInspector handler', () => {
 
   it('returns only the adventurers section when requested', async () => {
     const result = await gameStateInspector.handler({ section: 'adventurers' });
-     
-    const parsed = JSON.parse(result.content[0]!.text) as Record<string, unknown>;
+    const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('adventurers');
     expect(parsed).not.toHaveProperty('hero');
   });
 
   it('returns only the eventLog section when requested', async () => {
     const result = await gameStateInspector.handler({ section: 'eventLog' });
-     
-    const parsed = JSON.parse(result.content[0]!.text) as { eventLog: unknown[] };
+    const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('eventLog');
     expect(Array.isArray(parsed.eventLog)).toBe(true);
   });
 
   it('returns an object for rivals (empty in fixture)', async () => {
     const result = await gameStateInspector.handler({ section: 'rivals' });
-     
-    const parsed = JSON.parse(result.content[0]!.text) as { rivals: unknown };
+    const parsed = parseJsonResponse(result);
     expect(parsed).toHaveProperty('rivals');
     expect(typeof parsed.rivals).toBe('object');
   });
