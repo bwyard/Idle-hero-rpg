@@ -1,11 +1,36 @@
 /**
  * balance.ts — ALL numeric constants live here.
  *
- * Every number that affects gameplay must be defined in this file.
+ * Every number that affects gameplay must be accessible from this file.
  * Never hardcode magic numbers in engine or system files.
  *
- * TODO items are flagged for the dedicated economy design pass.
+ * Economy constants are defined in economy.ts and re-exported here.
+ * Systems always import from balance.ts, never directly from economy.ts.
  */
+
+// ─── Economy (from economy.ts) ──────────────────────────────────────────────
+// Isolated so economy tuning can happen independently.
+// Future: swap economy.ts for seasonal events, festivals, or prestige modifiers.
+export {
+  PLACEHOLDER_BASE_INCOME_PER_TICK,
+  PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK,
+  PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
+  PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK,
+  PLACEHOLDER_RECRUIT_COST,
+  PLACEHOLDER_BUILD_COST,
+  PLACEHOLDER_FEAST_COST,
+  PLACEHOLDER_ENGAGE_COST,
+  PLACEHOLDER_UPGRADE_COST_BASE,
+  PLACEHOLDER_CITY_EXPANSION_BASE,
+  PLACEHOLDER_CITY_EXPANSION_PER_CITY,
+  PLACEHOLDER_QUEST_GOLD_REWARD,
+  PLACEHOLDER_QUEST_XP_REWARD,
+  PLACEHOLDER_FEAST_XP_BONUS,
+  PLACEHOLDER_STARTING_GOLD,
+  MAGIC_REWIND_SAFETY_MAX_PRESTIGE,
+  PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
+  PLACEHOLDER_MAX_BUILDING_LEVEL,
+} from './economy';
 
 // ─── Time ────────────────────────────────────────────────────────────────────
 
@@ -57,16 +82,10 @@ export const ADVENTURER_TIERS = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'Legen
 /** Tiers that are prestige-eligible (C and above). */
 export const PRESTIGE_ELIGIBLE_TIERS: readonly string[] = ['C', 'B', 'A', 'S', 'SS', 'Legendary'];
 
-/** Tiers that collapse to aggregate counts on kingdom view (F, D, C). */
+/** Tiers that collapse to aggregate counts on kingdom view (F, E, D). */
 export const KINGDOM_VIEW_COLLAPSED_TIERS: readonly string[] = ['F', 'E', 'D'];
 
 // ─── Prestige ────────────────────────────────────────────────────────────────
-
-/**
- * Prestige count at which the safety net (Magic Rewind) is removed.
- * TODO: Exact threshold is a tuning decision — not yet locked.
- */
-export const MAGIC_REWIND_SAFETY_MAX_PRESTIGE = 5; // placeholder — needs tuning pass
 
 /**
  * Prestige count at which escalated requirements begin
@@ -94,75 +113,22 @@ export const KINGDOM_REGION_COUNT = 5;
 export const KINGDOM_LOCATION_MIN = 15;
 export const KINGDOM_LOCATION_MAX = 20;
 
-// ─── Economy (TODO — Design Incomplete) ──────────────────────────────────────
-// The following values are stubs. Do not use these in production logic until
-// the dedicated economy design pass is complete.
-
-/** TODO: Gold earned per building per tick (per level). Needs design pass. */
-export const GOLD_EARN_PER_BUILDING_LEVEL_PER_TICK = 0; // stub
-
-/** TODO: Gold cost to upgrade a building one level. Needs design pass. */
-export const GOLD_COST_BUILDING_UPGRADE_BASE = 0; // stub
-
-/** TODO: Gold cost to expand to a new city. Needs design pass. */
-export const GOLD_COST_CITY_EXPANSION = 0; // stub
-
-/** TODO: Gold cost to recruit an adventurer. Needs design pass. */
-export const GOLD_COST_RECRUIT_ADVENTURER = 0; // stub
-
-/** TODO: Gold cost to hold a feast. Needs design pass. */
-export const GOLD_COST_FEAST = 0; // stub
-
-// ─── Placeholder Economy Values ─────────────────────────────────────────────
-// These produce visible movement in the demo. Not final — tune during balance pass.
-
-/** Base passive gold income per tick, before building bonuses. */
-export const PLACEHOLDER_BASE_INCOME_PER_TICK = 10; // placeholder — tune during balance pass
-
-/** Additional gold per building level per tick. */
-export const PLACEHOLDER_INCOME_PER_BUILDING_LEVEL_PER_TICK = 5; // placeholder — tune during balance pass
-
-/** Gold deducted per adventurer per tick for upkeep. */
-export const PLACEHOLDER_UPKEEP_PER_ADVENTURER_PER_TICK = 2; // placeholder — tune during balance pass
-
-/** Gold cost to recruit a new adventurer via dispatch action. */
-export const PLACEHOLDER_RECRUIT_COST = 50; // placeholder — tune during balance pass
-
-/** Gold cost to construct a new building via dispatch action. */
-export const PLACEHOLDER_BUILD_COST = 100; // placeholder — tune during balance pass
-
-/** Gold cost to hold a feast via dispatch action. */
-export const PLACEHOLDER_FEAST_COST = 75; // placeholder — tune during balance pass
-
-/** XP bonus each adventurer receives from a feast. */
-export const PLACEHOLDER_FEAST_XP_BONUS = 3; // placeholder — tune during balance pass
-
-/** Gold earned on quest completion. */
-export const PLACEHOLDER_QUEST_GOLD_REWARD = 50; // placeholder — tune during balance pass
-
-/** XP earned by adventurer on quest completion. */
-export const PLACEHOLDER_QUEST_XP_REWARD = 5; // placeholder — tune during balance pass
+// ─── Quest ───────────────────────────────────────────────────────────────────
 
 /** Days required to complete a quest. Systems multiply by TICKS_PER_DAY. */
-export const PLACEHOLDER_QUEST_DURATION_DAYS = 8; // placeholder — tune during balance pass
+export const PLACEHOLDER_QUEST_DURATION_DAYS = 8;
 
 /** Maximum number of unassigned quests on the quest board at once. */
-export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5; // placeholder — tune during balance pass
+export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5;
 
-/** Starting gold for a new game. */
-export const PLACEHOLDER_STARTING_GOLD = 500; // placeholder — tune during balance pass
-
-/** Building income per level per tick (for building production system). */
-export const PLACEHOLDER_BUILDING_INCOME_PER_LEVEL = 5; // placeholder — tune during balance pass
-
-// ─── Placeholder Adventurer Progression ─────────────────────────────────────
+// ─── Adventurer Progression ─────────────────────────────────────────────────
 
 /**
  * Ambient XP gained per tick by idle adventurers (not on a quest).
  * Lower tiers gain more from ambient observation. Busy adventurers get 0.
  */
 export const PLACEHOLDER_AMBIENT_XP_PER_TICK: Record<string, number> = {
-  F: 0.5, // Learns a lot from watching
+  F: 0.5,
   E: 0.4,
   D: 0.3,
   C: 0.2,
@@ -170,33 +136,31 @@ export const PLACEHOLDER_AMBIENT_XP_PER_TICK: Record<string, number> = {
   A: 0.1,
   S: 0.05,
   SS: 0.02,
-  Legendary: 0, // Legendaries don't learn from watching
+  Legendary: 0,
 };
 
 /** XP thresholds for tier-up, keyed by current tier. */
 export const PLACEHOLDER_TIER_XP_THRESHOLDS: Record<string, number> = {
-  F: 10, // placeholder — tune during balance pass
-  E: 25, // placeholder — tune during balance pass
-  D: 50, // placeholder — tune during balance pass
-  C: 100, // placeholder — tune during balance pass
-  B: 200, // placeholder — tune during balance pass
-  A: 400, // placeholder — tune during balance pass
-  S: 800, // placeholder — tune during balance pass
-  SS: 1600, // placeholder — tune during balance pass
+  F: 10,
+  E: 25,
+  D: 50,
+  C: 100,
+  B: 200,
+  A: 400,
+  S: 800,
+  SS: 1600,
 };
 
 /** Days a Legendary adventurer stays before retiring. ~1 year. */
-export const PLACEHOLDER_LEGENDARY_RETIRE_DAYS = 125; // placeholder — tune during balance pass
-
-// ─── Placeholder Hero ───────────────────────────────────────────────────────
-
-/** Hero regenerates 1 AP every this many ticks. */
-export const PLACEHOLDER_AP_REGEN_INTERVAL_DAYS = 10; // placeholder — tune during balance pass
+export const PLACEHOLDER_LEGENDARY_RETIRE_DAYS = 125;
 
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 
+/** Hero regenerates 1 AP every this many days. */
+export const PLACEHOLDER_AP_REGEN_INTERVAL_DAYS = 10;
+
 /** Maximum action points the hero can hold at one time. */
-export const HERO_ACTION_POINT_MAX = 10; // TODO: tune during hero system design pass
+export const HERO_ACTION_POINT_MAX = 10;
 
 // ─── World Awareness ─────────────────────────────────────────────────────────
 
@@ -211,24 +175,19 @@ export const WORLD_AWARENESS_HIDDEN_MAX_PRESTIGE = 2;
  */
 export const NPC_GUILD_MIN_TENURE_YEARS = 0; // stub — needs tuning pass
 
-// ─── Event Log ──────────────────────────────────────────────────────────────
-
 // ─── Transient Visitors ─────────────────────────────────────────────────────
 
 /** Probability of spawning a new visitor each tick (0–1). */
-export const PLACEHOLDER_VISITOR_SPAWN_CHANCE = 0.05; // placeholder — tune during balance pass
+export const PLACEHOLDER_VISITOR_SPAWN_CHANCE = 0.05;
 
 /** Maximum concurrent transient visitors at the guild house. */
-export const PLACEHOLDER_MAX_VISITORS = 3; // placeholder — tune during balance pass
+export const PLACEHOLDER_MAX_VISITORS = 3;
 
-/** Number of ticks a visitor stays before departing. */
-export const PLACEHOLDER_VISITOR_STAY_DAYS = 60; // placeholder — tune during balance pass
+/** Number of days a visitor stays before departing. */
+export const PLACEHOLDER_VISITOR_STAY_DAYS = 60;
 
-/** Base number of ticks a held visitor is retained for. */
-export const PLACEHOLDER_HOLD_DURATION_DAYS = 30; // placeholder — tune during balance pass
-
-/** Gold cost to engage (recruit) a transient visitor. */
-export const PLACEHOLDER_ENGAGE_COST = 25; // placeholder — tune during balance pass
+/** Base number of days a held visitor is retained for. */
+export const PLACEHOLDER_HOLD_DURATION_DAYS = 30;
 
 // ─── Event Log ──────────────────────────────────────────────────────────────
 

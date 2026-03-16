@@ -118,6 +118,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
             templateId: action.buildingTemplateId,
             level: 1,
             cityId: action.cityId,
+            upgradeTicksRemaining: 0,
           },
         },
         pendingEvents: [...state.pendingEvents, event],

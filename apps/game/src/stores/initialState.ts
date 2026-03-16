@@ -68,6 +68,7 @@ export function createInitialGameState(): GameState {
         templateId: 'guild-hall',
         level: 1,
         cityId: 'cty_heartlands',
+        upgradeTicksRemaining: 0,
       },
     },
     quests: {},

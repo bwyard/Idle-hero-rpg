@@ -48,6 +48,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
       templateId: 'guild-hall',
       level: 1,
       cityId: 'city_test1',
+      upgradeTicksRemaining: 0,
     };
   }
 

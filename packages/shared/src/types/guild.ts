@@ -21,4 +21,6 @@ export interface Building {
   level: number;
   /** City this building belongs to. */
   readonly cityId: string;
+  /** Ticks remaining until current upgrade completes. 0 = not upgrading. */
+  upgradeTicksRemaining: number;
 }
