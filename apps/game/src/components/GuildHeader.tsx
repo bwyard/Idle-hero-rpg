@@ -17,9 +17,7 @@ export function GuildHeader({ guildName, guildType, prestigeCount }: GuildHeader
       <Text style={styles.guildName}>{guildName}</Text>
       <View style={styles.row}>
         <Text style={styles.guildType}>{guildType} Guild</Text>
-        {prestigeCount > 0 && (
-          <Text style={styles.prestige}>Prestige {prestigeCount}</Text>
-        )}
+        {prestigeCount > 0 && <Text style={styles.prestige}>Prestige {prestigeCount}</Text>}
       </View>
     </View>
   );
@@ -27,27 +25,31 @@ export function GuildHeader({ guildName, guildType, prestigeCount }: GuildHeader
 
 const styles = StyleSheet.create({
   container: {
-    marginBottom: 16,
+    marginBottom: 20,
     alignItems: 'center',
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#3a2a5e',
   },
   guildName: {
-    fontSize: 28,
+    fontSize: 32,
     fontWeight: 'bold',
-    color: '#c9b14a',
-    marginBottom: 4,
+    color: '#f0d060',
+    marginBottom: 6,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 12,
+    gap: 16,
   },
   guildType: {
-    fontSize: 14,
-    color: '#a09070',
+    fontSize: 16,
+    color: '#d0c0a0',
+    fontWeight: '500',
   },
   prestige: {
-    fontSize: 14,
-    color: '#c9b14a',
-    fontWeight: '600',
+    fontSize: 16,
+    color: '#f0d060',
+    fontWeight: '700',
   },
 });

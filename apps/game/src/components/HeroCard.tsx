@@ -24,7 +24,9 @@ export function HeroCard({ name, heroClass, actionPoints, maxActionPoints }: Her
           <Text style={styles.heroClass}>{heroClass}</Text>
         </View>
         <View style={styles.apContainer}>
-          <Text style={styles.apLabel}>AP {actionPoints}/{maxActionPoints}</Text>
+          <Text style={styles.apLabel}>
+            AP {actionPoints}/{maxActionPoints}
+          </Text>
           <View style={styles.barTrack}>
             <View style={[styles.barFill, { width: `${fillPercent}%` }]} />
           </View>
@@ -36,18 +38,20 @@ export function HeroCard({ name, heroClass, actionPoints, maxActionPoints }: Her
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#2a1a3e',
-    borderRadius: 8,
-    padding: 12,
+    backgroundColor: '#241445',
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#3a2a5e',
+    padding: 16,
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#a09070',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#b0a090',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
@@ -58,34 +62,38 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   heroName: {
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#e8d8c0',
+    color: '#f0e8d8',
   },
   heroClass: {
-    fontSize: 14,
-    color: '#c9b14a',
-    marginTop: 2,
+    fontSize: 16,
+    color: '#f0d060',
+    marginTop: 4,
+    fontWeight: '600',
   },
   apContainer: {
     flex: 1,
     alignItems: 'flex-end',
   },
   apLabel: {
-    fontSize: 13,
-    color: '#a09070',
-    marginBottom: 4,
+    fontSize: 15,
+    color: '#d0c0a0',
+    marginBottom: 6,
+    fontWeight: '600',
   },
   barTrack: {
     width: '80%',
-    height: 8,
+    height: 10,
     backgroundColor: '#1a0a2e',
-    borderRadius: 4,
+    borderRadius: 5,
     overflow: 'hidden',
+    borderWidth: 1,
+    borderColor: '#3a2a5e',
   },
   barFill: {
     height: '100%',
-    backgroundColor: '#c9b14a',
-    borderRadius: 4,
+    backgroundColor: '#f0d060',
+    borderRadius: 5,
   },
 });

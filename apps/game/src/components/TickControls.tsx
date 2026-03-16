@@ -37,10 +37,7 @@ export function TickControls({
         </Pressable>
 
         <Pressable
-          style={({ pressed }) => [
-            styles.button,
-            pressed && styles.buttonPressed,
-          ]}
+          style={({ pressed }) => [styles.button, pressed && styles.buttonPressed]}
           onPress={onTickOnce}
           accessibilityLabel="Advance one tick"
           accessibilityRole="button"
@@ -62,40 +59,41 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#a09070',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#b0a090',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    gap: 10,
   },
   button: {
     flex: 1,
-    backgroundColor: '#3a2a4e',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#c9b14a',
-    paddingVertical: 12,
+    backgroundColor: '#352050',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#7a9f5a',
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 48,
+    minWidth: 48,
   },
   buttonActive: {
-    backgroundColor: '#c9b14a',
+    backgroundColor: '#7a9f5a',
+    borderColor: '#7a9f5a',
   },
   buttonPressed: {
-    opacity: 0.8,
+    opacity: 0.85,
   },
   buttonText: {
-    fontSize: 14,
+    fontSize: 16,
     fontWeight: '700',
-    color: '#c9b14a',
+    color: '#7a9f5a',
   },
   buttonTextActive: {
     color: '#1a0a2e',
@@ -104,15 +102,16 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
+    minHeight: 48,
   },
   tickCounterValue: {
-    fontSize: 18,
+    fontSize: 22,
     fontWeight: 'bold',
-    color: '#e8d8c0',
+    color: '#f0e8d8',
   },
   tickCounterLabel: {
-    fontSize: 11,
-    color: '#a09070',
+    fontSize: 13,
+    color: '#b0a090',
+    fontWeight: '500',
   },
 });

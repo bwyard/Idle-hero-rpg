@@ -35,10 +35,7 @@ export default function DemoScreen() {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.content}
-    >
+    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       <GuildHeader
         guildName={state.guild.name || 'The Iron Hearth'}
         guildType={state.guild.type}
@@ -75,9 +72,7 @@ export default function DemoScreen() {
       />
 
       <View style={styles.footer}>
-        <Text style={styles.footerText}>
-          Engine: 12-system tick pipe | v{state.version}
-        </Text>
+        <Text style={styles.footerText}>Engine: 12-system tick pipe | v{state.version}</Text>
       </View>
     </ScrollView>
   );
@@ -86,18 +81,24 @@ export default function DemoScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1a0a2e',
+    backgroundColor: '#140a24',
   },
   content: {
     padding: 16,
-    paddingBottom: 32,
+    paddingBottom: 40,
+    maxWidth: 480,
+    alignSelf: 'center',
+    width: '100%',
   },
   footer: {
-    marginTop: 16,
+    marginTop: 20,
     alignItems: 'center',
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: '#3a2a5e',
   },
   footerText: {
-    fontSize: 12,
-    color: '#a09070',
+    fontSize: 13,
+    color: '#8a7a6a',
   },
 });

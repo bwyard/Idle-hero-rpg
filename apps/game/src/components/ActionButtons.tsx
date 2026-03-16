@@ -15,13 +15,14 @@ interface ActionButtonsProps {
 interface ActionDef {
   type: string;
   label: string;
+  disabled?: boolean;
 }
 
 const ACTIONS: readonly ActionDef[] = [
-  { type: 'RECRUIT_ADVENTURER', label: 'Recruit' },
-  { type: 'BUILD_BUILDING', label: 'Build' },
-  { type: 'START_QUEST', label: 'Quest' },
-  { type: 'HOLD_FEAST', label: 'Feast' },
+  { type: 'RECRUIT_ADVENTURER', label: 'Recruit (50g)' },
+  { type: 'BUILD_BUILDING', label: 'Build', disabled: true },
+  { type: 'START_QUEST', label: 'Quest', disabled: true },
+  { type: 'HOLD_FEAST', label: 'Feast (75g)' },
 ];
 
 export function ActionButtons({ onAction }: ActionButtonsProps) {
@@ -34,13 +35,28 @@ export function ActionButtons({ onAction }: ActionButtonsProps) {
             key={action.type}
             style={({ pressed }) => [
               styles.button,
-              pressed && styles.buttonPressed,
+              action.disabled && styles.buttonDisabled,
+              !action.disabled && pressed && styles.buttonPressed,
             ]}
-            onPress={() => { onAction(action.type); }}
-            accessibilityLabel={action.label}
+            onPress={() => {
+              if (!action.disabled) onAction(action.type);
+            }}
+            disabled={action.disabled}
+            accessibilityLabel={action.disabled ? `${action.label} — coming soon` : action.label}
             accessibilityRole="button"
+            accessibilityState={{ disabled: action.disabled }}
           >
-            <Text style={styles.buttonText}>{action.label}</Text>
+            {({ pressed }) => (
+              <Text
+                style={[
+                  styles.buttonText,
+                  action.disabled && styles.buttonTextDisabled,
+                  !action.disabled && pressed && { color: '#1a0a2e' },
+                ]}
+              >
+                {action.label}
+              </Text>
+            )}
           </Pressable>
         ))}
       </View>
@@ -53,36 +69,45 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   sectionTitle: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#a09070',
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#b0a090',
     textTransform: 'uppercase',
-    letterSpacing: 1,
-    marginBottom: 8,
+    letterSpacing: 1.5,
+    marginBottom: 10,
   },
   row: {
     flexDirection: 'row',
-    gap: 8,
+    flexWrap: 'wrap',
+    gap: 10,
   },
   button: {
-    flex: 1,
-    backgroundColor: '#3a2a4e',
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: '#c9b14a',
-    paddingVertical: 12,
+    flexBasis: '47%',
+    flexGrow: 1,
+    backgroundColor: '#352050',
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#f0d060',
+    paddingVertical: 14,
     alignItems: 'center',
     justifyContent: 'center',
-    minHeight: 44,
-    minWidth: 44,
+    minHeight: 48,
+    minWidth: 48,
   },
   buttonPressed: {
-    backgroundColor: '#4a3a5e',
-    opacity: 0.8,
+    backgroundColor: '#f0d060',
   },
   buttonText: {
-    fontSize: 13,
-    fontWeight: '600',
-    color: '#c9b14a',
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#f0d060',
+  },
+  buttonDisabled: {
+    borderColor: '#4a3a5e',
+    backgroundColor: '#1e1235',
+    opacity: 0.5,
+  },
+  buttonTextDisabled: {
+    color: '#6a5a7a',
   },
 });
