@@ -157,8 +157,21 @@ export const PLACEHOLDER_BUILDING_INCOME_PER_LEVEL = 5; // placeholder — tune 
 
 // ─── Placeholder Adventurer Progression ─────────────────────────────────────
 
-/** XP gained per tick by each adventurer. */
-export const PLACEHOLDER_XP_PER_TICK = 1; // placeholder — tune during balance pass
+/**
+ * Ambient XP gained per tick by idle adventurers (not on a quest).
+ * Lower tiers gain more from ambient observation. Busy adventurers get 0.
+ */
+export const PLACEHOLDER_AMBIENT_XP_PER_TICK: Record<string, number> = {
+  F: 0.5, // Learns a lot from watching
+  E: 0.4,
+  D: 0.3,
+  C: 0.2,
+  B: 0.15,
+  A: 0.1,
+  S: 0.05,
+  SS: 0.02,
+  Legendary: 0, // Legendaries don't learn from watching
+};
 
 /** XP thresholds for tier-up, keyed by current tier. */
 export const PLACEHOLDER_TIER_XP_THRESHOLDS: Record<string, number> = {
