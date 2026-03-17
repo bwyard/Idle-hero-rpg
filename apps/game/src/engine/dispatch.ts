@@ -347,8 +347,36 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     case 'UPGRADE_BUILDING': {
       const building = state.buildings[action.buildingId];
       if (!building) return state;
-      if (building.upgradeTicksRemaining > 0) return state;
-      if (building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL) return state;
+      if (building.upgradeTicksRemaining > 0) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'CANNOT_UPGRADE',
+              message: `${building.templateId} is already upgrading!`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
+      if (building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'CANNOT_UPGRADE',
+              message: `${building.templateId} is already at max level!`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const targetLevel = building.level + 1;
       const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;

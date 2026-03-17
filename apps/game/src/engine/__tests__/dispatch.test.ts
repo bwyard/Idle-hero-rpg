@@ -396,16 +396,28 @@ describe('dispatch', () => {
       expect(next).toEqual(state);
     });
 
-    it('returns state unchanged if building is already upgrading', () => {
+    it('emits CANNOT_UPGRADE event and does not upgrade if building is already upgrading', () => {
       const state = stateWithBuilding(1, 10000, true);
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
-      expect(next).toEqual(state);
+      // Building unchanged
+      expect(next.buildings['bld_test_1']!.level).toBe(1);
+      expect(next.guild.gold).toBe(10000);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'CANNOT_UPGRADE');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain('already upgrading');
     });
 
-    it('returns state unchanged if building is at max level', () => {
+    it('emits CANNOT_UPGRADE event and does not upgrade if building is at max level', () => {
       const state = stateWithBuilding(PLACEHOLDER_MAX_BUILDING_LEVEL, 100000);
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
-      expect(next).toEqual(state);
+      // Building unchanged
+      expect(next.buildings['bld_test_1']!.level).toBe(PLACEHOLDER_MAX_BUILDING_LEVEL);
+      expect(next.guild.gold).toBe(100000);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'CANNOT_UPGRADE');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain('max level');
     });
 
     it('emits INSUFFICIENT_GOLD event and does not upgrade if gold is too low', () => {
