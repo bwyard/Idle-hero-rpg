@@ -55,7 +55,7 @@ export function AdventurerRoster({ adventurers }: AdventurerRosterProps) {
                     />
                   </View>
                   <Text style={styles.xpText}>
-                    {adv.xp}/{xpThreshold ?? 'MAX'}
+                    {Math.floor(adv.xp)}/{xpThreshold ?? 'MAX'}
                   </Text>
                 </View>
               </View>

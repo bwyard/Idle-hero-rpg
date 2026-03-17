@@ -77,6 +77,42 @@ describe('Game happy path', () => {
     cy.contains('Spring').should('exist');
   });
 
+  it('XP bars in roster show whole numbers — no floating point noise', () => {
+    // Tick enough times for fractional ambient XP to accumulate (0.3/tick for D-tier)
+    for (let i = 0; i < 15; i++) {
+      cy.contains('Tick +1').click({ force: true });
+    }
+
+    // No element on the page should render floating-point XP like "4.5000001/10"
+    // The regex matches a decimal number followed by "/" (the XP separator)
+    cy.contains(/\d+\.\d+\//).should('not.exist');
+  });
+
+  it('shows insufficient gold feedback when recruit fails', () => {
+    // Drain gold by recruiting until broke — starting gold 500, cost 50g = 10 recruits max
+    for (let i = 0; i < 10; i++) {
+      cy.contains('Recruit (50g)').click({ force: true });
+    }
+    // Now attempt to recruit with < 50g remaining
+    cy.contains('Recruit (50g)').click({ force: true });
+    cy.contains('Tick +1').click({ force: true });
+    cy.contains('Not enough gold').should('exist');
+  });
+
+  it('shows insufficient gold feedback when build fails', () => {
+    // Build costs 100g — recruit 4 times (4×50=200g) to get below 100g threshold
+    // Starting gold 500, after 4 recruits = 300g still > 100. After 5 = 250g > 100.
+    // After spending on feast+recruits to drain:
+    // Easiest: drain below 100 via recruits: need 500 - (n×50) < 100 → n > 8 → 9 recruits = 500-450=50g
+    for (let i = 0; i < 9; i++) {
+      cy.contains('Recruit (50g)').click({ force: true });
+    }
+    // Now gold is 50g, build costs 100g
+    cy.contains('Build (100g)').click({ force: true });
+    cy.contains('Tick +1').click({ force: true });
+    cy.contains('Not enough gold').should('exist');
+  });
+
   it('full loop: recruit → generate quest → assign → tick to completion', () => {
     // Recruit
     cy.contains('Recruit (50g)').click({ force: true });
