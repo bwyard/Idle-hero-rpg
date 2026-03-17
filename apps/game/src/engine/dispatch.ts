@@ -202,6 +202,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       const holdDuration = Math.floor(
         (PLACEHOLDER_HOLD_DURATION_DAYS * TICKS_PER_DAY) / newHoldCount,
       );
+      const currentDeadline = Math.max(visitor.expiresAtTick, visitor.heldUntilTick ?? 0);
 
       const event = {
         id: createId('evt'),
@@ -217,7 +218,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
           ...state.transientVisitors,
           [action.visitorId]: {
             ...visitor,
-            heldUntilTick: state.time.ticksElapsed + holdDuration,
+            heldUntilTick: currentDeadline + holdDuration,
             holdCount: newHoldCount,
           },
         },
