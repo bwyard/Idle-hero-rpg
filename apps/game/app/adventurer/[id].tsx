@@ -63,7 +63,7 @@ export default function AdventurerDetailScreen() {
         <View style={styles.statRow}>
           <Text style={styles.statLabel}>XP</Text>
           <Text style={styles.statValue}>
-            {adventurer.xp} / {xpThreshold ?? 'MAX'}
+            {Math.floor(adventurer.xp)} / {xpThreshold ?? 'MAX'}
           </Text>
         </View>
         <View style={styles.xpBarBackground}>

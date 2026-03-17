@@ -295,13 +295,19 @@ describe('dispatch', () => {
       expect(next.guild.gold).toBe(500 - PLACEHOLDER_ENGAGE_COST);
     });
 
-    it('fails if insufficient gold (returns state unchanged)', () => {
-      const visitor = makeVisitor({ id: 'vis_1' });
+    it('emits INSUFFICIENT_GOLD event and does not engage if gold is too low', () => {
+      const visitor = makeVisitor({ id: 'vis_1', name: 'TestVisitor' });
       const state = stateWithVisitorAndGold(visitor, PLACEHOLDER_ENGAGE_COST - 1, 10);
 
       const next = dispatch(state, { type: 'ENGAGE_VISITOR', visitorId: 'vis_1' });
+      // Visitor still present
       expect(next.transientVisitors['vis_1']).toBeDefined();
+      // Gold unchanged
       expect(next.guild.gold).toBe(PLACEHOLDER_ENGAGE_COST - 1);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'INSUFFICIENT_GOLD');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain(`${String(PLACEHOLDER_ENGAGE_COST)}g`);
     });
 
     it('returns state unchanged if visitor does not exist', () => {
@@ -402,13 +408,20 @@ describe('dispatch', () => {
       expect(next).toEqual(state);
     });
 
-    it('returns state unchanged if not enough gold', () => {
+    it('emits INSUFFICIENT_GOLD event and does not upgrade if gold is too low', () => {
       const targetLevel = 2;
       const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
       const state = stateWithBuilding(1, cost - 1);
 
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
-      expect(next).toEqual(state);
+      // Building level unchanged
+      expect(next.buildings['bld_test_1']!.level).toBe(1);
+      // Gold unchanged
+      expect(next.guild.gold).toBe(cost - 1);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'INSUFFICIENT_GOLD');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain(`${String(cost)}g`);
     });
 
     it('emits an UPGRADE_START event', () => {
@@ -449,14 +462,21 @@ describe('dispatch', () => {
       expect(next.guild.gold).toBe(startGold - PLACEHOLDER_RECRUIT_COST);
     });
 
-    it('returns state unchanged if insufficient gold', () => {
+    it('emits INSUFFICIENT_GOLD event and does not recruit if gold is too low', () => {
       const state: GameState = {
         ...createInitialGameState(),
         guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST - 1 },
       };
 
       const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
-      expect(next).toEqual(state);
+      // No new adventurer added
+      expect(Object.keys(next.adventurers).length).toBe(Object.keys(state.adventurers).length);
+      // Gold unchanged
+      expect(next.guild.gold).toBe(state.guild.gold);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'INSUFFICIENT_GOLD');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain(`${String(PLACEHOLDER_RECRUIT_COST)}g`);
     });
 
     it('new adventurer has tier F and xp 0', () => {
@@ -530,7 +550,7 @@ describe('dispatch', () => {
       expect(next.guild.gold).toBe(startGold - PLACEHOLDER_BUILD_COST);
     });
 
-    it('returns state unchanged if insufficient gold', () => {
+    it('emits INSUFFICIENT_GOLD event and does not build if gold is too low', () => {
       const state: GameState = {
         ...createInitialGameState(),
         guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_BUILD_COST - 1 },
@@ -541,7 +561,14 @@ describe('dispatch', () => {
         buildingTemplateId: 'training-grounds',
         cityId: 'cty_heartlands',
       });
-      expect(next).toEqual(state);
+      // No new building added
+      expect(Object.keys(next.buildings).length).toBe(Object.keys(state.buildings).length);
+      // Gold unchanged
+      expect(next.guild.gold).toBe(state.guild.gold);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'INSUFFICIENT_GOLD');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain(`${String(PLACEHOLDER_BUILD_COST)}g`);
     });
 
     it('new building has level 1 and upgradeTicksRemaining 0', () => {
@@ -636,19 +663,24 @@ describe('dispatch', () => {
       expect(next.guild.gold).toBe(10000 - cost);
     });
 
-    it('returns state unchanged if not enough gold', () => {
+    it('emits INSUFFICIENT_GOLD event and does not expand if gold is too low', () => {
       const state = createInitialGameState();
-      const poorState: GameState = {
-        ...state,
-        guild: { ...state.guild, gold: 0 },
-      };
+      const citiesOwned = Object.keys(state.cities).length;
+      const cost =
+        PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
+      const poorState: GameState = { ...state, guild: { ...state.guild, gold: cost - 1 } };
 
       const next = dispatch(poorState, {
         type: 'EXPAND_CITY',
         cityId: 'cty_coast',
         cityName: 'Seaside Haven',
       });
+      // No city added
       expect(Object.keys(next.cities).length).toBe(Object.keys(state.cities).length);
+      // Feedback event emitted
+      const feedbackEvents = next.pendingEvents.filter((e) => e.type === 'INSUFFICIENT_GOLD');
+      expect(feedbackEvents).toHaveLength(1);
+      expect(feedbackEvents[0]?.message).toContain(`${String(cost)}g`);
     });
 
     it('new city ID starts with cty_', () => {

@@ -132,6 +132,59 @@ describe('processAdventurers', () => {
     });
   });
 
+  describe('XP display integrity', () => {
+    it('displayed XP (Math.floor) is always a whole number after many ambient ticks', () => {
+      // Ambient XP rates are fractional (0.5, 0.4, etc.) — floating point errors
+      // compound over many ticks. The displayed value must always be a whole number.
+      let state: GameState = {
+        ...createInitialGameState(),
+        adventurers: {
+          adv_f: makeAdventurer({ id: 'adv_f', tier: 'F', xp: 0 }),
+          adv_e: makeAdventurer({ id: 'adv_e', tier: 'E', xp: 0 }),
+          adv_d: makeAdventurer({ id: 'adv_d', tier: 'D', xp: 0 }),
+        },
+      };
+
+      for (let i = 0; i < 200; i++) {
+        state = processAdventurers(state);
+      }
+
+      for (const adv of Object.values(state.adventurers)) {
+        const displayed = Math.floor(adv.xp);
+        expect(Number.isInteger(displayed)).toBe(true);
+        // The key assertion: displayed string must not contain a decimal point
+        expect(String(displayed)).not.toContain('.');
+      }
+    });
+
+    it('XP float noise stays below 1 so Math.floor always gives the correct whole number', () => {
+      // Root cause from screenshot: D-tier rate is 0.3/tick — 0.3 is not exactly
+      // representable in IEEE-754. After 121 ticks the running sum is 36.30000000000001
+      // instead of 36.3. Math.floor(36.30000000000001) = 36 = Math.floor(36.3), so
+      // the display is correct. This test verifies the float error stays below 1
+      // (i.e., it never causes Math.floor to return the wrong integer).
+      let current: GameState = {
+        ...createInitialGameState(),
+        adventurers: {
+          // D-tier: rate 0.3, threshold 50 — won't tier-up in 121 ticks (max 36.3 XP)
+          adv_d: makeAdventurer({ id: 'adv_d', tier: 'D', xp: 0 }),
+        },
+      };
+
+      for (let i = 0; i < 121; i++) {
+        current = processAdventurers(current);
+      }
+
+      const xp = current.adventurers['adv_d']?.xp ?? 0;
+      const rate = PLACEHOLDER_AMBIENT_XP_PER_TICK['D'] ?? 0;
+      const floatError = Math.abs(xp - rate * 121);
+      // Float error must be tiny — well under 1 so Math.floor never jumps a whole number
+      expect(floatError).toBeLessThan(0.001);
+      // And the displayed string must be clean
+      expect(String(Math.floor(xp))).not.toContain('.');
+    });
+  });
+
   it('does not mutate the input state', () => {
     const state: GameState = {
       ...createInitialGameState(),

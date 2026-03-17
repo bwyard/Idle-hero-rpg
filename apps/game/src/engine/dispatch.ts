@@ -59,7 +59,21 @@ const ADVENTURER_NAMES = [
 export function dispatch(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RECRUIT_ADVENTURER': {
-      if (state.guild.gold < PLACEHOLDER_RECRUIT_COST) return state;
+      if (state.guild.gold < PLACEHOLDER_RECRUIT_COST) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to recruit! Need ${String(PLACEHOLDER_RECRUIT_COST)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const advId = createId('adv');
       const name =
@@ -98,7 +112,21 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     }
 
     case 'BUILD_BUILDING': {
-      if (state.guild.gold < PLACEHOLDER_BUILD_COST) return state;
+      if (state.guild.gold < PLACEHOLDER_BUILD_COST) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to build! Need ${String(PLACEHOLDER_BUILD_COST)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const bldId = createId('bld');
 
@@ -165,7 +193,21 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     }
 
     case 'HOLD_FEAST': {
-      if (state.guild.gold < PLACEHOLDER_FEAST_COST) return state;
+      if (state.guild.gold < PLACEHOLDER_FEAST_COST) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to hold a feast! Need ${String(PLACEHOLDER_FEAST_COST)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const boostedAdventurers: Record<string, (typeof state.adventurers)[string]> = {};
       for (const [id, adv] of Object.entries(state.adventurers)) {
@@ -229,7 +271,21 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     case 'ENGAGE_VISITOR': {
       const visitor = state.transientVisitors[action.visitorId];
       if (!visitor) return state;
-      if (state.guild.gold < PLACEHOLDER_ENGAGE_COST) return state;
+      if (state.guild.gold < PLACEHOLDER_ENGAGE_COST) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to engage ${visitor.name}! Need ${String(PLACEHOLDER_ENGAGE_COST)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const advId = createId('adv');
       const { [action.visitorId]: _removed, ...remainingVisitors } = state.transientVisitors;
@@ -296,7 +352,21 @@ export function dispatch(state: GameState, action: GameAction): GameState {
 
       const targetLevel = building.level + 1;
       const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
-      if (state.guild.gold < cost) return state;
+      if (state.guild.gold < cost) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to upgrade! Need ${String(cost)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const event = {
         id: createId('evt'),
@@ -327,7 +397,21 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       const citiesOwned = Object.keys(state.cities).length;
       const cost =
         PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
-      if (state.guild.gold < cost) return state;
+      if (state.guild.gold < cost) {
+        return {
+          ...state,
+          pendingEvents: [
+            ...state.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'INSUFFICIENT_GOLD',
+              message: `Not enough gold to expand! Need ${String(cost)}g.`,
+              achievementKey: null,
+            } as const,
+          ],
+        };
+      }
 
       const cityId = createId('cty');
 
