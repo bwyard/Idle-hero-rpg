@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { createInitialGameState } from '../initialState';
 
 describe('createInitialGameState', () => {
-  it('returns a state with version 1', () => {
-    expect(createInitialGameState().version).toBe(1);
+  it('returns a state at the current schema version', () => {
+    expect(createInitialGameState().version).toBe(2);
   });
 
   it('starts with ticksElapsed at 0', () => {

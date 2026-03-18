@@ -25,7 +25,7 @@ describe('gameStore', () => {
 
   it('starts with initial game state', () => {
     const { state } = useGameStore.getState();
-    expect(state.version).toBe(1);
+    expect(state.version).toBe(2);
     expect(state.time.ticksElapsed).toBe(0);
   });
 
