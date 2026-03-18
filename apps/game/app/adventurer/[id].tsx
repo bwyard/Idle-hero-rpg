@@ -62,7 +62,7 @@ export default function AdventurerDetailScreen() {
 
         <View style={styles.statRow}>
           <Text style={styles.statLabel}>XP</Text>
-          <Text style={styles.statValue}>
+          <Text style={styles.statValue} testID="adventurer-xp">
             {adventurer.xp} / {xpThreshold ?? 'MAX'}
           </Text>
         </View>
