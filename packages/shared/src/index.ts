@@ -17,6 +17,12 @@ export type {
 // Hero domain
 export type { Hero, HeroClass } from './types/hero';
 
+// Hero template domain (static data shapes — never stored in save file)
+export type { HeroClassTemplate, HeroAbilityTemplate } from './types/heroTemplate';
+
+// Legacy skill domain
+export type { LegacySkillId, LegacySkillTemplate, LegacySkill } from './types/legacySkill';
+
 // Guild domain
 export type { Guild, Building, GuildType } from './types/guild';
 
@@ -29,6 +35,7 @@ export type { Quest } from './types/quest';
 // Dynasty domain
 export type {
   Dynasty,
+  DynastyState,
   WorldAwarenessTier,
   PrestigeRelationshipTier,
   HallOfHeroesEntry,
@@ -57,6 +64,9 @@ export type {
   DismissVisitorAction,
   UpgradeBuildingAction,
   ExpandCityAction,
+  TriggerPrestigeAction,
+  UseHeroAbilityAction,
+  BorrowSkillAction,
 } from './types/actions';
 
 // ID generation

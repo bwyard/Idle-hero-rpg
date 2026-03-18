@@ -70,6 +70,35 @@ export interface ExpandCityAction {
   readonly cityName: string;
 }
 
+/**
+ * Trigger a prestige cycle — fired when the player confirms they want to
+ * retire the current leader and begin the next run.
+ * Requires flags.prestigeAvailable === true.
+ */
+export interface TriggerPrestigeAction {
+  readonly type: 'TRIGGER_PRESTIGE';
+}
+
+/**
+ * Use the hero's career milestone active ability.
+ * Requires milestoneUnlocked === true and sufficient actionPoints.
+ * The abilityId must match the hero's milestoneAbilityId.
+ */
+export interface UseHeroAbilityAction {
+  readonly type: 'USE_HERO_ABILITY';
+  readonly abilityId: string;
+}
+
+/**
+ * Borrow a legacy skill for this Conclave cycle.
+ * Requires: Master Mentor unlocked (prestige ≥ 10), sufficient AP,
+ * and skillBorrowUsed === false for the targeted skill.
+ */
+export interface BorrowSkillAction {
+  readonly type: 'BORROW_SKILL';
+  readonly skillId: string;
+}
+
 /** All possible player actions. Add new action types here as features are built. */
 export type GameAction =
   | NoOpAction
@@ -82,4 +111,7 @@ export type GameAction =
   | EngageVisitorAction
   | DismissVisitorAction
   | UpgradeBuildingAction
-  | ExpandCityAction;
+  | ExpandCityAction
+  | TriggerPrestigeAction
+  | UseHeroAbilityAction
+  | BorrowSkillAction;
