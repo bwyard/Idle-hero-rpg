@@ -99,6 +99,7 @@ describe('dispatch', () => {
             assignedAdventurerId: null,
             ticksRemaining: 30,
             isComplete: false,
+            completedAtTick: null,
           },
         },
       };

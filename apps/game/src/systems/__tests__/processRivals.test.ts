@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { processRivals, placeholderRivalImpl } from '../processRivals';
 import { createInitialGameState } from '../../stores/initialState';
-import { NPC_GUILD_MIN_TENURE_YEARS } from '../../data/balance';
-import type { GameState, Rival } from '@idle-hero-rpg/shared';
+import { MAX_RIVALS, NPC_GUILD_MIN_TENURE_YEARS } from '../../data/balance';
+import type { GameState, Rival, RivalProgressionImpl } from '@idle-hero-rpg/shared';
 
 /** Helper to create a state with specific rivals and year. */
 function makeState(
@@ -71,11 +71,88 @@ describe('processRivals', () => {
     });
   });
 
+  describe('rival cap', () => {
+    it('does not spawn a new rival when rivals are at MAX_RIVALS', () => {
+      const rivals: Record<string, Rival> = {};
+      for (let i = 0; i < MAX_RIVALS; i++) {
+        const id = `rvl_cap_${i}`;
+        // foundedYear = currentYear so tenure = 0 — below NPC_GUILD_MIN_TENURE_YEARS, no dissolution
+        rivals[id] = {
+          id,
+          name: `Guild ${i}`,
+          foundedYear: 10,
+          tier: 'Minor',
+          sourceAdventurerId: null,
+        };
+      }
+      const state = makeState({ rivals, currentYear: 10 });
+      // random=0 is below spawn chance but cap should block it
+      const next = processRivals(state, placeholderRivalImpl, () => 0);
+      expect(Object.keys(next.rivals).length).toBe(MAX_RIVALS);
+    });
+
+    it('MAX_RIVALS constant is defined', () => {
+      expect(MAX_RIVALS).toBeDefined();
+      expect(typeof MAX_RIVALS).toBe('number');
+    });
+  });
+
+  describe('rival dissolution', () => {
+    it('dissolves a tenured rival when dissolution roll triggers', () => {
+      const rival: Rival = {
+        id: 'rvl_old',
+        name: 'Old Guild',
+        foundedYear: 1,
+        tier: 'Minor',
+        sourceAdventurerId: null,
+      };
+      const state = makeState({ rivals: { [rival.id]: rival }, currentYear: 20 });
+
+      // impl that always meets tenure; random always below dissolve chance
+      const alwaysDissolveImpl: RivalProgressionImpl = {
+        shouldPopulateRival: () => false,
+        hasMetMinimumTenure: () => true,
+      };
+      const next = processRivals(state, alwaysDissolveImpl, () => 0);
+      expect(next.rivals['rvl_old']).toBeUndefined();
+    });
+
+    it('emits RIVAL_DISSOLVED event on dissolution', () => {
+      const rival: Rival = {
+        id: 'rvl_old',
+        name: 'Old Guild',
+        foundedYear: 1,
+        tier: 'Minor',
+        sourceAdventurerId: null,
+      };
+      const state = makeState({ rivals: { [rival.id]: rival }, currentYear: 20 });
+
+      const alwaysDissolveImpl: RivalProgressionImpl = {
+        shouldPopulateRival: () => false,
+        hasMetMinimumTenure: () => true,
+      };
+      const next = processRivals(state, alwaysDissolveImpl, () => 0);
+      expect(next.pendingEvents.some((e) => e.type === 'RIVAL_DISSOLVED')).toBe(true);
+    });
+
+    it('does not dissolve a rival that has not met minimum tenure', () => {
+      const rival: Rival = {
+        id: 'rvl_young',
+        name: 'Young Guild',
+        foundedYear: 9,
+        tier: 'Minor',
+        sourceAdventurerId: null,
+      };
+      const state = makeState({ rivals: { [rival.id]: rival }, currentYear: 10 });
+      // placeholderRivalImpl: tenure requires >= NPC_GUILD_MIN_TENURE_YEARS (5), year 10-9=1 < 5
+      const next = processRivals(state, placeholderRivalImpl, () => 0);
+      expect(next.rivals['rvl_young']).toBeDefined();
+    });
+  });
+
   describe('minimum tenure check', () => {
-    it('respects NPC_GUILD_MIN_TENURE_YEARS constant (currently 0)', () => {
-      // This test documents that the constant exists and is used
-      expect(NPC_GUILD_MIN_TENURE_YEARS).toBeDefined();
-      expect(typeof NPC_GUILD_MIN_TENURE_YEARS).toBe('number');
+    it('NPC_GUILD_MIN_TENURE_YEARS constant is defined and is 5', () => {
+      expect(NPC_GUILD_MIN_TENURE_YEARS).toBe(5);
     });
   });
 });

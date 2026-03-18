@@ -122,6 +122,13 @@ export const PLACEHOLDER_QUEST_DURATION_DAYS = 8;
 /** Maximum number of unassigned quests on the quest board at once. */
 export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5;
 
+/**
+ * Ticks after completion before a quest is pruned from state.quests.
+ * 40 ticks = 10 in-game days — enough for the player to see the Done badge.
+ * Prevents unbounded growth of the quests record across a 50-year run.
+ */
+export const QUEST_PRUNE_DELAY_TICKS = 40;
+
 // ─── Adventurer Progression ─────────────────────────────────────────────────
 
 /**
@@ -171,10 +178,16 @@ export const WORLD_AWARENESS_HIDDEN_MAX_PRESTIGE = 2;
 // ─── NPC Guilds ──────────────────────────────────────────────────────────────
 
 /**
- * Minimum tenure for NPC guilds (in in-game years).
- * TODO: Exact numbers need tuning. Principle: NPC guilds have minimum lifespans.
+ * Minimum tenure for NPC guilds (in in-game years) before dissolution is possible.
+ * Placeholder — needs tuning. Principle: NPC guilds have minimum lifespans.
  */
-export const NPC_GUILD_MIN_TENURE_YEARS = 0; // stub — needs tuning pass
+export const NPC_GUILD_MIN_TENURE_YEARS = 5;
+
+/** Maximum concurrent rival guilds tracked in GameState. Prevents unbounded growth across runs. */
+export const MAX_RIVALS = 20;
+
+/** Per-tick probability that a tenured rival guild dissolves. */
+export const PLACEHOLDER_RIVAL_DISSOLVE_CHANCE = 0.0005;
 
 // ─── Transient Visitors ─────────────────────────────────────────────────────
 

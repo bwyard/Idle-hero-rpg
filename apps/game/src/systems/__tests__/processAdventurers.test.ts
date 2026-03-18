@@ -50,6 +50,7 @@ describe('processAdventurers', () => {
             assignedAdventurerId: 'adv_1',
             ticksRemaining: 20,
             isComplete: false,
+            completedAtTick: null,
           },
         },
       };
@@ -70,6 +71,7 @@ describe('processAdventurers', () => {
             assignedAdventurerId: null,
             ticksRemaining: 0,
             isComplete: true,
+            completedAtTick: null,
           },
         },
       };

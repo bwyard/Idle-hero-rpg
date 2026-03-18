@@ -61,6 +61,7 @@ export function generateQuests(state: GameState): GameState {
       assignedAdventurerId: null,
       ticksRemaining: template.baseDurationDays * TICKS_PER_DAY,
       isComplete: false,
+      completedAtTick: null,
     };
   }
 

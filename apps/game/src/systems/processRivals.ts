@@ -14,7 +14,12 @@
 
 import type { GameState, RivalProgressionImpl, Rival } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
-import { NPC_GUILD_MIN_TENURE_YEARS, PLACEHOLDER_RIVAL_SPAWN_CHANCE } from '../data/balance';
+import {
+  MAX_RIVALS,
+  NPC_GUILD_MIN_TENURE_YEARS,
+  PLACEHOLDER_RIVAL_DISSOLVE_CHANCE,
+  PLACEHOLDER_RIVAL_SPAWN_CHANCE,
+} from '../data/balance';
 
 /** Small pool of NPC guild names for spawned rivals. */
 const RIVAL_NAMES = [
@@ -49,8 +54,29 @@ export function processRivals(
   impl: RivalProgressionImpl = stubRivalProgressionImpl,
   random: () => number = Math.random,
 ): GameState {
-  // Attempt to spawn a new rival
-  if (random() < PLACEHOLDER_RIVAL_SPAWN_CHANCE && impl.shouldPopulateRival(state)) {
+  let next = state;
+
+  // Dissolve tenured rivals with a small per-tick probability
+  for (const [id, rival] of Object.entries(next.rivals)) {
+    if (impl.hasMetMinimumTenure(id, next) && random() < PLACEHOLDER_RIVAL_DISSOLVE_CHANCE) {
+      const { [id]: _dissolved, ...remaining } = next.rivals;
+      const dissolveEvent = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'RIVAL_DISSOLVED',
+        message: `${rival.name} has dissolved after years of activity.`,
+        achievementKey: null,
+      } as const;
+      next = { ...next, rivals: remaining, pendingEvents: [...next.pendingEvents, dissolveEvent] };
+    }
+  }
+
+  // Attempt to spawn a new rival — capped at MAX_RIVALS
+  if (
+    Object.keys(next.rivals).length < MAX_RIVALS &&
+    random() < PLACEHOLDER_RIVAL_SPAWN_CHANCE &&
+    impl.shouldPopulateRival(next)
+  ) {
     const rivalId = createId('rvl');
     const name = RIVAL_NAMES[Math.floor(random() * RIVAL_NAMES.length)] ?? 'Unknown Guild';
 
@@ -70,15 +96,12 @@ export function processRivals(
       achievementKey: null,
     } as const;
 
-    return {
-      ...state,
-      rivals: {
-        ...state.rivals,
-        [rivalId]: rival,
-      },
-      pendingEvents: [...state.pendingEvents, event],
+    next = {
+      ...next,
+      rivals: { ...next.rivals, [rivalId]: rival },
+      pendingEvents: [...next.pendingEvents, event],
     };
   }
 
-  return state;
+  return next;
 }

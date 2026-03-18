@@ -46,6 +46,7 @@ describe('generateQuests', () => {
         assignedAdventurerId: null,
         ticksRemaining: 30,
         isComplete: false,
+        completedAtTick: null,
       };
     }
     const stateWithQuests = { ...state, quests };
@@ -66,6 +67,7 @@ describe('generateQuests', () => {
         assignedAdventurerId: null,
         ticksRemaining: 30,
         isComplete: false,
+        completedAtTick: null,
       };
     }
     const stateWithQuests = { ...state, quests };
@@ -154,6 +156,7 @@ describe('generateQuests', () => {
       assignedAdventurerId: 'adv_starter_1',
       ticksRemaining: 15,
       isComplete: false,
+      completedAtTick: null,
     };
     const stateWithAssigned = {
       ...state,

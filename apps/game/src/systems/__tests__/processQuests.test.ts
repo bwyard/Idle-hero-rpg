@@ -1,7 +1,11 @@
 import { describe, it, expect } from 'vitest';
 import { processQuests } from '../processQuests';
 import { createInitialGameState } from '../../stores/initialState';
-import { PLACEHOLDER_QUEST_GOLD_REWARD, PLACEHOLDER_QUEST_XP_REWARD } from '../../data/balance';
+import {
+  PLACEHOLDER_QUEST_GOLD_REWARD,
+  PLACEHOLDER_QUEST_XP_REWARD,
+  QUEST_PRUNE_DELAY_TICKS,
+} from '../../data/balance';
 import type { GameState, Quest, Adventurer } from '@idle-hero-rpg/shared';
 
 function makeQuest(overrides: Partial<Quest> = {}): Quest {
@@ -11,6 +15,7 @@ function makeQuest(overrides: Partial<Quest> = {}): Quest {
     assignedAdventurerId: null,
     ticksRemaining: 30,
     isComplete: false,
+    completedAtTick: null,
     ...overrides,
   };
 }
@@ -122,5 +127,85 @@ describe('processQuests', () => {
 
     processQuests(state);
     expect(state.quests['qst_1']?.ticksRemaining).toBe(originalTicks);
+  });
+
+  describe('completedAtTick', () => {
+    it('stamps completedAtTick when quest completes', () => {
+      const quest = makeQuest({ id: 'qst_1', assignedAdventurerId: 'adv_1', ticksRemaining: 1 });
+      const adv = makeAdventurer({ id: 'adv_1' });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.quests['qst_1']?.completedAtTick).toBe(state.time.ticksElapsed);
+    });
+
+    it('completedAtTick remains null for active quests', () => {
+      const quest = makeQuest({ id: 'qst_1', assignedAdventurerId: 'adv_1', ticksRemaining: 5 });
+      const adv = makeAdventurer({ id: 'adv_1' });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.quests['qst_1']?.completedAtTick).toBeNull();
+    });
+  });
+
+  describe('quest pruning', () => {
+    it('prunes completed quests after QUEST_PRUNE_DELAY_TICKS', () => {
+      const completedAtTick = 10;
+      const currentTick = completedAtTick + QUEST_PRUNE_DELAY_TICKS + 1;
+      const quest = makeQuest({
+        id: 'qst_old',
+        isComplete: true,
+        assignedAdventurerId: null,
+        ticksRemaining: 0,
+        completedAtTick,
+      });
+      const state: GameState = {
+        ...createInitialGameState(),
+        time: { ...createInitialGameState().time, ticksElapsed: currentTick },
+        quests: { [quest.id]: quest },
+      };
+
+      const next = processQuests(state);
+      expect(next.quests['qst_old']).toBeUndefined();
+    });
+
+    it('does not prune completed quests within the display window', () => {
+      const completedAtTick = 10;
+      const currentTick = completedAtTick + QUEST_PRUNE_DELAY_TICKS - 1;
+      const quest = makeQuest({
+        id: 'qst_recent',
+        isComplete: true,
+        assignedAdventurerId: null,
+        ticksRemaining: 0,
+        completedAtTick,
+      });
+      const state: GameState = {
+        ...createInitialGameState(),
+        time: { ...createInitialGameState().time, ticksElapsed: currentTick },
+        quests: { [quest.id]: quest },
+      };
+
+      const next = processQuests(state);
+      expect(next.quests['qst_recent']).toBeDefined();
+    });
+
+    it('does not prune completed quests with null completedAtTick', () => {
+      const quest = makeQuest({
+        id: 'qst_null_tick',
+        isComplete: true,
+        assignedAdventurerId: null,
+        ticksRemaining: 0,
+        completedAtTick: null,
+      });
+      const state: GameState = {
+        ...createInitialGameState(),
+        time: { ...createInitialGameState().time, ticksElapsed: 1000 },
+        quests: { [quest.id]: quest },
+      };
+
+      const next = processQuests(state);
+      expect(next.quests['qst_null_tick']).toBeDefined();
+    });
   });
 });
