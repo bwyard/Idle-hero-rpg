@@ -22,8 +22,10 @@ import {
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
+  MASTER_MENTOR_ACTION_POINT_COST,
 } from '../data/balance';
 import { generateQuests } from '../systems/generateQuests';
+import { HERO_ABILITY_TEMPLATES } from '../data/heroClassTemplates';
 
 /** Small pool of fantasy names for recruited adventurers (display data). */
 const ADVENTURER_NAMES = [
@@ -354,6 +356,102 @@ export function dispatch(state: GameState, action: GameAction): GameState {
           },
         },
         pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'TRIGGER_PRESTIGE': {
+      if (!state.flags.prestigeAvailable) {
+        const event = {
+          id: createId('evt'),
+          tick: state.time.ticksElapsed,
+          type: 'CANNOT_PRESTIGE',
+          message: 'Prestige is not available yet — a Legendary adventurer must retire first.',
+          achievementKey: null,
+        } as const;
+
+        return {
+          ...state,
+          pendingEvents: [...state.pendingEvents, event],
+        };
+      }
+
+      // Placeholder: clear the flag and emit the event.
+      // Full prestige transition (leader swap, dynasty update) is future work.
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'PRESTIGE_TRIGGERED',
+        message: 'The guild begins the prestige transition!',
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        flags: {
+          ...state.flags,
+          prestigeAvailable: false,
+        },
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'USE_HERO_ABILITY': {
+      const abilityTemplate = HERO_ABILITY_TEMPLATES[action.abilityId];
+      const apCost = abilityTemplate?.apCost ?? 2; // fallback to 2 AP for unknown abilities
+
+      if (!state.hero.milestoneUnlocked || state.hero.actionPoints < apCost) {
+        const event = {
+          id: createId('evt'),
+          tick: state.time.ticksElapsed,
+          type: 'CANNOT_USE_ABILITY',
+          message: state.hero.milestoneUnlocked
+            ? `Not enough action points to use ${action.abilityId} (need ${String(apCost)}, have ${String(state.hero.actionPoints)}).`
+            : 'The career milestone ability has not been unlocked yet.',
+          achievementKey: null,
+        } as const;
+
+        return {
+          ...state,
+          pendingEvents: [...state.pendingEvents, event],
+        };
+      }
+
+      const abilityEvent = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'HERO_ABILITY_USED',
+        message: `${state.hero.name} used ${abilityTemplate?.displayName ?? action.abilityId}!`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        hero: {
+          ...state.hero,
+          actionPoints: state.hero.actionPoints - apCost,
+        },
+        pendingEvents: [...state.pendingEvents, abilityEvent],
+      };
+    }
+
+    case 'BORROW_SKILL': {
+      // Stub — dynasty gate is not wired to dispatch yet (future work).
+      // Deducts MASTER_MENTOR_ACTION_POINT_COST and emits the event.
+      const borrowEvent = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'BORROW_SKILL_USED',
+        message: `Skill Borrow activated for skill ${action.skillId}.`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        hero: {
+          ...state.hero,
+          actionPoints: state.hero.actionPoints - MASTER_MENTOR_ACTION_POINT_COST,
+        },
+        pendingEvents: [...state.pendingEvents, borrowEvent],
       };
     }
 

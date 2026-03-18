@@ -170,6 +170,25 @@ export const PLACEHOLDER_AP_REGEN_INTERVAL_DAYS = 10;
 /** Maximum action points the hero can hold at one time. */
 export const HERO_ACTION_POINT_MAX = 10;
 
+// ─── Hero Class AP Regen Rates ───────────────────────────────────────────────
+// Placeholder per-class base regen rates in AP per in-game day.
+// These will be tuned during balance pass; different classes may regen at different rates.
+
+/** Warblade base AP regen per in-game day. */
+export const PLACEHOLDER_WARBLADE_AP_REGEN_PER_DAY = 0.1;
+
+/** Wanderer base AP regen per in-game day. */
+export const PLACEHOLDER_WANDERER_AP_REGEN_PER_DAY = 0.12;
+
+/** Archmage base AP regen per in-game day. */
+export const PLACEHOLDER_ARCHMAGE_AP_REGEN_PER_DAY = 0.08;
+
+/** Diplomat base AP regen per in-game day. */
+export const PLACEHOLDER_DIPLOMAT_AP_REGEN_PER_DAY = 0.1;
+
+/** Bard base AP regen per in-game day. */
+export const PLACEHOLDER_BARD_AP_REGEN_PER_DAY = 0.1;
+
 // ─── World Awareness ─────────────────────────────────────────────────────────
 
 /** Prestige counts at which world awareness tiers unlock. */
