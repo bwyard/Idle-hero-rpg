@@ -60,6 +60,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
       assignedAdventurerId: 'adv_test1',
       ticksRemaining: activeQuestTicks,
       isComplete: false,
+      completedAtTick: null,
     };
   }
 
