@@ -10,7 +10,7 @@ import { HERO_ACTION_POINT_MAX, PLACEHOLDER_STARTING_GOLD } from '../data/balanc
 
 export function createInitialGameState(): GameState {
   return {
-    version: 1,
+    version: 2,
     time: {
       ticksElapsed: 0,
       currentDay: 0,
