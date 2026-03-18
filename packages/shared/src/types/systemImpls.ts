@@ -77,8 +77,9 @@ export interface BuildingProductionImpl {
 
 // ---------------------------------------------------------------------------
 // Hero abilities
-// Pending: Option 3 — shared vs per-leader ability system (unresolved in CLAUDE.md)
-// Do not implement shared vs per-leader divergence until Option 3 is closed.
+// Design: CLOSED 2026-03-17 (ADR-006 Option 3)
+// Decision: HYBRID — per-hero class passive + career milestone active + guild legacy skills.
+// Each hero class has a passive (applied every tick) and a milestone active (AP cost, unlocked mid-run).
 // ---------------------------------------------------------------------------
 
 export interface HeroAbilityImpl {

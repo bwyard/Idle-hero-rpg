@@ -6,7 +6,7 @@
  */
 
 import type { GameState } from '@idle-hero-rpg/shared';
-import { PLACEHOLDER_STARTING_GOLD } from '../data/balance';
+import { HERO_ACTION_POINT_MAX, PLACEHOLDER_STARTING_GOLD } from '../data/balance';
 
 export function createInitialGameState(): GameState {
   return {
@@ -22,6 +22,10 @@ export function createInitialGameState(): GameState {
       name: 'Aldric',
       heroClass: 'Warblade',
       actionPoints: 3,
+      maxActionPoints: HERO_ACTION_POINT_MAX,
+      passiveAbilityId: 'warblade-passive',
+      milestoneAbilityId: 'warblade-milestone',
+      milestoneUnlocked: false,
     },
     guild: {
       name: 'The Iron Hearth',
@@ -77,6 +81,8 @@ export function createInitialGameState(): GameState {
       worldAwarenessTier: 'Hidden',
       permanentBonuses: {},
       hallOfHeroes: [],
+      legacySkills: [],
+      unlockedHeroClasses: ['Warblade'],
     },
     rivals: {},
     eventLog: [],

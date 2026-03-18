@@ -11,4 +11,18 @@ export interface Hero {
   name: string;
   heroClass: HeroClass;
   actionPoints: number;
+  /** Maximum AP the hero can hold (base class rate + guild size bonuses). */
+  maxActionPoints: number;
+  /**
+   * ID of the hero's passive ability — always active, applied every tick.
+   * References a HeroAbilityTemplate in the static template registry.
+   */
+  passiveAbilityId: string;
+  /**
+   * ID of the hero's career milestone active ability — unlocked mid-run.
+   * References a HeroAbilityTemplate in the static template registry.
+   */
+  milestoneAbilityId: string;
+  /** Whether the career milestone active ability has been unlocked this run. */
+  milestoneUnlocked: boolean;
 }
