@@ -19,9 +19,33 @@ Core design pillars:
 
 Deferred design decisions (do not implement until closed):
 - Branch merging conditions
-- Hero ability system scope (Option 3)
+- ~~Hero ability system scope (Option 3)~~ — **CLOSED 2026-03-17** (see below)
 - NPC guild minimum tenure numbers
 - Economy gold rates and costs
+
+### Option 3 — Hero ability system — CLOSED 2026-03-17
+
+**Decision: HYBRID — per-hero class abilities + guild legacy skills.**
+
+Each hero has:
+- A **passive ability** tied to their class (always active, every tick)
+- A **career milestone active ability** unlocked mid-run (costs Action Points)
+
+The guild accumulates **legacy skills** from retired heroes — 1–4 carry-over
+skills per prestige, count scales with guild level and mentoring. Legacy skills
+persist across runs in the dynasty layer and are available to all future leaders.
+
+Hero class abilities are data-driven (template registry pattern) — new classes
+and abilities are added to static data without touching engine code.
+
+Action Points (AP) regenerate per in-game day. Base rate is set by hero class;
+bonus AP scales with guild growth (adventurer count, active visitors, affiliate
+guilds, buildings). AP is unused in Phase 4's initial implementation — the
+system is built forward-looking with placeholder rates in `balance.ts`.
+
+Legacy skill IDs are free-form strings (`LegacySkillId = string`) keyed into a
+static template registry — consistent with the quest and building template
+patterns already in the codebase.
 
 ## Consequences
 **Positive:**
