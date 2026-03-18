@@ -46,7 +46,9 @@ export function TickControls({
         </Pressable>
 
         <View style={styles.tickCounter}>
-          <Text style={styles.tickCounterValue}>{ticksElapsed}</Text>
+          <Text style={styles.tickCounterValue} testID="tick-count">
+            {ticksElapsed}
+          </Text>
           <Text style={styles.tickCounterLabel}>ticks</Text>
         </View>
       </View>

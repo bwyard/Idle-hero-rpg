@@ -15,10 +15,12 @@ interface StatsBarProps {
   adventurerCount: number;
 }
 
-function StatItem({ label, value }: { label: string; value: string }) {
+function StatItem({ label, value, testID }: { label: string; value: string; testID?: string }) {
   return (
     <View style={styles.statItem}>
-      <Text style={styles.statValue}>{value}</Text>
+      <Text style={styles.statValue} testID={testID}>
+        {value}
+      </Text>
       <Text style={styles.statLabel}>{label}</Text>
     </View>
   );
@@ -38,7 +40,7 @@ export function StatsBar({
     <View style={styles.container}>
       <StatItem label={currentSeason} value={`Y${String(currentYear + 1)}`} />
       <StatItem label="Day" value={`${String(dayOfYear)}/${String(DAYS_PER_YEAR)}`} />
-      <StatItem label="Gold" value={String(gold)} />
+      <StatItem label="Gold" value={String(gold)} testID="stats-gold" />
       <StatItem label="Rep" value={String(reputation)} />
       <StatItem label="Advntr" value={String(adventurerCount)} />
     </View>
