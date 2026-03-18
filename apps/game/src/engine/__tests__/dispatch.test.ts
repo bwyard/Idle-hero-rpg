@@ -14,6 +14,7 @@ import {
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
+  MASTER_MENTOR_ACTION_POINT_COST,
 } from '../../data/balance';
 import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
 
@@ -659,6 +660,147 @@ describe('dispatch', () => {
       };
       const original = JSON.parse(JSON.stringify(state)) as GameState;
       dispatch(state, { type: 'EXPAND_CITY', cityId: 'cty_coast', cityName: 'Seaside Haven' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('TRIGGER_PRESTIGE', () => {
+    it('emits CANNOT_PRESTIGE event when flags.prestigeAvailable is false', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        flags: { prestigeAvailable: false },
+      };
+      const next = dispatch(state, { type: 'TRIGGER_PRESTIGE' });
+      const cannotEvents = next.pendingEvents.filter((e) => e.type === 'CANNOT_PRESTIGE');
+      expect(cannotEvents).toHaveLength(1);
+    });
+
+    it('returns state with original flags when prestige is not available', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        flags: { prestigeAvailable: false },
+      };
+      const next = dispatch(state, { type: 'TRIGGER_PRESTIGE' });
+      // State is otherwise the same — no prestige transition
+      expect(next.flags.prestigeAvailable).toBe(false);
+    });
+
+    it('emits PRESTIGE_TRIGGERED event when flags.prestigeAvailable is true', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        flags: { prestigeAvailable: true },
+      };
+      const next = dispatch(state, { type: 'TRIGGER_PRESTIGE' });
+      const triggeredEvents = next.pendingEvents.filter((e) => e.type === 'PRESTIGE_TRIGGERED');
+      expect(triggeredEvents).toHaveLength(1);
+    });
+
+    it('clears flags.prestigeAvailable to false after triggering', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        flags: { prestigeAvailable: true },
+      };
+      const next = dispatch(state, { type: 'TRIGGER_PRESTIGE' });
+      expect(next.flags.prestigeAvailable).toBe(false);
+    });
+
+    it('does not mutate input state', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        flags: { prestigeAvailable: true },
+      };
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+      dispatch(state, { type: 'TRIGGER_PRESTIGE' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('USE_HERO_ABILITY', () => {
+    function stateWithHeroAbility(milestoneUnlocked: boolean, actionPoints: number): GameState {
+      return {
+        ...createInitialGameState(),
+        hero: {
+          ...createInitialGameState().hero,
+          milestoneUnlocked,
+          actionPoints,
+          milestoneAbilityId: 'warblade-milestone',
+        },
+      };
+    }
+
+    it('emits CANNOT_USE_ABILITY when milestone is not unlocked', () => {
+      const state = stateWithHeroAbility(false, 5);
+      const next = dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      const cannotEvents = next.pendingEvents.filter((e) => e.type === 'CANNOT_USE_ABILITY');
+      expect(cannotEvents).toHaveLength(1);
+    });
+
+    it('emits CANNOT_USE_ABILITY when milestone is unlocked but AP is insufficient', () => {
+      // warblade-milestone costs 2 AP
+      const state = stateWithHeroAbility(true, 1);
+      const next = dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      const cannotEvents = next.pendingEvents.filter((e) => e.type === 'CANNOT_USE_ABILITY');
+      expect(cannotEvents).toHaveLength(1);
+    });
+
+    it('emits HERO_ABILITY_USED when milestone is unlocked and AP is sufficient', () => {
+      const state = stateWithHeroAbility(true, 5);
+      const next = dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      const usedEvents = next.pendingEvents.filter((e) => e.type === 'HERO_ABILITY_USED');
+      expect(usedEvents).toHaveLength(1);
+    });
+
+    it('deducts the ability AP cost on success', () => {
+      const initialAP = 5;
+      const state = stateWithHeroAbility(true, initialAP);
+      const next = dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      // warblade-milestone has apCost 2
+      expect(next.hero.actionPoints).toBe(initialAP - 2);
+    });
+
+    it('does not deduct AP when ability cannot be used', () => {
+      const initialAP = 1;
+      const state = stateWithHeroAbility(true, initialAP);
+      const next = dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      expect(next.hero.actionPoints).toBe(initialAP);
+    });
+
+    it('does not mutate input state', () => {
+      const state = stateWithHeroAbility(true, 5);
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+      dispatch(state, { type: 'USE_HERO_ABILITY', abilityId: 'warblade-milestone' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('BORROW_SKILL', () => {
+    it('emits BORROW_SKILL_USED event', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        hero: { ...createInitialGameState().hero, actionPoints: 5 },
+      };
+      const next = dispatch(state, { type: 'BORROW_SKILL', skillId: 'legacy-ancient-lore' });
+      const borrowEvents = next.pendingEvents.filter((e) => e.type === 'BORROW_SKILL_USED');
+      expect(borrowEvents).toHaveLength(1);
+    });
+
+    it('deducts MASTER_MENTOR_ACTION_POINT_COST from hero AP', () => {
+      const initialAP = 5;
+      const state: GameState = {
+        ...createInitialGameState(),
+        hero: { ...createInitialGameState().hero, actionPoints: initialAP },
+      };
+      const next = dispatch(state, { type: 'BORROW_SKILL', skillId: 'legacy-ancient-lore' });
+      expect(next.hero.actionPoints).toBe(initialAP - MASTER_MENTOR_ACTION_POINT_COST);
+    });
+
+    it('does not mutate input state', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        hero: { ...createInitialGameState().hero, actionPoints: 5 },
+      };
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+      dispatch(state, { type: 'BORROW_SKILL', skillId: 'legacy-ancient-lore' });
       expect(state).toEqual(original);
     });
   });
