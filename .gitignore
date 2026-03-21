@@ -36,3 +36,6 @@ out/
 
 # Turborepo
 .turbo/
+
+# local only — not ready to publish
+THESIS.md
