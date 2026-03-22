@@ -25,7 +25,7 @@ describe('gameStore', () => {
 
   it('starts with initial game state', () => {
     const { state } = useGameStore.getState();
-    expect(state.version).toBe(1);
+    expect(state.version).toBe(2);
     expect(state.time.ticksElapsed).toBe(0);
   });
 
@@ -62,15 +62,19 @@ describe('gameStore', () => {
 
     it('initFromStorage keeps initial state when no save exists', () => {
       const storage = createMockStorage();
+      const before = useGameStore.getState().state;
       useGameStore.getState().initFromStorage(storage);
-      expect(useGameStore.getState().state).toEqual(createInitialGameState());
+      // No save → state reference unchanged (not replaced)
+      expect(useGameStore.getState().state).toBe(before);
     });
 
     it('initFromStorage keeps initial state for corrupted save', () => {
       const storage = createMockStorage();
       storage.set('idle-hero:active-run', '{corrupted!!!');
+      const before = useGameStore.getState().state;
       useGameStore.getState().initFromStorage(storage);
-      expect(useGameStore.getState().state).toEqual(createInitialGameState());
+      // Corrupted → migration returns null → state reference unchanged
+      expect(useGameStore.getState().state).toBe(before);
     });
 
     it('resetGame clears storage and resets to initial state', () => {

@@ -21,6 +21,13 @@ export interface GameState {
   /** Schema version — incremented with every migration. */
   readonly version: number;
 
+  /**
+   * Deterministic RNG seed — threads forward each time randomness is consumed.
+   * Same initial seed produces an identical run. Thesis: the run is a pure
+   * function of its seed. Powered by prime-random (prngNext / prngRangeInt).
+   */
+  readonly rngSeed: number;
+
   /** In-game time tracking. Ticks are the internal clock (4 per day). */
   time: {
     ticksElapsed: number;

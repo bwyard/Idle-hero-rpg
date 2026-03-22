@@ -9,6 +9,7 @@
 
 import type { GameState, GameAction } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
+import { prngRangeInt } from '@prime/prime-random';
 import {
   PLACEHOLDER_RECRUIT_COST,
   PLACEHOLDER_BUILD_COST,
@@ -62,8 +63,8 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       if (state.guild.gold < PLACEHOLDER_RECRUIT_COST) return state;
 
       const advId = createId('adv');
-      const name =
-        ADVENTURER_NAMES[Math.floor(Math.random() * ADVENTURER_NAMES.length)] ?? 'Unknown';
+      const [nameIdx, nextSeed] = prngRangeInt(state.rngSeed, ADVENTURER_NAMES.length);
+      const name = ADVENTURER_NAMES[nameIdx] ?? 'Unknown';
 
       const event = {
         id: createId('evt'),
@@ -75,6 +76,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
+        rngSeed: nextSeed,
         guild: {
           ...state.guild,
           gold: state.guild.gold - PLACEHOLDER_RECRUIT_COST,

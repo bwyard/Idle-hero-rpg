@@ -45,4 +45,15 @@ describe('migrateState', () => {
     expect(result?.dynasty).toEqual(state.dynasty);
     expect(result?.time).toEqual(state.time);
   });
+
+  it('migrates v1 state to v2 by adding rngSeed: 0', () => {
+    const v1State = { ...createInitialGameState(), version: 1, rngSeed: undefined } as Record<
+      string,
+      unknown
+    >;
+    delete v1State['rngSeed'];
+    const result = migrateState(v1State);
+    expect(result?.version).toBe(2);
+    expect(result?.rngSeed).toBe(0);
+  });
 });

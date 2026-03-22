@@ -15,6 +15,10 @@ export default defineConfig({
   resolve: {
     alias: {
       '@idle-hero-rpg/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
+      '@prime/prime-random': path.resolve(
+        __dirname,
+        '../../../prime/packages/prime-random/src/index.ts',
+      ),
     },
   },
 });

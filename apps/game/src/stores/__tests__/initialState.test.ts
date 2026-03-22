@@ -2,8 +2,16 @@ import { describe, it, expect } from 'vitest';
 import { createInitialGameState } from '../initialState';
 
 describe('createInitialGameState', () => {
-  it('returns a state with version 1', () => {
-    expect(createInitialGameState().version).toBe(1);
+  it('returns a state with version 2', () => {
+    expect(createInitialGameState().version).toBe(2);
+  });
+
+  it('starts with a non-zero rngSeed', () => {
+    expect(typeof createInitialGameState().rngSeed).toBe('number');
+    // Two calls should produce different seeds (Date.now()-based)
+    const a = createInitialGameState();
+    expect(a.rngSeed).toBeGreaterThanOrEqual(0);
+    expect(a.rngSeed).toBeLessThanOrEqual(0xffff_ffff);
   });
 
   it('starts with ticksElapsed at 0', () => {

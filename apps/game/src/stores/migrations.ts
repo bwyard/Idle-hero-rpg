@@ -11,7 +11,7 @@
 import type { GameState } from '@idle-hero-rpg/shared';
 
 /** The current schema version. Increment when adding a new migration. */
-export const CURRENT_VERSION = 1;
+export const CURRENT_VERSION = 2;
 
 /** A migration function transforms state from version N to N+1. */
 export type Migration = (state: unknown) => unknown;
@@ -23,11 +23,14 @@ export type Migration = (state: unknown) => unknown;
  * Example: migrations[1] upgrades v1 → v2.
  */
 const migrations: Record<number, Migration> = {
-  // No migrations yet — version 1 is the initial schema.
-  // When adding a migration:
-  //   1. Add the migration function here, keyed by the FROM version
-  //   2. Increment CURRENT_VERSION
-  //   3. Add a test in migrations.test.ts
+  /**
+   * v1 → v2: Add rngSeed field.
+   * Old saves have no rngSeed — seed 0 starts them at a deterministic position.
+   */
+  1: (state: unknown) => {
+    const s = state as Record<string, unknown>;
+    return { ...s, rngSeed: 0 };
+  },
 };
 
 /**

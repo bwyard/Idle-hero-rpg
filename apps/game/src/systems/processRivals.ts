@@ -14,6 +14,7 @@
 
 import type { GameState, RivalProgressionImpl, Rival } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
+import { prngNext, prngRangeInt } from '@prime/prime-random';
 import {
   MAX_RIVALS,
   NPC_GUILD_MIN_TENURE_YEARS,
@@ -52,33 +53,69 @@ export const placeholderRivalImpl: RivalProgressionImpl = {
 export function processRivals(
   state: GameState,
   impl: RivalProgressionImpl = stubRivalProgressionImpl,
-  random: () => number = Math.random,
+  /** Test seam: inject a controlled () => number to override seed-based randomness. */
+  random?: () => number,
 ): GameState {
-  let next = state;
+  // Pass 1: dissolve tenured rivals — thread seed through each rival check.
+  const {
+    rivals: dissolvedRivals,
+    pendingEvents: afterDissolveEvents,
+    rngSeed: seedAfterDissolve,
+  } = Object.entries(state.rivals).reduce(
+    (
+      acc: {
+        rivals: GameState['rivals'];
+        pendingEvents: GameState['pendingEvents'];
+        rngSeed: number;
+      },
+      [id, rival],
+    ) => {
+      if (!impl.hasMetMinimumTenure(id, { ...state, rivals: acc.rivals })) return acc;
+      const [dissolveRoll, nextSeed] = random ? [random(), acc.rngSeed] : prngNext(acc.rngSeed);
+      if (dissolveRoll < PLACEHOLDER_RIVAL_DISSOLVE_CHANCE) {
+        const { [id]: _dissolved, ...remaining } = acc.rivals;
+        return {
+          rivals: remaining,
+          pendingEvents: [
+            ...acc.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'RIVAL_DISSOLVED' as const,
+              message: `${rival.name} has dissolved after years of activity.`,
+              achievementKey: null,
+            },
+          ],
+          rngSeed: nextSeed,
+        };
+      }
+      return { ...acc, rngSeed: nextSeed };
+    },
+    { rivals: state.rivals, pendingEvents: state.pendingEvents, rngSeed: state.rngSeed },
+  );
 
-  // Dissolve tenured rivals with a small per-tick probability
-  for (const [id, rival] of Object.entries(next.rivals)) {
-    if (impl.hasMetMinimumTenure(id, next) && random() < PLACEHOLDER_RIVAL_DISSOLVE_CHANCE) {
-      const { [id]: _dissolved, ...remaining } = next.rivals;
-      const dissolveEvent = {
-        id: createId('evt'),
-        tick: state.time.ticksElapsed,
-        type: 'RIVAL_DISSOLVED',
-        message: `${rival.name} has dissolved after years of activity.`,
-        achievementKey: null,
-      } as const;
-      next = { ...next, rivals: remaining, pendingEvents: [...next.pendingEvents, dissolveEvent] };
-    }
-  }
+  // Pass 2: attempt to spawn a new rival — capped at MAX_RIVALS.
+  const afterDissolveState = {
+    ...state,
+    rivals: dissolvedRivals,
+    pendingEvents: afterDissolveEvents,
+    rngSeed: seedAfterDissolve,
+  };
 
-  // Attempt to spawn a new rival — capped at MAX_RIVALS
+  const [spawnRoll, s1] = random
+    ? [random(), afterDissolveState.rngSeed]
+    : prngNext(afterDissolveState.rngSeed);
+
   if (
-    Object.keys(next.rivals).length < MAX_RIVALS &&
-    random() < PLACEHOLDER_RIVAL_SPAWN_CHANCE &&
-    impl.shouldPopulateRival(next)
+    Object.keys(afterDissolveState.rivals).length < MAX_RIVALS &&
+    spawnRoll < PLACEHOLDER_RIVAL_SPAWN_CHANCE &&
+    impl.shouldPopulateRival(afterDissolveState)
   ) {
     const rivalId = createId('rvl');
-    const name = RIVAL_NAMES[Math.floor(random() * RIVAL_NAMES.length)] ?? 'Unknown Guild';
+    const [nameIdx, s2] = random
+      ? [Math.floor(random() * RIVAL_NAMES.length), s1]
+      : prngRangeInt(s1, RIVAL_NAMES.length);
+    const name = RIVAL_NAMES[nameIdx] ?? 'Unknown Guild';
 
     const rival: Rival = {
       id: rivalId,
@@ -96,12 +133,17 @@ export function processRivals(
       achievementKey: null,
     } as const;
 
-    next = {
-      ...next,
-      rivals: { ...next.rivals, [rivalId]: rival },
-      pendingEvents: [...next.pendingEvents, event],
+    return {
+      ...afterDissolveState,
+      rngSeed: s2,
+      rivals: {
+        ...afterDissolveState.rivals,
+        [rivalId]: rival,
+      },
+      pendingEvents: [...afterDissolveState.pendingEvents, event],
     };
   }
 
-  return next;
+  // Advance seed even when no spawn (random value was consumed).
+  return random ? afterDissolveState : { ...afterDissolveState, rngSeed: s1 };
 }

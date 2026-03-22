@@ -65,7 +65,8 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
   }
 
   return {
-    version: 1,
+    version: 2,
+    rngSeed: 42,
     time: { ticksElapsed: 0, currentDay: 0, currentSeason: 'Spring', currentYear: 0 },
     hero: {
       id: 'hero_test1',
