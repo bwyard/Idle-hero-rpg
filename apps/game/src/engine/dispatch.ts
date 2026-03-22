@@ -11,6 +11,13 @@ import type { GameState, GameAction } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
 import { prngRangeInt } from '@prime/prime-random';
 import {
+  canAffordGold,
+  spendGold,
+  addGold,
+  calcUpgradeCost,
+  calcUpgradeDuration,
+} from '@stage/stage-economy';
+import {
   PLACEHOLDER_RECRUIT_COST,
   PLACEHOLDER_BUILD_COST,
   PLACEHOLDER_FEAST_COST,
@@ -58,7 +65,7 @@ const ADVENTURER_NAMES = [
 export function dispatch(state: GameState, action: GameAction): GameState {
   switch (action.type) {
     case 'RECRUIT_ADVENTURER': {
-      if (state.guild.gold < PLACEHOLDER_RECRUIT_COST) return state;
+      if (!canAffordGold(state.guild.gold, PLACEHOLDER_RECRUIT_COST)) return state;
 
       const advId = createId('adv');
       const [nameIdx, nextSeed] = prngRangeInt(state.rngSeed, ADVENTURER_NAMES.length);
@@ -77,7 +84,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         rngSeed: nextSeed,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - PLACEHOLDER_RECRUIT_COST,
+          gold: spendGold(state.guild.gold, PLACEHOLDER_RECRUIT_COST),
         },
         adventurers: {
           ...state.adventurers,
@@ -98,7 +105,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     }
 
     case 'BUILD_BUILDING': {
-      if (state.guild.gold < PLACEHOLDER_BUILD_COST) return state;
+      if (!canAffordGold(state.guild.gold, PLACEHOLDER_BUILD_COST)) return state;
 
       const bldId = createId('bld');
 
@@ -114,7 +121,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - PLACEHOLDER_BUILD_COST,
+          gold: spendGold(state.guild.gold, PLACEHOLDER_BUILD_COST),
         },
         buildings: {
           ...state.buildings,
@@ -165,7 +172,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     }
 
     case 'HOLD_FEAST': {
-      if (state.guild.gold < PLACEHOLDER_FEAST_COST) return state;
+      if (!canAffordGold(state.guild.gold, PLACEHOLDER_FEAST_COST)) return state;
 
       const boostedAdventurers: Record<string, (typeof state.adventurers)[string]> = {};
       for (const [id, adv] of Object.entries(state.adventurers)) {
@@ -187,7 +194,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - PLACEHOLDER_FEAST_COST,
+          gold: spendGold(state.guild.gold, PLACEHOLDER_FEAST_COST),
         },
         adventurers: boostedAdventurers,
         pendingEvents: [...state.pendingEvents, event],
@@ -228,7 +235,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     case 'ENGAGE_VISITOR': {
       const visitor = state.transientVisitors[action.visitorId];
       if (!visitor) return state;
-      if (state.guild.gold < PLACEHOLDER_ENGAGE_COST) return state;
+      if (!canAffordGold(state.guild.gold, PLACEHOLDER_ENGAGE_COST)) return state;
 
       const advId = createId('adv');
       const { [action.visitorId]: _removed, ...remainingVisitors } = state.transientVisitors;
@@ -245,7 +252,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - PLACEHOLDER_ENGAGE_COST,
+          gold: spendGold(state.guild.gold, PLACEHOLDER_ENGAGE_COST),
         },
         transientVisitors: remainingVisitors,
         adventurers: {
@@ -282,7 +289,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
 
       return {
         ...state,
-        guild: { ...state.guild, gold: state.guild.gold + visitor.serviceFee },
+        guild: { ...state.guild, gold: addGold(state.guild.gold, visitor.serviceFee) },
         transientVisitors: remainingVisitors,
         pendingEvents: [...state.pendingEvents, event],
       };
@@ -319,8 +326,8 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       if (building.level >= template.maxLevel) return state;
 
       const targetLevel = building.level + 1;
-      const cost = template.upgradeCostBase * targetLevel * targetLevel;
-      if (state.guild.gold < cost) return state;
+      const cost = calcUpgradeCost(template.upgradeCostBase, targetLevel);
+      if (!canAffordGold(state.guild.gold, cost)) return state;
 
       const event = {
         id: createId('evt'),
@@ -334,13 +341,16 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - cost,
+          gold: spendGold(state.guild.gold, cost),
         },
         buildings: {
           ...state.buildings,
           [action.buildingId]: {
             ...building,
-            upgradeTicksRemaining: template.upgradeDurationBaseTicks * targetLevel,
+            upgradeTicksRemaining: calcUpgradeDuration(
+              template.upgradeDurationBaseTicks,
+              targetLevel,
+            ),
           },
         },
         pendingEvents: [...state.pendingEvents, event],
@@ -351,7 +361,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       const citiesOwned = Object.keys(state.cities).length;
       const cost =
         PLACEHOLDER_CITY_EXPANSION_BASE + PLACEHOLDER_CITY_EXPANSION_PER_CITY * citiesOwned;
-      if (state.guild.gold < cost) return state;
+      if (!canAffordGold(state.guild.gold, cost)) return state;
 
       const cityId = createId('cty');
 
@@ -367,7 +377,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
         ...state,
         guild: {
           ...state.guild,
-          gold: state.guild.gold - cost,
+          gold: spendGold(state.guild.gold, cost),
         },
         cities: {
           ...state.cities,

@@ -10,7 +10,8 @@
     "noEmit": true,
     "paths": {
       "@idle-hero-rpg/shared": ["../../packages/shared/src/index.ts"],
-      "@prime/prime-random": ["./src/types/prime-random.d.ts"]
+      "@prime/prime-random": ["../../../prime/packages/prime-random/src/index.ts"],
+      "@stage/stage-economy": ["./src/types/stage-economy.d.ts"]
     }
   },
   "include": ["src/**/*", "app/**/*", "*.ts", "*.tsx"],
