@@ -31,35 +31,42 @@ const HERO_CLASS_TEMPLATES = {
   Warblade: {
     id: 'Warblade',
     passiveAbility: 'Iron Discipline — combat adventurers in this guild gain +10% milestone XP',
-    careerMilestoneActiveAbility: 'War Council — once per Conclave, double combat quest yield for 5 ticks',
+    careerMilestoneActiveAbility:
+      'War Council — once per Conclave, double combat quest yield for 5 ticks',
     guildSynergy: 'Combat',
     notes: 'Combat focus. Natural synergy with Combat guild type.',
   },
   Wanderer: {
     id: 'Wanderer',
     passiveAbility: 'Trailblazer — exploration quests complete 15% faster',
-    careerMilestoneActiveAbility: 'Pathfinder\'s Mark — unlock one additional region location per run',
+    careerMilestoneActiveAbility:
+      "Pathfinder's Mark — unlock one additional region location per run",
     guildSynergy: 'Knowledge',
     notes: 'Exploration focus. Natural synergy with Knowledge guild type.',
   },
   Archmage: {
     id: 'Archmage',
-    passiveAbility: 'Arcane Resonance — magic-archetype adventurers gain +1 tier progress per Conclave',
-    careerMilestoneActiveAbility: 'Grand Ritual — once per run, instantly advance one adventurer one full tier',
+    passiveAbility:
+      'Arcane Resonance — magic-archetype adventurers gain +1 tier progress per Conclave',
+    careerMilestoneActiveAbility:
+      'Grand Ritual — once per run, instantly advance one adventurer one full tier',
     guildSynergy: 'Knowledge',
     notes: 'Magic focus. Natural synergy with Knowledge guild type.',
   },
   Diplomat: {
     id: 'Diplomat',
     passiveAbility: 'Silver Tongue — rival guild relationship decay rate halved',
-    careerMilestoneActiveAbility: 'Treaty of Peers — freeze one rival guild\'s aggression for 10 ticks',
+    careerMilestoneActiveAbility:
+      "Treaty of Peers — freeze one rival guild's aggression for 10 ticks",
     guildSynergy: 'Hospitality',
     notes: 'Relations focus. Natural synergy with Hospitality guild type.',
   },
   Bard: {
     id: 'Bard',
-    passiveAbility: 'Living Legend — world awareness tier unlocks one prestige earlier than standard',
-    careerMilestoneActiveAbility: 'Epic Ballad — once per Conclave, gain a permanent reputation bonus equal to current tick count',
+    passiveAbility:
+      'Living Legend — world awareness tier unlocks one prestige earlier than standard',
+    careerMilestoneActiveAbility:
+      'Epic Ballad — once per Conclave, gain a permanent reputation bonus equal to current tick count',
     guildSynergy: 'Merchant',
     notes: 'Influence focus. Natural synergy with Merchant guild type.',
   },
@@ -93,7 +100,7 @@ const BUILDING_TEMPLATES = {
     goldYieldPerTickPerLevel: 0,
     goldUpgradeCostBase: 0,
   },
-  'tavern': {
+  tavern: {
     id: 'tavern',
     name: 'Tavern',
     maxLevel: 3,
@@ -101,7 +108,7 @@ const BUILDING_TEMPLATES = {
     goldYieldPerTickPerLevel: 0,
     goldUpgradeCostBase: 0,
   },
-  'archive': {
+  archive: {
     id: 'archive',
     name: 'Archive',
     maxLevel: 4,
@@ -218,7 +225,6 @@ export const templateRegistry = {
   description:
     'Query static data templates for hero classes, buildings, quests, and adventurer archetypes.',
   inputSchema: { type: inputSchema.shape.type, id: inputSchema.shape.id },
-  // eslint-disable-next-line @typescript-eslint/require-await -- conforms to async MCP handler interface; no I/O needed for in-memory registry
   handler: async (args: z.infer<typeof inputSchema>) => {
     const collection = REGISTRY[args.type];
 
@@ -265,4 +271,9 @@ export const templateRegistry = {
 };
 
 // Export templates for use in tests
-export { HERO_CLASS_TEMPLATES, BUILDING_TEMPLATES, QUEST_TEMPLATES, ADVENTURER_ARCHETYPE_TEMPLATES };
+export {
+  HERO_CLASS_TEMPLATES,
+  BUILDING_TEMPLATES,
+  QUEST_TEMPLATES,
+  ADVENTURER_ARCHETYPE_TEMPLATES,
+};
