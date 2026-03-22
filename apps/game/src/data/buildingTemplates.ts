@@ -18,8 +18,18 @@ export interface BuildingTemplate {
   readonly enablesService: VisitorServiceRequest | null;
   /** Minimum building level required to enable the service. */
   readonly serviceMinLevel: number;
-  /** Base gold income per tick per level. */
+  /** Gold income earned per tick per building level. */
   readonly baseIncomePerLevel: number;
+  /**
+   * Base gold cost coefficient for upgrades. Total cost = upgradeCostBase × targetLevel².
+   * Higher values make this building expensive to invest in.
+   */
+  readonly upgradeCostBase: number;
+  /**
+   * Base tick duration coefficient for upgrades. Total duration = upgradeDurationBaseTicks × targetLevel.
+   * Higher values mean longer construction time at each level.
+   */
+  readonly upgradeDurationBaseTicks: number;
 }
 
 /** All available building templates, keyed by ID. */
@@ -33,6 +43,8 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: null,
     serviceMinLevel: 0,
     baseIncomePerLevel: 3,
+    upgradeCostBase: 150,
+    upgradeDurationBaseTicks: 80,
   },
   'training-grounds': {
     id: 'training-grounds',
@@ -42,6 +54,8 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: 'Training',
     serviceMinLevel: 1,
     baseIncomePerLevel: 1,
+    upgradeCostBase: 100,
+    upgradeDurationBaseTicks: 60,
   },
   tavern: {
     id: 'tavern',
@@ -51,6 +65,8 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: 'Lodging',
     serviceMinLevel: 2,
     baseIncomePerLevel: 2,
+    upgradeCostBase: 120,
+    upgradeDurationBaseTicks: 70,
   },
   smithy: {
     id: 'smithy',
@@ -60,6 +76,8 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: 'Repair',
     serviceMinLevel: 1,
     baseIncomePerLevel: 2,
+    upgradeCostBase: 90,
+    upgradeDurationBaseTicks: 50,
   },
   infirmary: {
     id: 'infirmary',
@@ -69,6 +87,8 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: 'Health',
     serviceMinLevel: 1,
     baseIncomePerLevel: 1,
+    upgradeCostBase: 80,
+    upgradeDurationBaseTicks: 50,
   },
   'quest-board': {
     id: 'quest-board',
@@ -79,5 +99,7 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     enablesService: 'Quest',
     serviceMinLevel: 1,
     baseIncomePerLevel: 0,
+    upgradeCostBase: 60,
+    upgradeDurationBaseTicks: 30,
   },
 };
