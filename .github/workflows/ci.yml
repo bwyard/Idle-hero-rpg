@@ -20,6 +20,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clone prime monorepo for local deps
+        run: git clone --depth 1 --branch dev https://github.com/bwyard/prime.git ../prime
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -32,6 +34,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clone prime monorepo for local deps
+        run: git clone --depth 1 --branch dev https://github.com/bwyard/prime.git ../prime
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -44,6 +48,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Clone prime monorepo for local deps
+        run: git clone --depth 1 --branch dev https://github.com/bwyard/prime.git ../prime
       - uses: actions/setup-node@v4
         with:
           node-version: 20
@@ -62,6 +68,8 @@ jobs:
     if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop')
     steps:
       - uses: actions/checkout@v4
+      - name: Clone prime monorepo for local deps
+        run: git clone --depth 1 --branch dev https://github.com/bwyard/prime.git ../prime
       - uses: actions/setup-node@v4
         with:
           node-version: 20
