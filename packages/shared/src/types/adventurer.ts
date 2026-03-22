@@ -70,34 +70,34 @@ export interface TransientVisitor {
    * The system removes the visitor when ticksElapsed >= expiresAtTick and heldUntilTick is null
    * or has also elapsed.
    */
-  expiresAtTick: number;
+  readonly expiresAtTick: number;
   /**
    * If non-null, the player has explicitly held this visitor until this tick.
    * Overrides expiresAtTick — the system will not remove them before heldUntilTick.
    * After heldUntilTick passes, expiresAtTick takes over.
    * See TODO.md: Opportunity Hold Mechanic.
    */
-  heldUntilTick: number | null;
+  readonly heldUntilTick: number | null;
   /**
    * Number of times this visitor has been put on hold this visit.
    * Used to apply diminishing hold durations (each hold is shorter than the last).
    */
-  holdCount: number;
+  readonly holdCount: number;
 }
 
 /** Live adventurer state stored in the save file. */
 export interface Adventurer {
   readonly id: string;
   readonly name: string;
-  tier: AdventurerTier;
-  archetype: AdventurerArchetype | null;
-  xp: number;
+  readonly tier: AdventurerTier;
+  readonly archetype: AdventurerArchetype | null;
+  readonly xp: number;
   /** Milestone keys this adventurer has reached. */
-  milestones: readonly string[];
+  readonly milestones: readonly string[];
   /** Whether this adventurer's Skill Borrow has been used this Conclave cycle. */
-  skillBorrowUsed: boolean;
+  readonly skillBorrowUsed: boolean;
   /** In-game year this adventurer was recruited. */
-  recruitedYear: number;
+  readonly recruitedYear: number;
   /** In-game year this adventurer retired (null if still active). */
-  retiredYear: number | null;
+  readonly retiredYear: number | null;
 }

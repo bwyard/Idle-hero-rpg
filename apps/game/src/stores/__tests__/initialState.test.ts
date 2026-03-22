@@ -52,7 +52,7 @@ describe('createInitialGameState', () => {
     const a = createInitialGameState();
     const b = createInitialGameState();
     expect(a).not.toBe(b);
-    a.dynasty.prestigeCount = 99;
-    expect(b.dynasty.prestigeCount).toBe(0);
+    expect(a.dynasty).not.toBe(b.dynasty);
+    expect(a.time).not.toBe(b.time);
   });
 });

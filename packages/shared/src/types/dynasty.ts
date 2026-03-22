@@ -4,19 +4,19 @@
 
 /** World awareness tier — scales with prestige count. */
 export type WorldAwarenessTier =
-  | 'Hidden'      // Prestige 0–2: world doesn't know the dynasty exists
+  | 'Hidden' // Prestige 0–2: world doesn't know the dynasty exists
   | 'Local'
   | 'Regional'
   | 'Continental'
   | 'WorldFamous'
-  | 'Mythic';     // Prestige 16+
+  | 'Mythic'; // Prestige 16+
 
 /** Relationship tier created when a dynasty prestige-establishes a new guild. */
 export type PrestigeRelationshipTier =
-  | 'Affiliate'   // C prestige rank
-  | 'Branch'      // B prestige rank
-  | 'Chapter'     // A prestige rank
-  | 'HQ'          // S prestige rank
+  | 'Affiliate' // C prestige rank
+  | 'Branch' // B prestige rank
+  | 'Chapter' // A prestige rank
+  | 'HQ' // S prestige rank
   | 'Independent' // SS prestige rank
   | 'WorldEvent'; // Legendary prestige rank
 
@@ -31,10 +31,10 @@ export interface HallOfHeroesEntry {
 
 /** Dynasty meta-progression state — persists across runs. */
 export interface Dynasty {
-  prestigeCount: number;
-  worldAwarenessTier: WorldAwarenessTier;
+  readonly prestigeCount: number;
+  readonly worldAwarenessTier: WorldAwarenessTier;
   /** Permanent bonuses accumulated across runs. */
-  permanentBonuses: Record<string, number>;
+  readonly permanentBonuses: Record<string, number>;
   /** Adventurers enshrined in the Hall of Heroes. */
   hallOfHeroes: readonly HallOfHeroesEntry[];
 }
