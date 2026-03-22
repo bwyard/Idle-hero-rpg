@@ -44,10 +44,10 @@ export const placeholderEconomyImpl: EconomyImpl = {
     projectedGold < 0 && state.dynasty.prestigeCount < MAGIC_REWIND_SAFETY_MAX_PRESTIGE,
 };
 
-export function processEconomy(
+export const processEconomy = (
   state: GameState,
   impl: EconomyImpl = placeholderEconomyImpl,
-): GameState {
+): GameState => {
   const income = impl.calculatePassiveIncome(state);
   const upkeep = impl.calculateUpkeep(state);
   const projectedGold = state.guild.gold + income - upkeep;
@@ -75,4 +75,4 @@ export function processEconomy(
       gold: projectedGold,
     },
   };
-}
+};

@@ -22,7 +22,7 @@ const HIGH_TIERS = new Set(['S', 'SS', 'Legendary']);
 /** Minimum retired high-tier adventurers required at prestige 10+. */
 const ESCALATED_REQUIRED_COUNT = 2;
 
-export function checkPrestigeConditions(state: GameState): GameState {
+export const checkPrestigeConditions = (state: GameState): GameState => {
   const { prestigeCount } = state.dynasty;
   const adventurers = Object.values(state.adventurers);
   const isEscalated = prestigeCount >= PRESTIGE_ESCALATION_THRESHOLD;
@@ -63,4 +63,4 @@ export function checkPrestigeConditions(state: GameState): GameState {
     },
     pendingEvents,
   };
-}
+};

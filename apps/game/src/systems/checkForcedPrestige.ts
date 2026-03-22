@@ -9,8 +9,8 @@
 
 import type { GameState } from '@idle-hero-rpg/shared';
 
-export function checkForcedPrestige(state: GameState): GameState {
+export const checkForcedPrestige = (state: GameState): GameState => {
   // TODO: Implement forced prestige window detection for early runs
   // TODO: Trigger prestige when forced window closes
   return state;
-}
+};

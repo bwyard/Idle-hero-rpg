@@ -23,11 +23,11 @@ export interface SeasonInfo {
  * Simple deterministic hash for a season index.
  * Returns a value in [0, 1) used to vary the season length.
  */
-function seasonHash(seasonIndex: number): number {
+const seasonHash = (seasonIndex: number): number => {
   const h0 = (seasonIndex * 2654435761) >>> 0; // Knuth multiplicative hash
   const h1 = ((h0 >>> 16) ^ h0) >>> 0;
   return (h1 % 10000) / 10000;
-}
+};
 
 /** Maximum days a season can vary from its base length. */
 const MAX_VARIATION = 10;
@@ -37,13 +37,13 @@ const MAX_VARIATION = 10;
  * Season 0 = first Spring, season 1 = first Summer, etc.
  * Deterministic — same seasonIndex always returns the same length.
  */
-function getSeasonLength(seasonIndex: number): number {
+const getSeasonLength = (seasonIndex: number): number => {
   const baseIndex = seasonIndex % 4;
   const baseLength = BASE_SEASON_LENGTHS[baseIndex] ?? 91;
   const hash = seasonHash(seasonIndex);
   const variation = Math.floor(hash * (MAX_VARIATION * 2 + 1)) - MAX_VARIATION;
   return baseLength + variation;
-}
+};
 
 /**
  * Cache of cumulative season boundaries.
@@ -53,7 +53,7 @@ function getSeasonLength(seasonIndex: number): number {
 const seasonEnds: number[] = [];
 
 /** Ensure we have computed season boundaries up to at least the given absolute day. */
-function ensureBoundaries(upToDay: number): void {
+const ensureBoundaries = (upToDay: number): void => {
   if (seasonEnds.length === 0) {
     seasonEnds.push(getSeasonLength(0));
   }
@@ -62,7 +62,7 @@ function ensureBoundaries(upToDay: number): void {
     const prevEnd = seasonEnds[nextIndex - 1] ?? 0;
     seasonEnds.push(prevEnd + getSeasonLength(nextIndex));
   }
-}
+};
 
 /**
  * Get the season info for an absolute day (0-indexed from game start).
@@ -71,15 +71,15 @@ function ensureBoundaries(upToDay: number): void {
  * @returns Season name, day within the season, season length, and season index.
  */
 /** Pure binary search — returns index of season containing absoluteDay. */
-function findSeasonIndex(day: number, lo: number, hi: number): number {
+const findSeasonIndex = (day: number, lo: number, hi: number): number => {
   if (lo >= hi) return lo;
   const mid = (lo + hi) >>> 1;
   return (seasonEnds[mid] ?? 0) <= day
     ? findSeasonIndex(day, mid + 1, hi)
     : findSeasonIndex(day, lo, mid);
-}
+};
 
-export function getSeasonAtDay(absoluteDay: number): SeasonInfo {
+export const getSeasonAtDay = (absoluteDay: number): SeasonInfo => {
   ensureBoundaries(absoluteDay);
 
   const seasonIndex = findSeasonIndex(absoluteDay, 0, seasonEnds.length - 1);
@@ -92,4 +92,4 @@ export function getSeasonAtDay(absoluteDay: number): SeasonInfo {
     seasonLength: seasonEnd - seasonStart,
     seasonIndex,
   };
-}
+};

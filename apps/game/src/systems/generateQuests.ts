@@ -23,7 +23,7 @@ import { QUEST_TEMPLATES } from '../data/questTemplates';
  * @param state - The current GameState (immutable input)
  * @returns A new GameState with additional unassigned quests
  */
-export function generateQuests(state: GameState): GameState {
+export const generateQuests = (state: GameState): GameState => {
   const currentUnassigned = Object.values(state.quests).filter(
     (q) => q.assignedAdventurerId === null && !q.isComplete,
   );
@@ -80,4 +80,4 @@ export function generateQuests(state: GameState): GameState {
     rngSeed: finalSeed,
     quests: newQuests,
   };
-}
+};

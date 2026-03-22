@@ -22,7 +22,7 @@ import { calendarTick } from '@stage/stage-time';
 import { TICKS_PER_DAY, DAYS_PER_SEASON } from '../data/balance';
 
 /** Build a CalendarState from idle-hero's time shape for stage-time consumption. */
-function toCalendarState(time: GameState['time']): CalendarState {
+const toCalendarState = (time: GameState['time']): CalendarState => {
   const daysPerYear = DAYS_PER_SEASON * 4;
   return {
     tick: time.ticksElapsed,
@@ -31,9 +31,9 @@ function toCalendarState(time: GameState['time']): CalendarState {
     day: (time.currentDay % daysPerYear) + 1,
     dayOfSeason: 1, // not persisted; calendarTick derives from tick
   };
-}
+};
 
-export function advanceTime(state: GameState): GameState {
+export const advanceTime = (state: GameState): GameState => {
   const cal = calendarTick(toCalendarState(state.time), TICKS_PER_DAY, DAYS_PER_SEASON);
 
   return {
@@ -46,4 +46,4 @@ export function advanceTime(state: GameState): GameState {
       currentYear: cal.year - 1,
     },
   };
-}
+};

@@ -39,7 +39,7 @@ const migrations: Record<number, Migration> = {
  * @param state - The raw state loaded from storage (may be outdated)
  * @returns The migrated state at CURRENT_VERSION, or null if migration failed
  */
-export function migrateState(state: unknown): GameState | null {
+export const migrateState = (state: unknown): GameState | null => {
   if (typeof state !== 'object' || state === null) return null;
 
   const record = state as Record<string, unknown>;
@@ -64,4 +64,4 @@ export function migrateState(state: unknown): GameState | null {
     ...(migrated as Record<string, unknown>),
     version: CURRENT_VERSION,
   } as GameState;
-}
+};
