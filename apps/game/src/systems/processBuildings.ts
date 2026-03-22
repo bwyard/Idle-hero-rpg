@@ -11,21 +11,25 @@
 
 import type { GameState, BuildingProductionImpl, Building, GameEvent } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
-import {
-  PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
-  PLACEHOLDER_MAX_BUILDING_LEVEL,
-} from '../data/balance';
+import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 
 export const stubBuildingProductionImpl: BuildingProductionImpl = {
   incomePerTick: () => 0,
   upgradeCompletesThisTick: () => false,
 };
 
-/** placeholder — tune during balance pass */
+/** Per-template income and max level — reads from BuildingTemplate authored data. */
 export const placeholderBuildingProductionImpl: BuildingProductionImpl = {
-  incomePerTick: (building) => building.level * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
-  upgradeCompletesThisTick: (building) =>
-    building.upgradeTicksRemaining === 1 && building.level < PLACEHOLDER_MAX_BUILDING_LEVEL,
+  incomePerTick: (building) => {
+    const template = BUILDING_TEMPLATES[building.templateId];
+    const incomePerLevel = template?.baseIncomePerLevel ?? 0;
+    return building.level * incomePerLevel;
+  },
+  upgradeCompletesThisTick: (building) => {
+    const template = BUILDING_TEMPLATES[building.templateId];
+    const maxLevel = template?.maxLevel ?? 0;
+    return building.upgradeTicksRemaining === 1 && building.level < maxLevel;
+  },
 };
 
 type BuildingsAcc = {
@@ -72,10 +76,8 @@ export function processBuildings(
         };
       }
 
-      if (
-        building.upgradeTicksRemaining === 1 &&
-        building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL
-      ) {
+      const templateMaxLevel = BUILDING_TEMPLATES[building.templateId]?.maxLevel ?? 0;
+      if (building.upgradeTicksRemaining === 1 && building.level >= templateMaxLevel) {
         // At max level — just clear the upgrade
         return {
           ...acc,

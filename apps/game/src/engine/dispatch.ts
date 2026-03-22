@@ -17,13 +17,11 @@ import {
   PLACEHOLDER_FEAST_XP_BONUS,
   PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
-  PLACEHOLDER_UPGRADE_COST_BASE,
-  PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
-  PLACEHOLDER_MAX_BUILDING_LEVEL,
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
 } from '../data/balance';
+import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 import { generateQuests } from '../systems/generateQuests';
 
 /** Small pool of fantasy names for recruited adventurers (display data). */
@@ -293,10 +291,13 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       const building = state.buildings[action.buildingId];
       if (!building) return state;
       if (building.upgradeTicksRemaining > 0) return state;
-      if (building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL) return state;
+
+      const template = BUILDING_TEMPLATES[building.templateId];
+      if (!template) return state;
+      if (building.level >= template.maxLevel) return state;
 
       const targetLevel = building.level + 1;
-      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const cost = template.upgradeCostBase * targetLevel * targetLevel;
       if (state.guild.gold < cost) return state;
 
       const event = {
@@ -317,7 +318,7 @@ export function dispatch(state: GameState, action: GameAction): GameState {
           ...state.buildings,
           [action.buildingId]: {
             ...building,
-            upgradeTicksRemaining: PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL * targetLevel,
+            upgradeTicksRemaining: template.upgradeDurationBaseTicks * targetLevel,
           },
         },
         pendingEvents: [...state.pendingEvents, event],

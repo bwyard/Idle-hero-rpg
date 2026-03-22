@@ -1,10 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { processBuildings } from '../processBuildings';
 import { createInitialGameState } from '../../stores/initialState';
-import {
-  PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
-  PLACEHOLDER_MAX_BUILDING_LEVEL,
-} from '../../data/balance';
+import { BUILDING_TEMPLATES } from '../../data/buildingTemplates';
 import type { GameState, Building } from '@idle-hero-rpg/shared';
 
 function makeBuilding(overrides: Partial<Building> = {}): Building {
@@ -24,23 +21,42 @@ function stateWithBuildings(buildings: Record<string, Building>): GameState {
 
 describe('processBuildings', () => {
   describe('income', () => {
-    it('adds income based on building level', () => {
+    it('uses template baseIncomePerLevel — guild-hall level 2 earns 2 × 3 = 6', () => {
+      // guild-hall: baseIncomePerLevel = 3
       const state = stateWithBuildings({
-        bld_1: makeBuilding({ id: 'bld_1', level: 2 }),
+        bld_1: makeBuilding({ id: 'bld_1', templateId: 'guild-hall', level: 2 }),
       });
       const startGold = state.guild.gold;
       const next = processBuildings(state);
-      expect(next.guild.gold).toBe(startGold + 2 * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL);
+      expect(next.guild.gold).toBe(
+        startGold + 2 * BUILDING_TEMPLATES['guild-hall']!.baseIncomePerLevel,
+      );
     });
 
-    it('sums income from multiple buildings', () => {
+    it('uses template baseIncomePerLevel — smithy level 3 earns 3 × 2 = 6, not 3 × 3', () => {
+      // smithy: baseIncomePerLevel = 2 (differs from guild-hall's 3)
       const state = stateWithBuildings({
-        bld_1: makeBuilding({ id: 'bld_1', level: 1 }),
-        bld_2: makeBuilding({ id: 'bld_2', level: 3 }),
+        bld_1: makeBuilding({ id: 'bld_1', templateId: 'smithy', level: 3 }),
       });
       const startGold = state.guild.gold;
       const next = processBuildings(state);
-      expect(next.guild.gold).toBe(startGold + 4 * PLACEHOLDER_BUILDING_INCOME_PER_LEVEL);
+      expect(next.guild.gold).toBe(
+        startGold + 3 * BUILDING_TEMPLATES['smithy']!.baseIncomePerLevel,
+      );
+    });
+
+    it('sums income across buildings with different templates', () => {
+      // guild-hall level 1: 1*3=3; smithy level 2: 2*2=4; total=7
+      const state = stateWithBuildings({
+        bld_1: makeBuilding({ id: 'bld_1', templateId: 'guild-hall', level: 1 }),
+        bld_2: makeBuilding({ id: 'bld_2', templateId: 'smithy', level: 2 }),
+      });
+      const startGold = state.guild.gold;
+      const next = processBuildings(state);
+      const expected =
+        1 * BUILDING_TEMPLATES['guild-hall']!.baseIncomePerLevel +
+        2 * BUILDING_TEMPLATES['smithy']!.baseIncomePerLevel;
+      expect(next.guild.gold).toBe(startGold + expected);
     });
 
     it('returns state unchanged with no buildings', () => {
@@ -77,16 +93,34 @@ describe('processBuildings', () => {
       expect(events).toHaveLength(1);
     });
 
-    it('does not level up beyond max level', () => {
+    it('does not level up guild-hall beyond its template maxLevel (10)', () => {
+      const maxLevel = BUILDING_TEMPLATES['guild-hall']!.maxLevel;
       const state = stateWithBuildings({
         bld_1: makeBuilding({
           id: 'bld_1',
-          level: PLACEHOLDER_MAX_BUILDING_LEVEL,
+          templateId: 'guild-hall',
+          level: maxLevel,
           upgradeTicksRemaining: 1,
         }),
       });
       const next = processBuildings(state);
-      expect(next.buildings['bld_1']?.level).toBe(PLACEHOLDER_MAX_BUILDING_LEVEL);
+      expect(next.buildings['bld_1']?.level).toBe(maxLevel);
+      expect(next.buildings['bld_1']?.upgradeTicksRemaining).toBe(0);
+    });
+
+    it('does not level up smithy beyond its template maxLevel (6), not the global max (10)', () => {
+      // smithy maxLevel = 6; global PLACEHOLDER_MAX_BUILDING_LEVEL = 10
+      const smithyMaxLevel = BUILDING_TEMPLATES['smithy']!.maxLevel; // 6
+      const state = stateWithBuildings({
+        bld_1: makeBuilding({
+          id: 'bld_1',
+          templateId: 'smithy',
+          level: smithyMaxLevel,
+          upgradeTicksRemaining: 1,
+        }),
+      });
+      const next = processBuildings(state);
+      expect(next.buildings['bld_1']?.level).toBe(smithyMaxLevel);
       expect(next.buildings['bld_1']?.upgradeTicksRemaining).toBe(0);
     });
 

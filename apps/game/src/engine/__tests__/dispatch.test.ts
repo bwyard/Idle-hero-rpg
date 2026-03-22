@@ -8,13 +8,11 @@ import {
   PLACEHOLDER_HOLD_DURATION_DAYS,
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_MAX_QUEST_BOARD_SIZE,
-  PLACEHOLDER_UPGRADE_COST_BASE,
-  PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL,
-  PLACEHOLDER_MAX_BUILDING_LEVEL,
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
 } from '../../data/balance';
+import { BUILDING_TEMPLATES } from '../../data/buildingTemplates';
 import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
 
 /** Helper to create a visitor with sensible defaults. */
@@ -315,14 +313,22 @@ describe('dispatch', () => {
   });
 
   describe('UPGRADE_BUILDING', () => {
-    function stateWithBuilding(level: number, gold: number, upgrading = false): GameState {
+    const guildHall = BUILDING_TEMPLATES['guild-hall']!;
+    const smithy = BUILDING_TEMPLATES['smithy']!;
+
+    function stateWithBuilding(
+      level: number,
+      gold: number,
+      upgrading = false,
+      templateId = 'guild-hall',
+    ): GameState {
       return {
         ...createInitialGameState(),
         guild: { ...createInitialGameState().guild, gold },
         buildings: {
           bld_test_1: {
             id: 'bld_test_1',
-            templateId: 'guild-hall',
+            templateId,
             level,
             cityId: 'cty_heartlands',
             upgradeTicksRemaining: upgrading ? 100 : 0,
@@ -331,22 +337,41 @@ describe('dispatch', () => {
       };
     }
 
-    it('starts an upgrade for a valid building with enough gold', () => {
+    it('starts an upgrade using template upgradeCostBase and upgradeDurationBaseTicks', () => {
+      // guild-hall: upgradeCostBase=150, upgradeDurationBaseTicks=80
       const targetLevel = 2;
-      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const cost = guildHall.upgradeCostBase * targetLevel * targetLevel;
       const state = stateWithBuilding(1, cost + 100);
 
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
       expect(next.buildings['bld_test_1']!.upgradeTicksRemaining).toBe(
-        PLACEHOLDER_UPGRADE_DURATION_TICKS_PER_LEVEL * targetLevel,
+        guildHall.upgradeDurationBaseTicks * targetLevel,
       );
-      expect(next.guild.gold).toBe(cost + 100 - cost);
+      expect(next.guild.gold).toBe(100);
     });
 
-    it('deducts correct cost based on target level squared', () => {
+    it('smithy upgrade uses smithy upgradeCostBase (90), not global (100)', () => {
+      const targetLevel = 2;
+      const cost = smithy.upgradeCostBase * targetLevel * targetLevel; // 90 * 4 = 360
+      const state = stateWithBuilding(1, cost + 50, false, 'smithy');
+
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next.guild.gold).toBe(50);
+      expect(next.buildings['bld_test_1']!.upgradeTicksRemaining).toBe(
+        smithy.upgradeDurationBaseTicks * targetLevel, // 50 * 2 = 100
+      );
+    });
+
+    it('smithy at maxLevel (6) cannot upgrade, even though global max is 10', () => {
+      const state = stateWithBuilding(smithy.maxLevel, 100000, false, 'smithy');
+      const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
+      expect(next).toEqual(state);
+    });
+
+    it('deducts correct cost based on target level squared (guild-hall)', () => {
       const currentLevel = 3;
       const targetLevel = 4;
-      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const cost = guildHall.upgradeCostBase * targetLevel * targetLevel; // 150 * 16 = 2400
       const state = stateWithBuilding(currentLevel, 100000);
 
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
@@ -365,15 +390,15 @@ describe('dispatch', () => {
       expect(next).toEqual(state);
     });
 
-    it('returns state unchanged if building is at max level', () => {
-      const state = stateWithBuilding(PLACEHOLDER_MAX_BUILDING_LEVEL, 100000);
+    it('returns state unchanged if guild-hall is at its template maxLevel (10)', () => {
+      const state = stateWithBuilding(guildHall.maxLevel, 100000);
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
       expect(next).toEqual(state);
     });
 
-    it('returns state unchanged if not enough gold', () => {
+    it('returns state unchanged if not enough gold for guild-hall upgrade', () => {
       const targetLevel = 2;
-      const cost = PLACEHOLDER_UPGRADE_COST_BASE * targetLevel * targetLevel;
+      const cost = guildHall.upgradeCostBase * targetLevel * targetLevel; // 150 * 4 = 600
       const state = stateWithBuilding(1, cost - 1);
 
       const next = dispatch(state, { type: 'UPGRADE_BUILDING', buildingId: 'bld_test_1' });
