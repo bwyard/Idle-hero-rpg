@@ -203,6 +203,23 @@ export const PLACEHOLDER_VISITOR_STAY_DAYS = 60;
 /** Base number of days a held visitor is retained for. */
 export const PLACEHOLDER_HOLD_DURATION_DAYS = 30;
 
+/**
+ * Gold earned by the guild when serving a visitor's request (SERVE_VISITOR).
+ * Keyed by AdventurerTier — scales with visitor quality.
+ * Placeholder values — tune during balance pass.
+ */
+export const PLACEHOLDER_VISITOR_SERVICE_FEE: Record<string, number> = {
+  F: 5,
+  E: 12,
+  D: 25,
+  C: 50,
+  B: 100,
+  A: 200,
+  S: 400,
+  SS: 800,
+  Legendary: 1500,
+};
+
 // ─── Event Log ──────────────────────────────────────────────────────────────
 
 /** Maximum number of events retained in the event log. Oldest trimmed first. */

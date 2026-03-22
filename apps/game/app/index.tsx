@@ -78,6 +78,10 @@ export default function DemoScreen() {
     dispatch({ type: 'HOLD_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
   };
 
+  const handleServeVisitor = (visitorId: string) => {
+    dispatch({ type: 'SERVE_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
+  };
+
   const handleEngageVisitor = (visitorId: string) => {
     dispatch({ type: 'ENGAGE_VISITOR', visitorId } as Parameters<typeof dispatch>[0]);
   };
@@ -134,6 +138,7 @@ export default function DemoScreen() {
               visitor={visitor}
               currentTick={state.time.ticksElapsed}
               onHold={handleHoldVisitor}
+              onServe={handleServeVisitor}
               onEngage={handleEngageVisitor}
               onDismiss={handleDismissVisitor}
             />

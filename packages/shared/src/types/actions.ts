@@ -51,6 +51,12 @@ export interface EngageVisitorAction {
   readonly visitorId: string;
 }
 
+/** Serve a transient visitor's request — earns serviceFee gold, visitor leaves. */
+export interface ServeVisitorAction {
+  readonly type: 'SERVE_VISITOR';
+  readonly visitorId: string;
+}
+
 /** Dismiss a transient visitor — removes them immediately. */
 export interface DismissVisitorAction {
   readonly type: 'DISMISS_VISITOR';
@@ -79,6 +85,7 @@ export type GameAction =
   | GenerateQuestsAction
   | HoldFeastAction
   | HoldVisitorAction
+  | ServeVisitorAction
   | EngageVisitorAction
   | DismissVisitorAction
   | UpgradeBuildingAction
