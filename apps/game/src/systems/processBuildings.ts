@@ -9,7 +9,7 @@
  * Pure function — no mutations, no side effects.
  */
 
-import type { GameState, BuildingProductionImpl, Building } from '@idle-hero-rpg/shared';
+import type { GameState, BuildingProductionImpl, Building, GameEvent } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
 import {
   PLACEHOLDER_BUILDING_INCOME_PER_LEVEL,
@@ -28,6 +28,12 @@ export const placeholderBuildingProductionImpl: BuildingProductionImpl = {
     building.upgradeTicksRemaining === 1 && building.level < PLACEHOLDER_MAX_BUILDING_LEVEL,
 };
 
+type BuildingsAcc = {
+  readonly totalIncome: number;
+  readonly updatedBuildings: Record<string, Building> | null;
+  readonly pendingEvents: readonly GameEvent[];
+};
+
 export function processBuildings(
   state: GameState,
   impl: BuildingProductionImpl = placeholderBuildingProductionImpl,
@@ -35,47 +41,61 @@ export function processBuildings(
   const entries = Object.entries(state.buildings);
   if (entries.length === 0) return state;
 
-  let totalIncome = 0;
-  let updatedBuildings: Record<string, Building> | null = null;
-  const pendingEvents = [...state.pendingEvents];
+  const { totalIncome, updatedBuildings, pendingEvents } = entries.reduce<BuildingsAcc>(
+    (acc, [id, building]) => {
+      const income = impl.incomePerTick(building, state);
 
-  for (const [id, building] of entries) {
-    totalIncome += impl.incomePerTick(building, state);
-
-    if (building.upgradeTicksRemaining > 0) {
-      if (updatedBuildings === null) {
-        updatedBuildings = { ...state.buildings };
+      if (building.upgradeTicksRemaining <= 0) {
+        return { ...acc, totalIncome: acc.totalIncome + income };
       }
+
+      const buildings = acc.updatedBuildings ?? { ...state.buildings };
 
       if (impl.upgradeCompletesThisTick(building, state)) {
         // Level up
-        updatedBuildings[id] = {
-          ...building,
-          level: building.level + 1,
-          upgradeTicksRemaining: 0,
+        return {
+          totalIncome: acc.totalIncome + income,
+          updatedBuildings: {
+            ...buildings,
+            [id]: { ...building, level: building.level + 1, upgradeTicksRemaining: 0 },
+          },
+          pendingEvents: [
+            ...acc.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'BUILDING_UPGRADE',
+              message: `${building.templateId} upgraded to level ${String(building.level + 1)}!`,
+              achievementKey: null,
+            },
+          ],
         };
-        pendingEvents.push({
-          id: createId('evt'),
-          tick: state.time.ticksElapsed,
-          type: 'BUILDING_UPGRADE',
-          message: `${building.templateId} upgraded to level ${String(building.level + 1)}!`,
-          achievementKey: null,
-        });
-      } else if (
+      }
+
+      if (
         building.upgradeTicksRemaining === 1 &&
         building.level >= PLACEHOLDER_MAX_BUILDING_LEVEL
       ) {
         // At max level — just clear the upgrade
-        updatedBuildings[id] = { ...building, upgradeTicksRemaining: 0 };
-      } else {
-        // Tick down
-        updatedBuildings[id] = {
-          ...building,
-          upgradeTicksRemaining: building.upgradeTicksRemaining - 1,
+        return {
+          ...acc,
+          totalIncome: acc.totalIncome + income,
+          updatedBuildings: { ...buildings, [id]: { ...building, upgradeTicksRemaining: 0 } },
         };
       }
-    }
-  }
+
+      // Tick down
+      return {
+        ...acc,
+        totalIncome: acc.totalIncome + income,
+        updatedBuildings: {
+          ...buildings,
+          [id]: { ...building, upgradeTicksRemaining: building.upgradeTicksRemaining - 1 },
+        },
+      };
+    },
+    { totalIncome: 0, updatedBuildings: null, pendingEvents: state.pendingEvents },
+  );
 
   const hasChanges =
     totalIncome !== 0 ||
@@ -85,10 +105,7 @@ export function processBuildings(
 
   return {
     ...state,
-    guild: {
-      ...state.guild,
-      gold: state.guild.gold + totalIncome,
-    },
+    guild: { ...state.guild, gold: state.guild.gold + totalIncome },
     buildings: updatedBuildings ?? state.buildings,
     pendingEvents,
   };

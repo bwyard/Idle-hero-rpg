@@ -27,18 +27,12 @@ export function checkPrestigeConditions(state: GameState): GameState {
   const adventurers = Object.values(state.adventurers);
   const isEscalated = prestigeCount >= PRESTIGE_ESCALATION_THRESHOLD;
 
-  let conditionMet: boolean;
-
-  if (isEscalated) {
-    // Prestige 10+: need multiple retired high-tier adventurers
-    const retiredHighTier = adventurers.filter(
-      (a) => HIGH_TIERS.has(a.tier) && a.retiredYear !== null,
-    );
-    conditionMet = retiredHighTier.length >= ESCALATED_REQUIRED_COUNT;
-  } else {
-    // Pre-escalation: need one retired Legendary adventurer
-    conditionMet = adventurers.some((a) => a.tier === 'Legendary' && a.retiredYear !== null);
-  }
+  // Prestige 10+: need multiple retired high-tier adventurers
+  // Pre-escalation: need one retired Legendary adventurer
+  const conditionMet = isEscalated
+    ? adventurers.filter((a) => HIGH_TIERS.has(a.tier) && a.retiredYear !== null).length >=
+      ESCALATED_REQUIRED_COUNT
+    : adventurers.some((a) => a.tier === 'Legendary' && a.retiredYear !== null);
 
   const wasAvailable = state.flags.prestigeAvailable;
 

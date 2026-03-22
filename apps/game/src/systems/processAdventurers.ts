@@ -66,49 +66,42 @@ export function processAdventurers(
   state: GameState,
   impl: AdventurerProgressionImpl = placeholderAdventurerProgressionImpl,
 ): GameState {
-  let next = state;
-
-  for (const [id, adventurer] of Object.entries(state.adventurers)) {
+  return Object.entries(state.adventurers).reduce((next, [id, adventurer]) => {
     const xpGain = impl.xpGainPerTick(adventurer, state);
     const updated = { ...adventurer, xp: adventurer.xp + xpGain };
 
     if (impl.isReadyForTierUp(updated)) {
       const tierUpNext = impl.nextTier(updated.tier);
       if (tierUpNext !== null) {
-        const tierUpEvent = {
-          id: createId('evt'),
-          tick: state.time.ticksElapsed,
-          type: 'TIER_UP',
-          message: `${updated.name} advanced to tier ${tierUpNext}!`,
-          achievementKey: null,
-        } as const;
-        next = {
+        return {
           ...next,
-          adventurers: {
-            ...next.adventurers,
-            [id]: { ...updated, tier: tierUpNext, xp: 0 },
-          },
-          pendingEvents: [...next.pendingEvents, tierUpEvent],
+          adventurers: { ...next.adventurers, [id]: { ...updated, tier: tierUpNext, xp: 0 } },
+          pendingEvents: [
+            ...next.pendingEvents,
+            {
+              id: createId('evt'),
+              tick: state.time.ticksElapsed,
+              type: 'TIER_UP',
+              message: `${updated.name} advanced to tier ${tierUpNext}!`,
+              achievementKey: null,
+            } as const,
+          ],
         };
-        continue;
       }
     }
 
     if (impl.shouldRetire(updated, state)) {
       const { [id]: _retired, ...remaining } = next.adventurers;
-      next = {
+      return {
         ...next,
         adventurers: remaining,
         flags: { ...next.flags, prestigeAvailable: true },
       };
-      continue;
     }
 
-    next = {
+    return {
       ...next,
       adventurers: { ...next.adventurers, [id]: updated },
     };
-  }
-
-  return next;
+  }, state);
 }
