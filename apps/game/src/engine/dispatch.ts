@@ -62,7 +62,7 @@ const ADVENTURER_NAMES = [
  * @param action - The action to apply
  * @returns A new GameState after applying the action
  */
-export function dispatch(state: GameState, action: GameAction): GameState {
+export const dispatch = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'RECRUIT_ADVENTURER': {
       if (!canAffordGold(state.guild.gold, PLACEHOLDER_RECRUIT_COST)) return state;
@@ -395,4 +395,4 @@ export function dispatch(state: GameState, action: GameAction): GameState {
     default:
       return state;
   }
-}
+};

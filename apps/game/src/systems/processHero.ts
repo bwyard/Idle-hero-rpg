@@ -38,10 +38,10 @@ export const placeholderHeroAbilityImpl: HeroAbilityImpl = {
   isMilestoneUnlocked: () => false, // placeholder — kept disabled for now
 };
 
-export function processHero(
+export const processHero = (
   state: GameState,
   impl: HeroAbilityImpl = placeholderHeroAbilityImpl,
-): GameState {
+): GameState => {
   const regen = impl.actionPointRegen(state);
   const newAP = Math.min(Math.max(0, state.hero.actionPoints + regen), HERO_ACTION_POINT_MAX);
 
@@ -56,4 +56,4 @@ export function processHero(
       actionPoints: newAP,
     },
   };
-}
+};

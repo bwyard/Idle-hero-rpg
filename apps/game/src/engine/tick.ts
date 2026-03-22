@@ -44,7 +44,7 @@ import { processEventLog } from '../systems/processEventLog';
  * @param state - The current GameState (immutable input)
  * @returns A new GameState after all systems have processed
  */
-export function tick(state: GameState): GameState {
+export const tick = (state: GameState): GameState => {
   return pipe(
     state,
     advanceTime,
@@ -61,4 +61,4 @@ export function tick(state: GameState): GameState {
     checkForcedPrestige,
     processEventLog,
   );
-}
+};

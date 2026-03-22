@@ -12,7 +12,7 @@
 import type { GameState } from '@idle-hero-rpg/shared';
 import { EVENT_LOG_MAX_LENGTH } from '../data/balance';
 
-export function processEventLog(state: GameState): GameState {
+export const processEventLog = (state: GameState): GameState => {
   // Nothing to do if no pending events
   if (state.pendingEvents.length === 0) {
     return state;
@@ -32,4 +32,4 @@ export function processEventLog(state: GameState): GameState {
     eventLog: trimmed,
     pendingEvents: [],
   };
-}
+};

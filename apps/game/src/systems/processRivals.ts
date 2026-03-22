@@ -50,12 +50,12 @@ export const placeholderRivalImpl: RivalProgressionImpl = {
   },
 };
 
-export function processRivals(
+export const processRivals = (
   state: GameState,
   impl: RivalProgressionImpl = stubRivalProgressionImpl,
   /** Test seam: inject a controlled () => number to override seed-based randomness. */
   random?: () => number,
-): GameState {
+): GameState => {
   // Pass 1: dissolve tenured rivals — thread seed through each rival check.
   const {
     rivals: dissolvedRivals,
@@ -146,4 +146,4 @@ export function processRivals(
 
   // Advance seed even when no spawn (random value was consumed).
   return random ? afterDissolveState : { ...afterDissolveState, rngSeed: s1 };
-}
+};

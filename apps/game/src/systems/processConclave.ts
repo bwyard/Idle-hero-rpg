@@ -10,7 +10,7 @@
 import type { GameState } from '@idle-hero-rpg/shared';
 import { CONCLAVE_INTERVAL_YEARS } from '../data/balance';
 
-export function processConclave(state: GameState): GameState {
+export const processConclave = (state: GameState): GameState => {
   // Conclave fires every CONCLAVE_INTERVAL_YEARS in-game years
   const yearsPassed = state.time.ticksElapsed; // TODO: convert ticks to years
   const isConclaveYear = yearsPassed > 0 && yearsPassed % CONCLAVE_INTERVAL_YEARS === 0;
@@ -22,4 +22,4 @@ export function processConclave(state: GameState): GameState {
   // TODO: Implement dynasty growth measurement across categories
   // TODO: Implement Skill Borrow reset for Legendary (2×SS) adventurers
   return state;
-}
+};

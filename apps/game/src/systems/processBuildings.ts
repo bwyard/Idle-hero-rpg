@@ -38,10 +38,10 @@ type BuildingsAcc = {
   readonly pendingEvents: readonly GameEvent[];
 };
 
-export function processBuildings(
+export const processBuildings = (
   state: GameState,
   impl: BuildingProductionImpl = placeholderBuildingProductionImpl,
-): GameState {
+): GameState => {
   const entries = Object.entries(state.buildings);
   if (entries.length === 0) return state;
 
@@ -111,4 +111,4 @@ export function processBuildings(
     buildings: updatedBuildings ?? state.buildings,
     pendingEvents,
   };
-}
+};

@@ -45,7 +45,7 @@ const VISITOR_TIER_WEIGHTS: readonly { tier: AdventurerTier; weight: number }[] 
 const VISITOR_TIER_TOTAL_WEIGHT = VISITOR_TIER_WEIGHTS.reduce((sum, w) => sum + w.weight, 0);
 
 /** Pick a tier based on weighted random. */
-function pickWeightedTier(roll: number): AdventurerTier {
+const pickWeightedTier = (roll: number): AdventurerTier => {
   const target = roll * VISITOR_TIER_TOTAL_WEIGHT;
   // Thread remaining budget forward — first tier that consumes past it wins.
   return VISITOR_TIER_WEIGHTS.reduce<{ tier: AdventurerTier; remaining: number }>(
@@ -57,7 +57,7 @@ function pickWeightedTier(roll: number): AdventurerTier {
           : { tier: acc.tier, remaining: acc.remaining - weight },
     { tier: 'F', remaining: target },
   ).tier;
-}
+};
 
 /** Archetypes available for visitors (null means no archetype for low tiers). */
 const VISITOR_ARCHETYPES: readonly (AdventurerArchetype | null)[] = [
@@ -81,18 +81,18 @@ const SERVICE_REQUESTS: readonly VisitorServiceRequest[] = [
 ];
 
 /** Check if a visitor has expired. */
-function isExpired(visitor: TransientVisitor, ticksElapsed: number): boolean {
+const isExpired = (visitor: TransientVisitor, ticksElapsed: number): boolean => {
   if (ticksElapsed < visitor.expiresAtTick) return false;
   if (visitor.heldUntilTick !== null && ticksElapsed < visitor.heldUntilTick) return false;
   return true;
-}
+};
 
 /** Create a new visitor using an injected random function (test seam). */
-function spawnVisitorFromRandom(
+const spawnVisitorFromRandom = (
   ticksElapsed: number,
   random: () => number,
   fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
-): TransientVisitor {
+): TransientVisitor => {
   const name = VISITOR_NAMES[Math.floor(random() * VISITOR_NAMES.length)] ?? 'Traveler';
   const tier = pickWeightedTier(random());
   const archetype = VISITOR_ARCHETYPES[Math.floor(random() * VISITOR_ARCHETYPES.length)] ?? null;
@@ -111,14 +111,14 @@ function spawnVisitorFromRandom(
     heldUntilTick: null,
     holdCount: 0,
   };
-}
+};
 
 /** Create a new visitor by threading a seed forward — returns [visitor, nextSeed]. */
-function spawnVisitorFromSeed(
+const spawnVisitorFromSeed = (
   ticksElapsed: number,
   seed: number,
   fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
-): [TransientVisitor, number] {
+): [TransientVisitor, number] => {
   const [nameIdx, s1] = prngRangeInt(seed, VISITOR_NAMES.length);
   const name = VISITOR_NAMES[nameIdx] ?? 'Traveler';
   const [tierRoll, s2] = prngNext(s1);
@@ -143,7 +143,7 @@ function spawnVisitorFromSeed(
     },
     s4,
   ];
-}
+};
 
 /**
  * Process transient visitors for one tick.
@@ -153,11 +153,11 @@ function spawnVisitorFromSeed(
  *   When omitted, randomness is derived from state.rngSeed (production path).
  * @returns A new GameState after processing visitors
  */
-export function processTransientVisitors(
+export const processTransientVisitors = (
   state: GameState,
   /** Test seam: inject a controlled () => number to override seed-based randomness. */
   random?: () => number,
-): GameState {
+): GameState => {
   const ticksElapsed = state.time.ticksElapsed;
   const currentVisitors = state.transientVisitors;
   const newVisitors: Record<string, TransientVisitor> = {};
@@ -224,4 +224,4 @@ export function processTransientVisitors(
   }
 
   return { ...state, rngSeed: s1, transientVisitors: newVisitors, pendingEvents };
-}
+};

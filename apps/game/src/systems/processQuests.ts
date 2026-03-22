@@ -29,10 +29,10 @@ export const placeholderQuestRewardImpl: QuestRewardImpl = {
   adventurerXpReward: () => PLACEHOLDER_QUEST_XP_REWARD,
 };
 
-export function processQuests(
+export const processQuests = (
   state: GameState,
   impl: QuestRewardImpl = placeholderQuestRewardImpl,
-): GameState {
+): GameState => {
   // Pass 1: prune completed quests that have been displayed long enough.
   const prunedState = Object.entries(state.quests).reduce((next, [id, quest]) => {
     if (
@@ -93,4 +93,4 @@ export function processQuests(
       ],
     };
   }, prunedState);
-}
+};

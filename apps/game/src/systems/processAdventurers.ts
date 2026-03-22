@@ -23,11 +23,11 @@ import {
 } from '../data/balance';
 
 /** Check if an adventurer is currently assigned to an active quest. */
-function isOnQuest(adventurerId: string, state: GameState): boolean {
+const isOnQuest = (adventurerId: string, state: GameState): boolean => {
   return Object.values(state.quests).some(
     (q) => q.assignedAdventurerId === adventurerId && !q.isComplete,
   );
-}
+};
 
 export const stubAdventurerProgressionImpl: AdventurerProgressionImpl = {
   xpGainPerTick: () => 0,
@@ -62,10 +62,10 @@ export const placeholderAdventurerProgressionImpl: AdventurerProgressionImpl = {
   },
 };
 
-export function processAdventurers(
+export const processAdventurers = (
   state: GameState,
   impl: AdventurerProgressionImpl = placeholderAdventurerProgressionImpl,
-): GameState {
+): GameState => {
   return Object.entries(state.adventurers).reduce((next, [id, adventurer]) => {
     const xpGain = impl.xpGainPerTick(adventurer, state);
     const updated = { ...adventurer, xp: adventurer.xp + xpGain };
@@ -104,4 +104,4 @@ export function processAdventurers(
       adventurers: { ...next.adventurers, [id]: updated },
     };
   }, state);
-}
+};

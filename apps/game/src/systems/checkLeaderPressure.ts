@@ -9,8 +9,8 @@
 
 import type { GameState } from '@idle-hero-rpg/shared';
 
-export function checkLeaderPressure(state: GameState): GameState {
+export const checkLeaderPressure = (state: GameState): GameState => {
   // TODO: Implement leader age / career pressure tracking
   // TODO: Emit appropriate event log entries when approaching limits
   return state;
-}
+};
