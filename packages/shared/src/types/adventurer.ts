@@ -44,11 +44,11 @@ export type AdventurerArchetype =
 
 /** The service a transient visitor is seeking at the guild house. */
 export type VisitorServiceRequest =
-  | 'Quest'     // Wants to pick up or hand in a quest; requires active quest board
-  | 'Training'  // Wants access to training grounds; requires Training Grounds building
-  | 'Repair'    // Needs equipment repaired; requires a smith or equivalent (future building)
-  | 'Health'    // Seeking healing or rest; requires Tavern or Infirmary building
-  | 'Lodging';  // Needs a place to stay; requires Tavern at level 2+
+  | 'Quest' // Wants to pick up or hand in a quest; requires active quest board
+  | 'Training' // Wants access to training grounds; requires Training Grounds building
+  | 'Repair' // Needs equipment repaired; requires a smith or equivalent (future building)
+  | 'Health' // Seeking healing or rest; requires Tavern or Infirmary building
+  | 'Lodging'; // Needs a place to stay; requires Tavern at level 2+
 
 /** A non-guild adventurer currently at the guild house. */
 export interface TransientVisitor {
@@ -58,6 +58,11 @@ export interface TransientVisitor {
   readonly tier: AdventurerTier;
   readonly archetype: AdventurerArchetype | null;
   readonly serviceRequest: VisitorServiceRequest;
+  /**
+   * Gold the guild earns by serving this visitor's request (SERVE_VISITOR).
+   * Scales with visitor tier and service type. Set on spawn.
+   */
+  readonly serviceFee: number;
   /** Tick at which this visitor arrived. */
   readonly arrivedAtTick: number;
   /**

@@ -23,6 +23,7 @@ import {
   PLACEHOLDER_VISITOR_SPAWN_CHANCE,
   PLACEHOLDER_MAX_VISITORS,
   PLACEHOLDER_VISITOR_STAY_DAYS,
+  PLACEHOLDER_VISITOR_SERVICE_FEE,
   TICKS_PER_DAY,
 } from '../data/balance';
 import { VISITOR_NAMES } from '../data/visitorNames';
@@ -104,6 +105,7 @@ function spawnVisitorFromRandom(
     tier,
     archetype,
     serviceRequest,
+    serviceFee: PLACEHOLDER_VISITOR_SERVICE_FEE[tier] ?? 5,
     arrivedAtTick: ticksElapsed,
     expiresAtTick: ticksElapsed + PLACEHOLDER_VISITOR_STAY_DAYS * TICKS_PER_DAY,
     heldUntilTick: null,
@@ -133,6 +135,7 @@ function spawnVisitorFromSeed(
       tier,
       archetype,
       serviceRequest,
+      serviceFee: PLACEHOLDER_VISITOR_SERVICE_FEE[tier] ?? 5,
       arrivedAtTick: ticksElapsed,
       expiresAtTick: ticksElapsed + PLACEHOLDER_VISITOR_STAY_DAYS * TICKS_PER_DAY,
       heldUntilTick: null,

@@ -19,6 +19,7 @@ interface VisitorCardProps {
   readonly visitor: TransientVisitor;
   readonly currentTick: number;
   readonly onHold: (visitorId: string) => void;
+  readonly onServe: (visitorId: string) => void;
   readonly onEngage: (visitorId: string) => void;
   readonly onDismiss: (visitorId: string) => void;
 }
@@ -27,6 +28,7 @@ export function VisitorCard({
   visitor,
   currentTick,
   onHold,
+  onServe,
   onEngage,
   onDismiss,
 }: VisitorCardProps) {
@@ -48,6 +50,7 @@ export function VisitorCard({
       <View style={styles.details}>
         {visitor.archetype !== null && <Text style={styles.detail}>{visitor.archetype}</Text>}
         <Text style={styles.detail}>Seeking: {visitor.serviceRequest}</Text>
+        <Text style={styles.fee}>Service fee: {visitor.serviceFee}g</Text>
         <Text style={styles.timer}>
           {isHeld
             ? `Held: ${String(heldTicksRemaining)}t`
@@ -62,16 +65,25 @@ export function VisitorCard({
           accessibilityLabel={`Hold ${visitor.name} for ${String(nextHoldDuration)} ticks`}
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Hold ({nextHoldDuration}t)</Text>
+          <Text style={styles.buttonText}>Hold</Text>
+        </Pressable>
+
+        <Pressable
+          style={({ pressed }) => [styles.button, styles.serveButton, pressed && styles.pressed]}
+          onPress={() => onServe(visitor.id)}
+          accessibilityLabel={`Serve ${visitor.name} — earn ${String(visitor.serviceFee)} gold`}
+          accessibilityRole="button"
+        >
+          <Text style={styles.buttonText}>Serve (+{visitor.serviceFee}g)</Text>
         </Pressable>
 
         <Pressable
           style={({ pressed }) => [styles.button, styles.engageButton, pressed && styles.pressed]}
           onPress={() => onEngage(visitor.id)}
-          accessibilityLabel={`Engage ${visitor.name} for ${String(PLACEHOLDER_ENGAGE_COST)} gold`}
+          accessibilityLabel={`Recruit ${visitor.name} for ${String(PLACEHOLDER_ENGAGE_COST)} gold`}
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Engage ({PLACEHOLDER_ENGAGE_COST}g)</Text>
+          <Text style={styles.buttonText}>Recruit (-{PLACEHOLDER_ENGAGE_COST}g)</Text>
         </Pressable>
 
         <Pressable
@@ -119,6 +131,12 @@ const styles = StyleSheet.create({
     color: '#b0a090',
     marginBottom: 2,
   },
+  fee: {
+    fontSize: 13,
+    color: '#60d0a0',
+    fontWeight: '600',
+    marginTop: 2,
+  },
   timer: {
     fontSize: 13,
     color: '#f0d060',
@@ -140,6 +158,9 @@ const styles = StyleSheet.create({
   },
   holdButton: {
     backgroundColor: '#3a2a5e',
+  },
+  serveButton: {
+    backgroundColor: '#1a4a6a',
   },
   engageButton: {
     backgroundColor: '#2a5a3a',

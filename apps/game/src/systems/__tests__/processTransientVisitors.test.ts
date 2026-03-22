@@ -17,6 +17,7 @@ function makeVisitor(overrides: Partial<TransientVisitor> = {}): TransientVisito
     tier: 'F',
     archetype: null,
     serviceRequest: 'Quest',
+    serviceFee: 5,
     arrivedAtTick: 0,
     expiresAtTick: 50,
     heldUntilTick: null,
@@ -150,6 +151,14 @@ describe('processTransientVisitors', () => {
       const next = processTransientVisitors(state, () => 0);
       const visitors = Object.values(next.transientVisitors);
       expect(visitors).toHaveLength(1);
+    });
+
+    it('spawned visitor has a positive serviceFee', () => {
+      const state = stateWithVisitors({}, 10);
+      const next = processTransientVisitors(state, () => 0);
+      const visitor = Object.values(next.transientVisitors)[0];
+      expect(visitor).toBeDefined();
+      expect(visitor!.serviceFee).toBeGreaterThan(0);
     });
 
     it('does NOT spawn when random >= spawn chance', () => {

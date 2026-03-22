@@ -268,6 +268,28 @@ export function dispatch(state: GameState, action: GameAction): GameState {
       };
     }
 
+    case 'SERVE_VISITOR': {
+      const visitor = state.transientVisitors[action.visitorId];
+      if (!visitor) return state;
+
+      const { [action.visitorId]: _removed, ...remainingVisitors } = state.transientVisitors;
+
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'VISITOR_SERVED',
+        message: `${visitor.name} was served (${visitor.serviceRequest}) — ${String(visitor.serviceFee)} gold earned.`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        guild: { ...state.guild, gold: state.guild.gold + visitor.serviceFee },
+        transientVisitors: remainingVisitors,
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
     case 'DISMISS_VISITOR': {
       const visitor = state.transientVisitors[action.visitorId];
       if (!visitor) return state;

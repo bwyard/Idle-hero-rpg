@@ -25,6 +25,7 @@ function makeVisitor(overrides: Partial<TransientVisitor> = {}): TransientVisito
     tier: 'D',
     archetype: 'Rogue',
     serviceRequest: 'Quest',
+    serviceFee: 25,
     arrivedAtTick: 0,
     expiresAtTick: 100,
     heldUntilTick: null,
@@ -311,6 +312,48 @@ describe('dispatch', () => {
       const state = createInitialGameState();
       const next = dispatch(state, { type: 'DISMISS_VISITOR', visitorId: 'vis_nonexistent' });
       expect(next).toEqual(state);
+    });
+  });
+
+  describe('SERVE_VISITOR', () => {
+    it('removes visitor from transientVisitors', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'SERVE_VISITOR', visitorId: 'vis_1' });
+      expect(next.transientVisitors['vis_1']).toBeUndefined();
+    });
+
+    it('awards the visitor serviceFee to guild gold', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'SERVE_VISITOR', visitorId: 'vis_1' });
+      expect(next.guild.gold).toBe(150);
+    });
+
+    it('emits a VISITOR_SERVED event', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'SERVE_VISITOR', visitorId: 'vis_1' });
+      const servedEvents = next.pendingEvents.filter((e) => e.type === 'VISITOR_SERVED');
+      expect(servedEvents).toHaveLength(1);
+    });
+
+    it('returns state unchanged if visitor does not exist', () => {
+      const state = createInitialGameState();
+      const next = dispatch(state, { type: 'SERVE_VISITOR', visitorId: 'vis_nonexistent' });
+      expect(next).toEqual(state);
+    });
+
+    it('does not change adventurer roster', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+      const beforeCount = Object.keys(state.adventurers).length;
+
+      const next = dispatch(state, { type: 'SERVE_VISITOR', visitorId: 'vis_1' });
+      expect(Object.keys(next.adventurers)).toHaveLength(beforeCount);
     });
   });
 
