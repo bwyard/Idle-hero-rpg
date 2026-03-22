@@ -15,8 +15,19 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  thesis-check:
+    name: Thesis Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: node scripts/thesis-check.js
+
   lint:
     name: Lint
+    needs: thesis-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +44,7 @@ jobs:
 
   typecheck:
     name: Typecheck
+    needs: thesis-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,6 +61,7 @@ jobs:
 
   unit-tests:
     name: Unit & Property Tests
+    needs: thesis-check
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4

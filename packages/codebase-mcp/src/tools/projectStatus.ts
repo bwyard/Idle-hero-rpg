@@ -21,56 +21,41 @@ const FILES = {
 } as const;
 
 function extractBlockers(todoContent: string): string[] {
-  const blockers: string[] = [];
-  const lines = todoContent.split('\n');
-  let inP0 = false;
-
-  for (const line of lines) {
-    if (line.startsWith('## P0')) {
-      inP0 = true;
-      continue;
-    }
-    if (line.startsWith('## P') || line.startsWith('## Completed')) {
-      inP0 = false;
-    }
-    if (inP0 && line.startsWith('- [ ]')) {
-      blockers.push(line.replace(/^- \[ \]\s*/, '').trim());
-    }
-  }
-
-  return blockers;
+  return todoContent.split('\n').reduce<{ blockers: string[]; inP0: boolean }>(
+    (acc, line) => {
+      if (line.startsWith('## P0')) return { ...acc, inP0: true };
+      if (line.startsWith('## P') || line.startsWith('## Completed'))
+        return { ...acc, inP0: false };
+      if (acc.inP0 && line.startsWith('- [ ]')) {
+        return { ...acc, blockers: [...acc.blockers, line.replace(/^- \[ \]\s*/, '').trim()] };
+      }
+      return acc;
+    },
+    { blockers: [], inP0: false },
+  ).blockers;
 }
 
 function extractOpenQuestions(decisionsContent: string): string[] {
-  const questions: string[] = [];
-  const lines = decisionsContent.split('\n');
-  let inTable = false;
-  let headerPassed = false;
-
-  for (const line of lines) {
-    if (line.startsWith('## Open Questions')) {
-      inTable = true;
-      continue;
-    }
-    if (inTable && line.startsWith('|---')) {
-      headerPassed = true;
-      continue;
-    }
-    if (inTable && headerPassed && line.startsWith('|')) {
-      const cols = line
-        .split('|')
-        .map((c) => c.trim())
-        .filter(Boolean);
-      if (cols.length >= 2 && !cols[1]?.toUpperCase().includes('CLOSED')) {
-        questions.push(`${cols[0] ?? ''} — ${cols[1] ?? ''}`);
-      }
-    }
-    if (inTable && line.startsWith('---')) {
-      inTable = false;
-    }
-  }
-
-  return questions;
+  return decisionsContent
+    .split('\n')
+    .reduce<{ questions: string[]; inTable: boolean; headerPassed: boolean }>(
+      (acc, line) => {
+        if (line.startsWith('## Open Questions')) return { ...acc, inTable: true };
+        if (acc.inTable && line.startsWith('|---')) return { ...acc, headerPassed: true };
+        if (acc.inTable && acc.headerPassed && line.startsWith('|')) {
+          const cols = line
+            .split('|')
+            .map((c) => c.trim())
+            .filter(Boolean);
+          if (cols.length >= 2 && !cols[1]?.toUpperCase().includes('CLOSED')) {
+            return { ...acc, questions: [...acc.questions, `${cols[0] ?? ''} — ${cols[1] ?? ''}`] };
+          }
+        }
+        if (acc.inTable && line.startsWith('---')) return { ...acc, inTable: false };
+        return acc;
+      },
+      { questions: [], inTable: false, headerPassed: false },
+    ).questions;
 }
 
 function extractRoadmapSummary(roadmapContent: string): {
@@ -79,40 +64,36 @@ function extractRoadmapSummary(roadmapContent: string): {
   upcoming_phases: string[];
 } {
   const lines = roadmapContent.split('\n');
-  let statusLine = '';
-  let currentPhase = '';
-  const upcoming: string[] = [];
 
-  for (const line of lines) {
-    // Grab the **Status:** line near the top
-    if (line.startsWith('**Status:') || line.startsWith('Status:')) {
-      statusLine = line.replace(/^\*?\*?Status:\*?\*?\s*/, '').trim();
-      continue;
-    }
-    // Find phase headings (## Phase N — ...) and categorize
-    const phaseMatch = line.match(/^##\s+(Phase\s+\d+\S*)\s*[—–-]\s*(.*)/);
-    if (phaseMatch) {
-      const phaseName = phaseMatch[1] ?? '';
-      const phaseDesc = (phaseMatch[2] ?? '').trim();
-      const label = `${phaseName}: ${phaseDesc}`;
-      // Check subsequent lines for status markers
-      const idx = lines.indexOf(line);
-      const nextLines = lines
-        .slice(idx + 1, idx + 5)
-        .join(' ')
-        .toLowerCase();
-      if (nextLines.includes('in progress') || nextLines.includes('in-progress')) {
-        currentPhase = label;
-      } else if (!nextLines.includes('complete') && !nextLines.includes('done')) {
-        upcoming.push(label);
+  const result = lines.reduce<{ statusLine: string; currentPhase: string; upcoming: string[] }>(
+    (acc, line) => {
+      if (line.startsWith('**Status:') || line.startsWith('Status:')) {
+        return { ...acc, statusLine: line.replace(/^\*?\*?Status:\*?\*?\s*/, '').trim() };
       }
-    }
-  }
+      const phaseMatch = line.match(/^##\s+(Phase\s+\d+\S*)\s*[—–-]\s*(.*)/);
+      if (phaseMatch) {
+        const label = `${phaseMatch[1] ?? ''}: ${(phaseMatch[2] ?? '').trim()}`;
+        const idx = lines.indexOf(line);
+        const nextLines = lines
+          .slice(idx + 1, idx + 5)
+          .join(' ')
+          .toLowerCase();
+        if (nextLines.includes('in progress') || nextLines.includes('in-progress')) {
+          return { ...acc, currentPhase: label };
+        }
+        if (!nextLines.includes('complete') && !nextLines.includes('done')) {
+          return { ...acc, upcoming: [...acc.upcoming, label] };
+        }
+      }
+      return acc;
+    },
+    { statusLine: '', currentPhase: '', upcoming: [] },
+  );
 
   return {
-    status_line: statusLine || 'Unknown',
-    current_phase: currentPhase || 'Unknown',
-    upcoming_phases: upcoming.slice(0, 5),
+    status_line: result.statusLine || 'Unknown',
+    current_phase: result.currentPhase || 'Unknown',
+    upcoming_phases: result.upcoming.slice(0, 5),
   };
 }
 
@@ -124,61 +105,53 @@ function extractTodoSummary(todoContent: string): {
   p0_items: string[];
   p1_items: string[];
 } {
-  const lines = todoContent.split('\n');
-  let currentSection = '';
-  let p0Count = 0;
-  let p1Count = 0;
-  let p2Count = 0;
-  let completedCount = 0;
-  const p0Items: string[] = [];
-  const p1Items: string[] = [];
+  type Section = 'p0' | 'p1' | 'p2' | 'completed' | '';
+  type TodoAcc = {
+    section: Section;
+    p0Count: number;
+    p1Count: number;
+    p2Count: number;
+    completedCount: number;
+    p0Items: string[];
+    p1Items: string[];
+  };
 
-  for (const line of lines) {
-    if (line.startsWith('## P0')) {
-      currentSection = 'p0';
-      continue;
-    }
-    if (line.startsWith('## P1')) {
-      currentSection = 'p1';
-      continue;
-    }
-    if (line.startsWith('## P2')) {
-      currentSection = 'p2';
-      continue;
-    }
-    if (line.startsWith('## Completed')) {
-      currentSection = 'completed';
-      continue;
-    }
-    if (line.startsWith('## ')) {
-      currentSection = '';
-      continue;
-    }
-
-    if (line.startsWith('- [ ]')) {
-      const text = line.replace(/^- \[ \]\s*/, '').trim();
-      if (currentSection === 'p0') {
-        p0Count++;
-        p0Items.push(text);
-      } else if (currentSection === 'p1') {
-        p1Count++;
-        p1Items.push(text);
-      } else if (currentSection === 'p2') {
-        p2Count++;
+  const acc = todoContent.split('\n').reduce<TodoAcc>(
+    (state, line) => {
+      if (line.startsWith('## P0')) return { ...state, section: 'p0' };
+      if (line.startsWith('## P1')) return { ...state, section: 'p1' };
+      if (line.startsWith('## P2')) return { ...state, section: 'p2' };
+      if (line.startsWith('## Completed')) return { ...state, section: 'completed' };
+      if (line.startsWith('## ')) return { ...state, section: '' };
+      if (line.startsWith('- [ ]')) {
+        const text = line.replace(/^- \[ \]\s*/, '').trim();
+        if (state.section === 'p0')
+          return { ...state, p0Count: state.p0Count + 1, p0Items: [...state.p0Items, text] };
+        if (state.section === 'p1')
+          return { ...state, p1Count: state.p1Count + 1, p1Items: [...state.p1Items, text] };
+        if (state.section === 'p2') return { ...state, p2Count: state.p2Count + 1 };
       }
-    }
-    if (line.startsWith('- [x]')) {
-      completedCount++;
-    }
-  }
+      if (line.startsWith('- [x]')) return { ...state, completedCount: state.completedCount + 1 };
+      return state;
+    },
+    {
+      section: '',
+      p0Count: 0,
+      p1Count: 0,
+      p2Count: 0,
+      completedCount: 0,
+      p0Items: [],
+      p1Items: [],
+    },
+  );
 
   return {
-    p0_count: p0Count,
-    p1_count: p1Count,
-    p2_count: p2Count,
-    completed_count: completedCount,
-    p0_items: p0Items,
-    p1_items: p1Items,
+    p0_count: acc.p0Count,
+    p1_count: acc.p1Count,
+    p2_count: acc.p2Count,
+    completed_count: acc.completedCount,
+    p0_items: acc.p0Items,
+    p1_items: acc.p1Items,
   };
 }
 

@@ -43,27 +43,25 @@ export function migrateState(state: unknown): GameState | null {
   if (typeof state !== 'object' || state === null) return null;
 
   const record = state as Record<string, unknown>;
-  let version = typeof record['version'] === 'number' ? record['version'] : 0;
-  let current: unknown = state;
+  const version = typeof record['version'] === 'number' ? record['version'] : 0;
 
-  // Already at current version
-  if (version === CURRENT_VERSION) return current as GameState;
-
-  // Version is newer than what we know — cannot downgrade
+  if (version === CURRENT_VERSION) return state as GameState;
   if (version > CURRENT_VERSION) return null;
 
-  // Run migrations sequentially
-  while (version < CURRENT_VERSION) {
-    const migrate = migrations[version];
-    if (migrate === undefined) return null; // Missing migration — cannot proceed
-    current = migrate(current);
-    version++;
-  }
+  // Build the list of version numbers to migrate through: [version, version+1, ..., CURRENT_VERSION-1]
+  const versionRange = Array.from({ length: CURRENT_VERSION - version }, (_, i) => version + i);
 
-  // Stamp the final version
-  if (typeof current === 'object' && current !== null) {
-    (current as Record<string, unknown>)['version'] = CURRENT_VERSION;
-  }
+  // Verify all migrations exist before running any
+  if (!versionRange.every((v) => migrations[v] !== undefined)) return null;
 
-  return current as GameState;
+  // Apply each migration in sequence, then stamp the final version
+  const migrated = versionRange.reduce<unknown>(
+    (acc, v) => (migrations[v] as Migration)(acc),
+    state,
+  );
+
+  return {
+    ...(migrated as Record<string, unknown>),
+    version: CURRENT_VERSION,
+  } as GameState;
 }
