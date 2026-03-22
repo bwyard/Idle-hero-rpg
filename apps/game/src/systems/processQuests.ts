@@ -33,53 +33,39 @@ export function processQuests(
   state: GameState,
   impl: QuestRewardImpl = placeholderQuestRewardImpl,
 ): GameState {
-  let next = state;
-
-  // Prune completed quests that have been displayed long enough
-  for (const [id, quest] of Object.entries(state.quests)) {
+  // Pass 1: prune completed quests that have been displayed long enough.
+  const prunedState = Object.entries(state.quests).reduce((next, [id, quest]) => {
     if (
       quest.isComplete &&
       quest.completedAtTick !== null &&
       state.time.ticksElapsed - quest.completedAtTick > QUEST_PRUNE_DELAY_TICKS
     ) {
       const { [id]: _pruned, ...remaining } = next.quests;
-      next = { ...next, quests: remaining };
+      return { ...next, quests: remaining };
     }
-  }
+    return next;
+  }, state);
 
-  // Advance active quests
-  for (const [id, quest] of Object.entries(state.quests)) {
-    if (quest.assignedAdventurerId === null) continue;
-    if (quest.isComplete) continue;
+  // Pass 2: advance active quests.
+  return Object.entries(prunedState.quests).reduce((next, [id, quest]) => {
+    if (quest.assignedAdventurerId === null || quest.isComplete) return next;
 
     const newTicksRemaining = quest.ticksRemaining - 1;
 
     if (newTicksRemaining > 0) {
-      next = {
+      return {
         ...next,
-        quests: {
-          ...next.quests,
-          [id]: { ...quest, ticksRemaining: newTicksRemaining },
-        },
+        quests: { ...next.quests, [id]: { ...quest, ticksRemaining: newTicksRemaining } },
       };
-      continue;
     }
 
-    // Quest complete — distribute rewards and stamp completedAtTick
+    // Quest complete — distribute rewards and stamp completedAtTick.
     const goldEarned = impl.goldReward(quest, state);
     const advXp = impl.adventurerXpReward(quest, state);
     const advId = quest.assignedAdventurerId;
     const adv = next.adventurers[advId];
 
-    const questCompleteEvent = {
-      id: createId('evt'),
-      tick: state.time.ticksElapsed,
-      type: 'QUEST_COMPLETE',
-      message: `Quest complete! ${adv?.name ?? 'Unknown'} earned ${String(goldEarned)} gold and ${String(advXp)} XP.`,
-      achievementKey: null,
-    } as const;
-
-    next = {
+    return {
       ...next,
       quests: {
         ...next.quests,
@@ -95,9 +81,16 @@ export function processQuests(
         ? { ...next.adventurers, [advId]: { ...adv, xp: adv.xp + advXp } }
         : next.adventurers,
       guild: { ...next.guild, gold: next.guild.gold + goldEarned },
-      pendingEvents: [...next.pendingEvents, questCompleteEvent],
+      pendingEvents: [
+        ...next.pendingEvents,
+        {
+          id: createId('evt'),
+          tick: state.time.ticksElapsed,
+          type: 'QUEST_COMPLETE',
+          message: `Quest complete! ${adv?.name ?? 'Unknown'} earned ${String(goldEarned)} gold and ${String(advXp)} XP.`,
+          achievementKey: null,
+        } as const,
+      ],
     };
-  }
-
-  return next;
+  }, prunedState);
 }

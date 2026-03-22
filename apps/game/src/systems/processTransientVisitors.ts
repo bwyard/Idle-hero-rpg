@@ -45,12 +45,16 @@ const VISITOR_TIER_TOTAL_WEIGHT = VISITOR_TIER_WEIGHTS.reduce((sum, w) => sum + 
 /** Pick a tier based on weighted random. */
 function pickWeightedTier(roll: number): AdventurerTier {
   const target = roll * VISITOR_TIER_TOTAL_WEIGHT;
-  let cumulative = 0;
-  for (const { tier, weight } of VISITOR_TIER_WEIGHTS) {
-    cumulative += weight;
-    if (target < cumulative) return tier;
-  }
-  return 'F';
+  // Thread remaining budget forward — first tier that consumes past it wins.
+  return VISITOR_TIER_WEIGHTS.reduce<{ tier: AdventurerTier; remaining: number }>(
+    (acc, { tier, weight }) =>
+      acc.remaining <= 0
+        ? acc
+        : weight > acc.remaining
+          ? { tier, remaining: 0 }
+          : { tier: acc.tier, remaining: acc.remaining - weight },
+    { tier: 'F', remaining: target },
+  ).tier;
 }
 
 /** Archetypes available for visitors (null means no archetype for low tiers). */
