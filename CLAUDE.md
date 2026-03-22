@@ -14,6 +14,16 @@ Read `current.md` at the start of every session. Update it and write a closed se
 Project Overview
 Retired Hero's Guild is a mobile idle clicker tycoon built with React Native and Expo.
 The player is a retired legendary adventurer who founds a guild and builds it into a dynasty empire across a Fiore-scale kingdom. The goal is to be the greatest guild in the world. There is no demon lord, no forced story ending. Empire building is the point.
+## Core Philosophy
+
+**Idle Hero is a player-experience product, not a math framework.** Design decisions are driven by what makes a great game, not mathematical purity.
+
+Pure functional TypeScript is an *implementation choice* for testability and correctness — not a philosophical stance. The engine is pure functional because it makes testing easy and behaviour predictable, not because we're generating everything from math.
+
+Idle Hero will eventually consume PRIME, STAGE, and other ecosystem libraries as dependencies, but is designed game-first.
+
+---
+
 Platform: Android primary. iOS future. Web (Expo Web) for E2E testing only.
 Development machine: Windows
 Repo: Public GitHub. PR and feature branch workflow. This is also a portfolio project targeting Staff/Principal SDET roles.

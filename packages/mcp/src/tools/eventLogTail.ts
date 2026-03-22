@@ -30,10 +30,7 @@ const inputSchema = z.object({
     .optional()
     .default(50)
     .describe('Number of recent events to return (max 500, default 50)'),
-  filter: z
-    .string()
-    .optional()
-    .describe('Optional event type filter (e.g. "PRESTIGE", "TIER_UP")'),
+  filter: z.string().optional().describe('Optional event type filter (e.g. "PRESTIGE", "TIER_UP")'),
 });
 
 export const eventLogTail = {
@@ -42,19 +39,24 @@ export const eventLogTail = {
     'Tail the game event log. Returns the most recent N events from the dev fixture, optionally filtered by event type.',
   inputSchema: { count: inputSchema.shape.count, filter: inputSchema.shape.filter },
   handler: async (args: z.infer<typeof inputSchema>) => {
-    let events: GameEvent[];
-    try {
-      const state = JSON.parse(await readFile(FIXTURE_PATH, 'utf-8')) as {
-        eventLog?: GameEvent[];
-      };
-      events = state.eventLog ?? [];
-    } catch (err) {
+    const readResult = await readFile(FIXTURE_PATH, 'utf-8')
+      .then((text) => ({
+        ok: true as const,
+        events: (JSON.parse(text) as { eventLog?: GameEvent[] }).eventLog ?? [],
+      }))
+      .catch((err: unknown) => ({ ok: false as const, err }));
+
+    if (!readResult.ok) {
       return {
         content: [
           {
             type: 'text' as const,
             text: JSON.stringify(
-              { error: 'Could not read game state fixture', path: FIXTURE_PATH, detail: String(err) },
+              {
+                error: 'Could not read game state fixture',
+                path: FIXTURE_PATH,
+                detail: String(readResult.err),
+              },
               null,
               2,
             ),
@@ -63,10 +65,10 @@ export const eventLogTail = {
       };
     }
 
-    if (args.filter) {
-      const keyword = args.filter.toUpperCase();
-      events = events.filter((e) => e.type.toUpperCase().includes(keyword));
-    }
+    const keyword = args.filter?.toUpperCase();
+    const events = keyword
+      ? readResult.events.filter((e) => e.type.toUpperCase().includes(keyword))
+      : readResult.events;
 
     // Return the N most recent — event log is chronological, so slice from the end
     const tail = events.slice(-args.count);

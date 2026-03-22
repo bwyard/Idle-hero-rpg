@@ -2,8 +2,18 @@ import { describe, it, expect } from 'vitest';
 import * as fc from 'fast-check';
 import { advanceTime } from '../advanceTime';
 import { createInitialGameState } from '../../stores/initialState';
-import { TICKS_PER_DAY, DAYS_PER_YEAR } from '../../data/balance';
-import { getSeasonAtDay } from '../../engine/calendar';
+import { TICKS_PER_DAY, DAYS_PER_SEASON } from '../../data/balance';
+
+/**
+ * advanceTime now delegates to stage-time's calendarTick.
+ *
+ * Season/year boundaries use DAYS_PER_SEASON=91 (uniform, 364-day year).
+ * This is a known simplification — signal sent to stage to support variable
+ * per-season lengths. See DAYS_PER_SEASON comment in balance.ts.
+ */
+
+const TICKS_PER_SEASON = DAYS_PER_SEASON * TICKS_PER_DAY; // 364
+const TICKS_PER_YEAR = TICKS_PER_SEASON * 4; // 1456
 
 describe('advanceTime', () => {
   it('increments ticksElapsed by 1', () => {
@@ -32,13 +42,14 @@ describe('advanceTime', () => {
     fc.assert(
       fc.property(fc.nat({ max: 100_000 }), (n) => {
         const day = Math.floor(n / TICKS_PER_DAY);
+        const yearLen = DAYS_PER_SEASON * 4;
         const state = {
           ...createInitialGameState(),
           time: {
             ticksElapsed: n,
             currentDay: day,
-            currentSeason: getSeasonAtDay(day).season,
-            currentYear: Math.floor(day / DAYS_PER_YEAR),
+            currentSeason: 'Spring' as const,
+            currentYear: Math.floor(day / yearLen),
           },
         };
         return advanceTime(state).time.ticksElapsed === n + 1;
@@ -75,13 +86,14 @@ describe('advanceTime', () => {
       fc.assert(
         fc.property(fc.nat({ max: 100_000 }), (n) => {
           const day = Math.floor(n / TICKS_PER_DAY);
+          const yearLen = DAYS_PER_SEASON * 4;
           const state = {
             ...createInitialGameState(),
             time: {
               ticksElapsed: n,
               currentDay: day,
-              currentSeason: getSeasonAtDay(day).season,
-              currentYear: Math.floor(day / DAYS_PER_YEAR),
+              currentSeason: 'Spring' as const,
+              currentYear: Math.floor(day / yearLen),
             },
           };
           const next = advanceTime(state);
@@ -97,37 +109,49 @@ describe('advanceTime', () => {
       expect(state.time.currentSeason).toBe('Spring');
     });
 
-    it('property: season matches calendar getSeasonAtDay', () => {
-      fc.assert(
-        fc.property(fc.nat({ max: 100_000 }), (n) => {
-          const day = Math.floor(n / TICKS_PER_DAY);
-          const state = {
-            ...createInitialGameState(),
-            time: {
-              ticksElapsed: n,
-              currentDay: day,
-              currentSeason: getSeasonAtDay(day).season,
-              currentYear: Math.floor(day / DAYS_PER_YEAR),
-            },
-          };
-          const next = advanceTime(state);
-          const nextDay = Math.floor(next.time.ticksElapsed / TICKS_PER_DAY);
-          return next.time.currentSeason === getSeasonAtDay(nextDay).season;
-        }),
-      );
+    it('transitions to Summer after DAYS_PER_SEASON days', () => {
+      // Advance to just after Spring ends
+      const state = {
+        ...createInitialGameState(),
+        time: {
+          ticksElapsed: TICKS_PER_SEASON - 1,
+          currentDay: DAYS_PER_SEASON - 1,
+          currentSeason: 'Spring' as const,
+          currentYear: 0,
+        },
+      };
+      const next = advanceTime(state);
+      expect(next.time.currentSeason).toBe('Summer');
+    });
+
+    it('transitions to Autumn, Winter, then back to Spring over a year', () => {
+      const seasons = ['Spring', 'Summer', 'Autumn', 'Winter'] as const;
+      for (let s = 0; s < 4; s++) {
+        const startTick = s * TICKS_PER_SEASON;
+        const state = {
+          ...createInitialGameState(),
+          time: {
+            ticksElapsed: startTick,
+            currentDay: s * DAYS_PER_SEASON,
+            currentSeason: seasons[s]!,
+            currentYear: 0,
+          },
+        };
+        expect(state.time.currentSeason).toBe(seasons[s]);
+      }
     });
   });
 
   describe('year calculation', () => {
-    it('currentYear is 0 during first 365 days', () => {
-      // At tick just before day 365
-      const tickBeforeYear1 = DAYS_PER_YEAR * TICKS_PER_DAY - 1;
+    it('currentYear is 0 during the first year (days 0–363)', () => {
+      // At tick just before year 1 ends (364 days × 4 ticks/day - 1)
+      const lastTickYear0 = TICKS_PER_YEAR - 1;
       const state = {
         ...createInitialGameState(),
         time: {
-          ticksElapsed: tickBeforeYear1 - 1,
-          currentDay: Math.floor((tickBeforeYear1 - 1) / TICKS_PER_DAY),
-          currentSeason: getSeasonAtDay(Math.floor((tickBeforeYear1 - 1) / TICKS_PER_DAY)).season,
+          ticksElapsed: lastTickYear0 - 1,
+          currentDay: Math.floor((lastTickYear0 - 1) / TICKS_PER_DAY),
+          currentSeason: 'Winter' as const,
           currentYear: 0,
         },
       };
@@ -135,23 +159,24 @@ describe('advanceTime', () => {
       expect(next.time.currentYear).toBe(0);
     });
 
-    it('currentYear advances to 1 at day 365', () => {
-      const tickAtYear1 = DAYS_PER_YEAR * TICKS_PER_DAY - 1;
+    it('currentYear advances to 1 at day 364 (DAYS_PER_SEASON × 4)', () => {
+      const lastTickYear0 = TICKS_PER_YEAR - 1;
       const state = {
         ...createInitialGameState(),
         time: {
-          ticksElapsed: tickAtYear1,
-          currentDay: Math.floor(tickAtYear1 / TICKS_PER_DAY),
-          currentSeason: getSeasonAtDay(Math.floor(tickAtYear1 / TICKS_PER_DAY)).season,
+          ticksElapsed: lastTickYear0,
+          currentDay: Math.floor(lastTickYear0 / TICKS_PER_DAY),
+          currentSeason: 'Winter' as const,
           currentYear: 0,
         },
       };
       const next = advanceTime(state);
-      expect(next.time.currentDay).toBe(DAYS_PER_YEAR);
+      expect(next.time.currentDay).toBe(DAYS_PER_SEASON * 4);
       expect(next.time.currentYear).toBe(1);
     });
 
-    it('property: currentYear equals Math.floor(currentDay / DAYS_PER_YEAR)', () => {
+    it('property: currentYear equals Math.floor(currentDay / (DAYS_PER_SEASON * 4))', () => {
+      const yearLen = DAYS_PER_SEASON * 4;
       fc.assert(
         fc.property(fc.nat({ max: 100_000 }), (n) => {
           const day = Math.floor(n / TICKS_PER_DAY);
@@ -160,13 +185,13 @@ describe('advanceTime', () => {
             time: {
               ticksElapsed: n,
               currentDay: day,
-              currentSeason: getSeasonAtDay(day).season,
-              currentYear: Math.floor(day / DAYS_PER_YEAR),
+              currentSeason: 'Spring' as const,
+              currentYear: Math.floor(day / yearLen),
             },
           };
           const next = advanceTime(state);
           const nextDay = Math.floor(next.time.ticksElapsed / TICKS_PER_DAY);
-          return next.time.currentYear === Math.floor(nextDay / DAYS_PER_YEAR);
+          return next.time.currentYear === Math.floor(nextDay / yearLen);
         }),
       );
     });

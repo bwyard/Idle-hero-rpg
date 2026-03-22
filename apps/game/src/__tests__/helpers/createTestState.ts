@@ -40,17 +40,15 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
     },
   };
 
-  const buildings: Record<string, import('@idle-hero-rpg/shared').Building> = {};
-  for (let i = 0; i < buildingCount; i++) {
-    const id = `bld_test${String(i + 1)}`;
-    buildings[id] = {
-      id,
-      templateId: 'guild-hall',
-      level: 1,
-      cityId: 'city_test1',
-      upgradeTicksRemaining: 0,
-    };
-  }
+  const buildings: Record<string, import('@idle-hero-rpg/shared').Building> = Object.fromEntries(
+    Array.from({ length: buildingCount }, (_, i) => {
+      const id = `bld_test${String(i + 1)}`;
+      return [
+        id,
+        { id, templateId: 'guild-hall', level: 1, cityId: 'city_test1', upgradeTicksRemaining: 0 },
+      ];
+    }),
+  );
 
   const quests: Record<string, Quest> = {};
   if (activeQuestTicks !== undefined) {
