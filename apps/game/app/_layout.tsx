@@ -13,6 +13,8 @@ export default function RootLayout() {
         title: "Retired Hero's Guild",
       }}
     >
+      <Stack.Screen name="splash" options={{ headerShown: false }} />
+      <Stack.Screen name="start" options={{ headerShown: false }} />
       <Stack.Screen name="index" options={{ title: "Retired Hero's Guild" }} />
       <Stack.Screen name="adventurer/[id]" options={{ title: 'Adventurer Detail' }} />
     </Stack>
