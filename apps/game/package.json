@@ -9,11 +9,11 @@
     "ios": "expo run:ios",
     "web": "expo start --web",
     "build": "expo export",
-    "lint": "eslint src --ext .ts,.tsx",
-    "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:unit": "vitest run",
-    "test:watch": "vitest watch"
+    "lint": "cross-env NODE_OPTIONS=--max-old-space-size=4096 eslint src --ext .ts,.tsx",
+    "typecheck": "cross-env NODE_OPTIONS=--max-old-space-size=4096 tsc --noEmit",
+    "test": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest run",
+    "test:unit": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest run",
+    "test:watch": "cross-env NODE_OPTIONS=--max-old-space-size=4096 vitest watch"
   },
   "dependencies": {
     "@idle-hero-rpg/shared": "*",
@@ -38,6 +38,7 @@
     "@testing-library/react-native": "^12.4.0",
     "@types/react": "~18.3.0",
     "@types/react-native": "~0.73.0",
+    "cross-env": "^10.1.0",
     "fast-check": "^3.19.0",
     "typescript": "^5.4.0",
     "vitest": "^4.1.0"
