@@ -8,7 +8,7 @@ export type HeroClass = 'Warblade' | 'Wanderer' | 'Archmage' | 'Diplomat' | 'Bar
 /** Live hero state stored in the save file. */
 export interface Hero {
   readonly id: string;
-  name: string;
-  heroClass: HeroClass;
-  actionPoints: number;
+  readonly name: string;
+  readonly heroClass: HeroClass;
+  readonly actionPoints: number;
 }

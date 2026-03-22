@@ -11,8 +11,8 @@ export type Region = 'Heartlands' | 'Coast' | 'Mountains' | 'Wilds' | 'CapitalRe
 /** Live city state stored in the save file. */
 export interface City {
   readonly id: string;
-  name: string;
+  readonly name: string;
   readonly region: Region;
   /** Whether the guild has established a presence in this city. */
-  isUnlocked: boolean;
+  readonly isUnlocked: boolean;
 }

@@ -7,10 +7,10 @@ export type GuildType = 'Combat' | 'Merchant' | 'Knowledge' | 'Hospitality';
 
 /** Live guild state stored in the save file. */
 export interface Guild {
-  name: string;
-  type: GuildType;
-  gold: number;
-  reputation: number;
+  readonly name: string;
+  readonly type: GuildType;
+  readonly gold: number;
+  readonly reputation: number;
 }
 
 /** Live building state stored in the save file. */
@@ -18,9 +18,9 @@ export interface Building {
   readonly id: string;
   /** Reference to the static BuildingTemplate by ID. */
   readonly templateId: string;
-  level: number;
+  readonly level: number;
   /** City this building belongs to. */
   readonly cityId: string;
   /** Ticks remaining until current upgrade completes. 0 = not upgrading. */
-  upgradeTicksRemaining: number;
+  readonly upgradeTicksRemaining: number;
 }

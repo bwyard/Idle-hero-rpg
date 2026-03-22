@@ -4,9 +4,9 @@
 
 export interface Rival {
   readonly id: string;
-  name: string;
-  foundedYear: number;
-  tier: 'Minor' | 'Notable' | 'Major' | 'Legendary';
+  readonly name: string;
+  readonly foundedYear: number;
+  readonly tier: 'Minor' | 'Notable' | 'Major' | 'Legendary';
   /** Source: 'generated' for fresh NPCs, or adventurer ID for Hall of Heroes graduates. */
-  sourceAdventurerId: string | null;
+  readonly sourceAdventurerId: string | null;
 }
