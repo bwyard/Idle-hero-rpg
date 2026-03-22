@@ -12,5 +12,10 @@
     "skipLibCheck": true,
     "resolveJsonModule": true
   },
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules"],
+  // Base config only — no files compiled from root. Run typecheck via:
+  //   npm run typecheck   (turbo, sequential, no OOM)
+  // Never run tsc --noEmit from the repo root — it tries to compile the whole
+  // monorepo without package boundaries and will OOM on Node's default heap.
+  "files": []
 }

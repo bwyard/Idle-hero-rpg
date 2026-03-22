@@ -305,9 +305,13 @@ Development dashboard — revisit after core systems are built.
 Detox mobile E2E — revisit if a Mac becomes available.
 Pre-Push Checklist — Run Before Every Push
 ```bash
-cd apps/game && npx vitest run && npx tsc --noEmit && npx eslint src --ext .ts,.tsx
+npm run lint && npm run typecheck && npm run test:unit
 ```
-All three must pass. lint-staged catches lint/format on commit, but tsc and vitest must be run manually.
+All three must pass. These route through turbo and run each package in the correct order.
+
+**Never run `tsc --noEmit` from the repo root** — the root `tsconfig.json` is a base config only
+(`"files": []`). Running tsc from root tries to compile the entire monorepo without package
+boundaries and will OOM. Always use `npm run typecheck` (turbo, sequential).
 
 What "Done" Means
 A feature is done when:
