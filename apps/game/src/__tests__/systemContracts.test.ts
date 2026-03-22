@@ -11,7 +11,14 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type { EconomyImpl, AdventurerProgressionImpl, BuildingProductionImpl, HeroAbilityImpl, QuestRewardImpl, RivalProgressionImpl } from '@idle-hero-rpg/shared';
+import type {
+  EconomyImpl,
+  AdventurerProgressionImpl,
+  BuildingProductionImpl,
+  HeroAbilityImpl,
+  QuestRewardImpl,
+  RivalProgressionImpl,
+} from '@idle-hero-rpg/shared';
 import { HERO_ACTION_POINT_MAX } from '../data/balance';
 import { processEconomy, stubEconomyImpl } from '../systems/processEconomy';
 import { processAdventurers, stubAdventurerProgressionImpl } from '../systems/processAdventurers';
@@ -225,19 +232,19 @@ describe('processQuests — contract', () => {
 // ---------------------------------------------------------------------------
 
 describe('processRivals — contract', () => {
-  it('stub impl returns state unchanged', () => {
+  it('stub impl adds no rivals', () => {
     const state = createTestState();
     const result = processRivals(state, stubRivalProgressionImpl);
-    expect(result).toBe(state);
+    expect(Object.keys(result.rivals)).toHaveLength(0);
   });
 
-  it('impl that does not populate returns state unchanged', () => {
+  it('impl that does not populate adds no rivals', () => {
     const impl: RivalProgressionImpl = {
       shouldPopulateRival: () => false,
       hasMetMinimumTenure: () => false,
     };
     const state = createTestState();
     const result = processRivals(state, impl);
-    expect(result).toBe(state);
+    expect(Object.keys(result.rivals)).toHaveLength(0);
   });
 });

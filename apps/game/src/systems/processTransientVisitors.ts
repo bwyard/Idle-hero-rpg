@@ -18,6 +18,7 @@ import type {
   VisitorServiceRequest,
 } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
+import { prngRangeInt, prngNext } from '@prime/prime-random';
 import {
   PLACEHOLDER_VISITOR_SPAWN_CHANCE,
   PLACEHOLDER_MAX_VISITORS,
@@ -85,8 +86,8 @@ function isExpired(visitor: TransientVisitor, ticksElapsed: number): boolean {
   return true;
 }
 
-/** Create a new random visitor, picking only from fulfillable services. */
-function spawnVisitor(
+/** Create a new visitor using an injected random function (test seam). */
+function spawnVisitorFromRandom(
   ticksElapsed: number,
   random: () => number,
   fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
@@ -110,16 +111,49 @@ function spawnVisitor(
   };
 }
 
+/** Create a new visitor by threading a seed forward — returns [visitor, nextSeed]. */
+function spawnVisitorFromSeed(
+  ticksElapsed: number,
+  seed: number,
+  fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
+): [TransientVisitor, number] {
+  const [nameIdx, s1] = prngRangeInt(seed, VISITOR_NAMES.length);
+  const name = VISITOR_NAMES[nameIdx] ?? 'Traveler';
+  const [tierRoll, s2] = prngNext(s1);
+  const tier = pickWeightedTier(tierRoll);
+  const [archetypeIdx, s3] = prngRangeInt(s2, VISITOR_ARCHETYPES.length);
+  const archetype = VISITOR_ARCHETYPES[archetypeIdx] ?? null;
+  const [serviceIdx, s4] = prngRangeInt(s3, fulfillableServices.length);
+  const serviceRequest = fulfillableServices[serviceIdx] ?? 'Quest';
+
+  return [
+    {
+      id: createId('vis'),
+      name,
+      tier,
+      archetype,
+      serviceRequest,
+      arrivedAtTick: ticksElapsed,
+      expiresAtTick: ticksElapsed + PLACEHOLDER_VISITOR_STAY_DAYS * TICKS_PER_DAY,
+      heldUntilTick: null,
+      holdCount: 0,
+    },
+    s4,
+  ];
+}
+
 /**
  * Process transient visitors for one tick.
  *
  * @param state - The current GameState (immutable input)
- * @param random - Random number generator (0-1), injectable for testing
+ * @param random - Test seam: inject a controlled () => number to override seed-based randomness.
+ *   When omitted, randomness is derived from state.rngSeed (production path).
  * @returns A new GameState after processing visitors
  */
 export function processTransientVisitors(
   state: GameState,
-  random: () => number = Math.random,
+  /** Test seam: inject a controlled () => number to override seed-based randomness. */
+  random?: () => number,
 ): GameState {
   const ticksElapsed = state.time.ticksElapsed;
   const currentVisitors = state.transientVisitors;
@@ -147,14 +181,35 @@ export function processTransientVisitors(
     canFulfillService(service, state.buildings),
   );
 
+  if (random) {
+    // Test path: use injected random, do not touch rngSeed.
+    if (
+      fulfillableServices.length > 0 &&
+      visitorCount < PLACEHOLDER_MAX_VISITORS &&
+      random() < PLACEHOLDER_VISITOR_SPAWN_CHANCE
+    ) {
+      const visitor = spawnVisitorFromRandom(ticksElapsed, random, fulfillableServices);
+      newVisitors[visitor.id] = visitor;
+      pendingEvents.push({
+        id: createId('evt'),
+        tick: ticksElapsed,
+        type: 'VISITOR_ARRIVAL',
+        message: `${visitor.name} (${visitor.tier}) has arrived seeking ${visitor.serviceRequest}.`,
+        achievementKey: null,
+      });
+    }
+    return { ...state, transientVisitors: newVisitors, pendingEvents };
+  }
+
+  // Production path: derive from seed, thread seed forward.
+  const [spawnRoll, s1] = prngNext(state.rngSeed);
   if (
     fulfillableServices.length > 0 &&
     visitorCount < PLACEHOLDER_MAX_VISITORS &&
-    random() < PLACEHOLDER_VISITOR_SPAWN_CHANCE
+    spawnRoll < PLACEHOLDER_VISITOR_SPAWN_CHANCE
   ) {
-    const visitor = spawnVisitor(ticksElapsed, random, fulfillableServices);
+    const [visitor, s2] = spawnVisitorFromSeed(ticksElapsed, s1, fulfillableServices);
     newVisitors[visitor.id] = visitor;
-
     pendingEvents.push({
       id: createId('evt'),
       tick: ticksElapsed,
@@ -162,11 +217,8 @@ export function processTransientVisitors(
       message: `${visitor.name} (${visitor.tier}) has arrived seeking ${visitor.serviceRequest}.`,
       achievementKey: null,
     });
+    return { ...state, rngSeed: s2, transientVisitors: newVisitors, pendingEvents };
   }
 
-  return {
-    ...state,
-    transientVisitors: newVisitors,
-    pendingEvents,
-  };
+  return { ...state, rngSeed: s1, transientVisitors: newVisitors, pendingEvents };
 }

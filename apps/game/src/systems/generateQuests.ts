@@ -13,6 +13,7 @@
 
 import type { GameState, Region } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
+import { prngRangeInt } from '@prime/prime-random';
 import { PLACEHOLDER_MAX_QUEST_BOARD_SIZE, TICKS_PER_DAY } from '../data/balance';
 import { QUEST_TEMPLATES } from '../data/questTemplates';
 
@@ -47,26 +48,36 @@ export function generateQuests(state: GameState): GameState {
 
   if (eligibleTemplates.length === 0) return state;
 
-  // Generate new quests
-  const newQuests = { ...state.quests };
-
-  for (let i = 0; i < slotsToFill; i++) {
-    const template = eligibleTemplates[Math.floor(Math.random() * eligibleTemplates.length)];
-    if (!template) continue;
-
-    const questId = createId('qst');
-    newQuests[questId] = {
-      id: questId,
-      templateId: template.id,
-      assignedAdventurerId: null,
-      ticksRemaining: template.baseDurationDays * TICKS_PER_DAY,
-      isComplete: false,
-      completedAtTick: null,
-    };
-  }
+  // Generate new quests — thread seed forward across each slot fill.
+  const { quests: newQuests, rngSeed: finalSeed } = Array.from<null>({
+    length: slotsToFill,
+  }).reduce(
+    (acc: { quests: GameState['quests']; rngSeed: number }) => {
+      const [templateIdx, nextSeed] = prngRangeInt(acc.rngSeed, eligibleTemplates.length);
+      const template = eligibleTemplates[templateIdx];
+      if (!template) return { ...acc, rngSeed: nextSeed };
+      const questId = createId('qst');
+      return {
+        quests: {
+          ...acc.quests,
+          [questId]: {
+            id: questId,
+            templateId: template.id,
+            assignedAdventurerId: null,
+            ticksRemaining: template.baseDurationDays * TICKS_PER_DAY,
+            isComplete: false,
+            completedAtTick: null,
+          },
+        },
+        rngSeed: nextSeed,
+      };
+    },
+    { quests: state.quests, rngSeed: state.rngSeed },
+  );
 
   return {
     ...state,
+    rngSeed: finalSeed,
     quests: newQuests,
   };
 }
