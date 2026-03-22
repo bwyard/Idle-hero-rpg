@@ -27,12 +27,7 @@ async function getSystemStatuses(): Promise<SystemStatus[]> {
   const files = await readdir(SYSTEMS_DIR);
   const systemFiles = files.filter((f) => f.endsWith('.ts') && !f.includes('__tests__'));
 
-  let implSource = '';
-  try {
-    implSource = await readFile(SYSTEM_IMPLS_PATH, 'utf-8');
-  } catch {
-    // No impls file yet — all systems lack interfaces
-  }
+  const implSource = await readFile(SYSTEM_IMPLS_PATH, 'utf-8').catch(() => '');
 
   return Promise.all(
     systemFiles.map(async (filename) => {
@@ -44,9 +39,10 @@ async function getSystemStatuses(): Promise<SystemStatus[]> {
       const hasInterface = implSource.includes(`${implName}Impl`) || implSource.includes(implName);
 
       // Detect stub vs live: stubs typically return state unchanged or have minimal logic
-      const isStub = content.includes('return state') && content.split('\n').length < 30
-        || content.includes('// stub')
-        || content.includes('// TODO');
+      const isStub =
+        (content.includes('return state') && content.split('\n').length < 30) ||
+        content.includes('// stub') ||
+        content.includes('// TODO');
 
       const todoCount = (content.match(/TODO/gi) ?? []).length;
 
@@ -59,7 +55,9 @@ const inputSchema = z.object({
   system: z
     .string()
     .optional()
-    .describe('System name (e.g. "processEconomy", "advanceTime"). Omit to list all systems and their status.'),
+    .describe(
+      'System name (e.g. "processEconomy", "advanceTime"). Omit to list all systems and their status.',
+    ),
   include_source: z
     .boolean()
     .optional()
@@ -94,19 +92,26 @@ export const systemContracts = {
 
     // Specific system lookup
     const match = statuses.find(
-      (s) => s.name.toLowerCase() === args.system?.toLowerCase()
-        || s.filename.toLowerCase() === args.system?.toLowerCase(),
+      (s) =>
+        s.name.toLowerCase() === args.system?.toLowerCase() ||
+        s.filename.toLowerCase() === args.system?.toLowerCase(),
     );
 
     if (!match) {
       return {
-        content: [{
-          type: 'text' as const,
-          text: JSON.stringify({
-            error: `System "${args.system}" not found`,
-            available: statuses.map((s) => s.name),
-          }, null, 2),
-        }],
+        content: [
+          {
+            type: 'text' as const,
+            text: JSON.stringify(
+              {
+                error: `System "${args.system}" not found`,
+                available: statuses.map((s) => s.name),
+              },
+              null,
+              2,
+            ),
+          },
+        ],
       };
     }
 

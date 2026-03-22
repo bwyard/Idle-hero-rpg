@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+# Verify package.json and package-lock.json are in sync before pushing.
+# Catches lock file drift that would fail 'npm ci' in CI.
+npm ci --dry-run --ignore-scripts > /dev/null 2>&1 || {
+  echo ""
+  echo "pre-push: package-lock.json is out of sync with package.json"
+  echo "Run 'npm install' to regenerate the lock file, then commit it."
+  echo ""
+  exit 1
+}

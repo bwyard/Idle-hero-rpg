@@ -27,7 +27,18 @@ type GameStateSection =
 
 const inputSchema = z.object({
   section: z
-    .enum(['all', 'hero', 'guild', 'adventurers', 'cities', 'buildings', 'quests', 'dynasty', 'rivals', 'eventLog'])
+    .enum([
+      'all',
+      'hero',
+      'guild',
+      'adventurers',
+      'cities',
+      'buildings',
+      'quests',
+      'dynasty',
+      'rivals',
+      'eventLog',
+    ])
     .optional()
     .default('all')
     .describe('Which section of the game state to inspect'),
@@ -39,16 +50,21 @@ export const gameStateInspector = {
     'Inspect the current game state loaded from the dev fixture. Specify a section to narrow the output.',
   inputSchema: { section: inputSchema.shape.section },
   handler: async (args: z.infer<typeof inputSchema>) => {
-    let state: Record<string, unknown>;
-    try {
-      state = JSON.parse(await readFile(FIXTURE_PATH, 'utf-8')) as Record<string, unknown>;
-    } catch (err) {
+    const readResult = await readFile(FIXTURE_PATH, 'utf-8')
+      .then((text) => ({ ok: true as const, state: JSON.parse(text) as Record<string, unknown> }))
+      .catch((err: unknown) => ({ ok: false as const, err }));
+
+    if (!readResult.ok) {
       return {
         content: [
           {
             type: 'text' as const,
             text: JSON.stringify(
-              { error: 'Could not read game state fixture', path: FIXTURE_PATH, detail: String(err) },
+              {
+                error: 'Could not read game state fixture',
+                path: FIXTURE_PATH,
+                detail: String(readResult.err),
+              },
               null,
               2,
             ),
@@ -56,6 +72,8 @@ export const gameStateInspector = {
         ],
       };
     }
+
+    const state = readResult.state;
 
     const section = args.section as GameStateSection;
     const output = section === 'all' ? state : { [section]: state[section] ?? null };

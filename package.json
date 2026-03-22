@@ -9,8 +9,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev --parallel",
-    "lint": "turbo run lint",
-    "typecheck": "turbo run typecheck",
+    "lint": "eslint .",
+    "typecheck": "turbo run typecheck --concurrency=1",
     "test": "turbo run test",
     "test:unit": "turbo run test:unit",
     "test:e2e": "turbo run test:e2e",
@@ -27,7 +27,8 @@
     "prettier": "^3.2.0",
     "turbo": "^2.0.0",
     "typescript": "^5.4.0",
-    "typescript-eslint": "^8.57.0"
+    "typescript-eslint": "^8.57.0",
+    "@typescript-eslint/parser": "^8.0.0"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

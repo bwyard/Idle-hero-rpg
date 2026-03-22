@@ -19,6 +19,14 @@ export default defineConfig({
         __dirname,
         '../../../prime/packages/prime-random/src/index.ts',
       ),
+      '@stage/stage-economy': path.resolve(
+        __dirname,
+        '../../../stage/packages/stage-economy/src/index.ts',
+      ),
+      '@stage/stage-time': path.resolve(
+        __dirname,
+        '../../../stage/packages/stage-time/src/index.ts',
+      ),
     },
   },
 });

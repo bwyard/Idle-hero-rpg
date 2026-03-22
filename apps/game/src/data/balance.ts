@@ -56,6 +56,14 @@ export const DAYS_PER_YEAR = 365;
  */
 export const BASE_SEASON_LENGTHS = [91, 93, 91, 90] as const; // Spring, Summer, Autumn, Winter
 
+/**
+ * Uniform days-per-season passed to stage-time's calendarTick.
+ * stage-time currently requires a single number; variable-length seasons
+ * are a known simplification (364-day year vs 365). Signal sent to stage
+ * to support readonly number[] per season. Remove once landed.
+ */
+export const DAYS_PER_SEASON = 91;
+
 /** Number of game ticks that make up one in-game year (derived: 365 days × 4 ticks). */
 export const TICKS_PER_YEAR = DAYS_PER_YEAR * TICKS_PER_DAY; // 1460
 
@@ -174,6 +182,27 @@ export const HERO_ACTION_POINT_MAX = 10;
 
 /** Prestige counts at which world awareness tiers unlock. */
 export const WORLD_AWARENESS_HIDDEN_MAX_PRESTIGE = 2;
+
+/**
+ * Idle cap in days per world awareness tier.
+ * Past this cap consequences accumulate (see docs/design/idle-progression.md).
+ * Placeholder — tune during playtesting.
+ */
+export const PLACEHOLDER_IDLE_CAP_DAYS: Record<string, number> = {
+  Hidden: 7,
+  Local: 30,
+  Regional: 91, // 1 season
+  Continental: 364, // 1 year
+  WorldFamous: 1820, // 1 Conclave (5 years × 364 days)
+  Mythic: Infinity,
+};
+
+/**
+ * Consequence stack thresholds — fraction of idle cap exceeded before each stage fires.
+ * Stage 1: quest board stops. Stage 2: morale drops. Stage 3: income drops.
+ * Stage 4: rivals gain. Stage 5: crisis (force prestige or stop the clock).
+ */
+export const PLACEHOLDER_IDLE_CONSEQUENCE_THRESHOLDS = [0.25, 0.5, 0.75, 1.0, 1.25] as const;
 
 // ─── NPC Guilds ──────────────────────────────────────────────────────────────
 

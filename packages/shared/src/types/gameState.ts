@@ -23,7 +23,7 @@ export interface GameState {
 
   /**
    * Deterministic RNG seed — threads forward each time randomness is consumed.
-   * Same initial seed produces an identical run. Thesis: the run is a pure
+   * Same initial seed produces an identical run — the run is a pure
    * function of its seed. Powered by prime-random (prngNext / prngRangeInt).
    */
   readonly rngSeed: number;

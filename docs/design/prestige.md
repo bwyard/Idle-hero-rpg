@@ -255,6 +255,35 @@ Do not implement tutorial flow logic until this is locked.
 
 ---
 
+## Prestige Milestone Unlocks
+
+A meaningful unlock at every prestige. These are design targets — exact
+implementation order may shift but the unlock intent is locked.
+
+| Prestige | WorldAwareness | Idle Cap | Major Unlock |
+|----------|---------------|----------|--------------|
+| 0 | Hidden | 7 days | Guild founded — basic ops, F/E/D roster |
+| 1 | Hidden→Local | 30 days | Hall of Heroes opens, first dynasty bonus, first rival spawns |
+| 2 | Local | 30 days | Magic Rewind safety removed, dynasty bonuses compound |
+| 3 | Local→Regional | 1 season | Second city slot, rivals reference history in-world |
+| 4 | Regional | 1 season | Conclave dynasty scoring unlocks (cross-run) |
+| 5 | Regional | 1 season | B-tier archetype specializations, rivals compete for quests |
+| 6 | Regional→Continental | 1 season | Second kingdom region opens |
+| 7 | Continental | 1 year | Inter-guild diplomacy (recruit from rivals, trade adventurers) |
+| 8 | Continental | 1 year | Second Legendary archetype slot, third city slot |
+| 9 | Continental | 1 year | SS-tier prestige path opens, rival sub-guilds appear |
+| 10 | Continental→WorldFamous | 1 year | Master Mentor unlocks, escalated requirements begin |
+| 11 | WorldFamous | 5 years | Guild inheritance (heirlooms pass between runs) |
+| 12 | WorldFamous | 5 years | Passive reputation income, world events triggered by dynasty |
+| 13 | WorldFamous | 5 years | Hall of Heroes mentoring (legacy trains living adventurers) |
+| 14 | WorldFamous | 5 years | Second guild house in a new region, royal contract quests |
+| 15 | WorldFamous→Mythic | 5 years | Legendary Council (passive advisory system) |
+| 16+ | Mythic | Uncapped | World-reshaping events, dynasty becomes a world institution |
+
+See `docs/design/idle-progression.md` for full idle cap and crisis system.
+
+---
+
 ## What Is Still TBD
 
 - Tutorial prestige sequence exact structure (ideas exist, not locked)

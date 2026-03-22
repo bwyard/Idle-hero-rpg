@@ -30,7 +30,10 @@ const EXPORT_RE = /^export const (\w+)(?::\s*[^=]+)?\s*=\s*(.+?);?\s*(\/\/.*)?$/
 const INLINE_COMMENT_RE = /^\/\/\s*/;
 const BLANK_OR_COMMENT_RE = /^\s*$|^\s*\/\/|^\s*\*/;
 
-interface ParseAccum { pendingComment: string | null; constants: BalanceConstant[] }
+interface ParseAccum {
+  pendingComment: string | null;
+  constants: BalanceConstant[];
+}
 
 /**
  * Parse exported constants from balance.ts source.
@@ -87,16 +90,21 @@ export const balanceConfigReader = {
     'Read balance.ts constants. Returns all exported constants from the balance configuration file. Optionally filter by keyword.',
   inputSchema: { filter: inputSchema.shape.filter },
   handler: async (args: z.infer<typeof inputSchema>) => {
-    let source: string;
-    try {
-      source = await readFile(BALANCE_PATH, 'utf-8');
-    } catch (err) {
+    const readResult = await readFile(BALANCE_PATH, 'utf-8')
+      .then((content) => ({ ok: true as const, content }))
+      .catch((err: unknown) => ({ ok: false as const, err }));
+
+    if (!readResult.ok) {
       return {
         content: [
           {
             type: 'text' as const,
             text: JSON.stringify(
-              { error: 'Could not read balance.ts', path: BALANCE_PATH, detail: String(err) },
+              {
+                error: 'Could not read balance.ts',
+                path: BALANCE_PATH,
+                detail: String(readResult.err),
+              },
               null,
               2,
             ),
@@ -104,6 +112,8 @@ export const balanceConfigReader = {
         ],
       };
     }
+
+    const source = readResult.content;
 
     const all = parseBalanceConstants(source);
 
