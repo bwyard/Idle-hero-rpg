@@ -15,21 +15,34 @@ export default tseslint.config(
   },
   {
     rules: {
-      // -- Errors we care about --
+      // -- Type safety --
       '@typescript-eslint/no-explicit-any': 'error',
       '@typescript-eslint/no-unused-vars': [
         'error',
         { argsIgnorePattern: '^_', varsIgnorePattern: '^_' },
       ],
 
+      // -- Functional style --
+      'prefer-const': 'error',
+      'no-var': 'error',
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: 'ClassDeclaration',
+          message: 'Use pure functions and readonly types, not classes.',
+        },
+        {
+          selector: 'ClassExpression',
+          message: 'Use pure functions and readonly types, not classes.',
+        },
+      ],
+
       // -- Relaxations for practical game dev code --
       '@typescript-eslint/explicit-function-return-type': 'off',
-      // Numbers in templates are everywhere (gold, XP, ticks, years)
       '@typescript-eslint/restrict-template-expressions': [
         'error',
         { allowNumber: true, allowBoolean: true },
       ],
-      // Void returns in arrow shorthand (e.g. onPress={() => doThing()) are fine
       '@typescript-eslint/no-confusing-void-expression': [
         'error',
         { ignoreArrowShorthand: true },
@@ -37,13 +50,13 @@ export default tseslint.config(
     },
   },
   {
-    // Test files: relax rules that conflict with idiomatic test patterns
-    files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts'],
+    files: ['**/__tests__/**/*.ts', '**/*.test.ts', '**/*.spec.ts', '**/*.cy.ts'],
     rules: {
       '@typescript-eslint/no-non-null-assertion': 'off',
+      'no-restricted-syntax': 'off',
     },
   },
   {
-    ignores: ['node_modules/**', 'dist/**', '.expo/**', 'coverage/**'],
+    ignores: ['node_modules/**', 'dist/**', '.expo/**', 'coverage/**', 'scripts/**'],
   },
 );
