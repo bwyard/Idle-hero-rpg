@@ -37,6 +37,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
       skillBorrowUsed: false,
       recruitedYear: 1,
       retiredYear: null,
+      housingType: 'dorm',
     },
   };
 
@@ -59,6 +60,10 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
       ticksRemaining: activeQuestTicks,
       isComplete: false,
       completedAtTick: null,
+      minTier: 'F',
+      partySize: 1,
+      region: 'Heartlands',
+      difficulty: 'easy',
     };
   }
 

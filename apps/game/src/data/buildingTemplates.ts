@@ -102,4 +102,16 @@ export const BUILDING_TEMPLATES: Record<string, BuildingTemplate> = {
     upgradeCostBase: 60,
     upgradeDurationBaseTicks: 30,
   },
+  dormitory: {
+    id: 'dormitory',
+    name: 'Dormitory',
+    description:
+      'Shared sleeping quarters for guild members. Each level increases dorm capacity by 2.',
+    maxLevel: 8,
+    enablesService: null,
+    serviceMinLevel: 0,
+    baseIncomePerLevel: 0,
+    upgradeCostBase: 80,
+    upgradeDurationBaseTicks: 40,
+  },
 };

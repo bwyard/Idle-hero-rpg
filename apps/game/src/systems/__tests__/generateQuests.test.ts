@@ -47,6 +47,10 @@ describe('generateQuests', () => {
         ticksRemaining: 30,
         isComplete: false,
         completedAtTick: null,
+        minTier: 'F',
+        partySize: 1,
+        region: 'Heartlands',
+        difficulty: 'easy',
       };
     }
     const stateWithQuests = { ...state, quests };
@@ -68,6 +72,10 @@ describe('generateQuests', () => {
         ticksRemaining: 30,
         isComplete: false,
         completedAtTick: null,
+        minTier: 'F',
+        partySize: 1,
+        region: 'Heartlands',
+        difficulty: 'easy',
       };
     }
     const stateWithQuests = { ...state, quests };
@@ -157,6 +165,10 @@ describe('generateQuests', () => {
       ticksRemaining: 15,
       isComplete: false,
       completedAtTick: null,
+      minTier: 'F' as const,
+      partySize: 1,
+      region: 'Heartlands',
+      difficulty: 'easy' as const,
     };
     const stateWithAssigned = {
       ...state,

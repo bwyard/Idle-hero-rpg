@@ -16,6 +16,7 @@ import {
   PLACEHOLDER_QUEST_GOLD_REWARD,
   PLACEHOLDER_QUEST_XP_REWARD,
   QUEST_PRUNE_DELAY_TICKS,
+  QUEST_XP_MULTIPLIER_BY_DIFFICULTY,
 } from '../data/balance';
 
 export const stubQuestRewardImpl: QuestRewardImpl = {
@@ -26,7 +27,12 @@ export const stubQuestRewardImpl: QuestRewardImpl = {
 /** placeholder — tune during balance pass */
 export const placeholderQuestRewardImpl: QuestRewardImpl = {
   goldReward: () => PLACEHOLDER_QUEST_GOLD_REWARD,
-  adventurerXpReward: () => PLACEHOLDER_QUEST_XP_REWARD,
+  /**
+   * XP reward scaled by quest difficulty.
+   * easy → 1×, medium → 1.5×, hard → 2.5×, legendary → 5×.
+   */
+  adventurerXpReward: (quest) =>
+    PLACEHOLDER_QUEST_XP_REWARD * QUEST_XP_MULTIPLIER_BY_DIFFICULTY[quest.difficulty],
 };
 
 export const processQuests = (

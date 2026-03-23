@@ -1,78 +1,161 @@
 /**
- * Minimal react-native mock for Vitest component tests.
+ * react-native.ts — Minimal React Native mock for Vitest unit/component tests.
  *
- * react-native/index.js uses Flow type syntax (import typeof) which esbuild
- * cannot parse. This mock provides the primitives used by screens/components
- * under test, implemented as plain React components that RNTL can render.
- *
- * Usage: add this at the top of each test file that imports RNTL:
- *
- *   vi.mock('react-native', async () => import('../../__mocks__/react-native'));
- *
- * vi.mock is hoisted by Vitest before static imports, so RNTL's CJS
- * require("react-native") gets this mock instead of the real Flow-typed source.
- *
- * Add component entries here as new native components are tested.
+ * Mocks all primitives that RNTL's host-component-detection uses (View, Text,
+ * TextInput, Image, Switch, ScrollView, Modal) as well as the components
+ * used by the game's tested components (Pressable, StyleSheet, etc.).
  */
 
 import React from 'react';
 
-// Minimal StyleSheet — returns the object as-is (no native style resolution)
-export const StyleSheet = {
+const StyleSheet = {
   create: <T extends Record<string, unknown>>(styles: T): T => styles,
   flatten: (style: unknown) => style,
   hairlineWidth: 1,
   absoluteFill: {},
-  absoluteFillObject: { top: 0, left: 0, bottom: 0, right: 0 },
+  absoluteFillObject: { top: 0, left: 0, right: 0, bottom: 0 },
 };
 
-type NodeProps = {
+type BaseProps = {
   children?: React.ReactNode;
   testID?: string;
-  style?: unknown;
   [key: string]: unknown;
 };
 
-// Primitive components — pass-through wrappers that RNTL can query by testID
-export const View = ({ children, testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('View', { testID, ...rest }, children);
+const makeComponent = (displayName: string) => {
+  const Comp = ({ children, testID, ...rest }: BaseProps) =>
+    React.createElement(displayName, { testID, ...rest }, children);
+  Comp.displayName = displayName;
+  return Comp;
+};
 
-export const Text = ({ children, testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('Text', { testID, ...rest }, children);
+const View = makeComponent('View');
+const Text = makeComponent('Text');
+const TextInput = makeComponent('TextInput');
+const Image = makeComponent('Image');
+const Switch = makeComponent('Switch');
+const ScrollView = makeComponent('ScrollView');
+const Modal = makeComponent('Modal');
+const TouchableOpacity = makeComponent('TouchableOpacity');
+const TouchableHighlight = makeComponent('TouchableHighlight');
+const TouchableWithoutFeedback = makeComponent('TouchableWithoutFeedback');
+const SafeAreaView = makeComponent('SafeAreaView');
+const FlatList = makeComponent('FlatList');
+const SectionList = makeComponent('SectionList');
+const ActivityIndicator = makeComponent('ActivityIndicator');
 
-export const TextInput = ({ testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('TextInput', { testID, ...rest });
+type PressableProps = BaseProps & {
+  children?: React.ReactNode | ((state: { pressed: boolean }) => React.ReactNode);
+  onPress?: () => void;
+  accessibilityLabel?: string;
+  accessibilityRole?: string;
+  disabled?: boolean;
+};
 
-export const Image = ({ testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('Image', { testID, ...rest });
-
-export const Switch = ({ testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('Switch', { testID, ...rest });
-
-export const ScrollView = ({ children, testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('ScrollView', { testID, ...rest }, children);
-
-export const Modal = ({ children, testID, style: _style, ...rest }: NodeProps) =>
-  React.createElement('Modal', { testID, ...rest }, children);
-
-export const TouchableOpacity = ({
+const Pressable = ({
   children,
-  testID,
   onPress,
-  style: _style,
+  testID,
+  accessibilityLabel,
+  accessibilityRole,
+  disabled,
   ...rest
-}: NodeProps & { onPress?: () => void }) =>
-  React.createElement('TouchableOpacity', { testID, onPress, ...rest }, children);
+}: PressableProps) => {
+  const content = typeof children === 'function' ? children({ pressed: false }) : children;
+  return React.createElement(
+    'Pressable',
+    { testID, onPress, accessibilityLabel, accessibilityRole, disabled, ...rest },
+    content,
+  );
+};
+Pressable.displayName = 'Pressable';
 
-export const Pressable = TouchableOpacity;
+const Platform = {
+  OS: 'android' as const,
+  Version: 29,
+  select: <T extends Record<string, unknown>>(obj: T): unknown => obj.android ?? obj.default,
+};
 
-export const LogBox = {
+const Dimensions = {
+  get: (_dim: string) => ({ width: 375, height: 812 }),
+  addEventListener: () => ({ remove: () => undefined }),
+};
+
+const Keyboard = {
+  dismiss: () => undefined,
+  addListener: () => ({ remove: () => undefined }),
+};
+
+const Alert = {
+  alert: () => undefined,
+};
+
+const makeAnimatedValue = (val: number) => ({
+  _val: val,
+  setValue: (_v: number) => undefined,
+});
+
+const Animated = {
+  View: makeComponent('Animated.View'),
+  Text: makeComponent('Animated.Text'),
+  Value: makeAnimatedValue,
+  timing: () => ({ start: () => undefined }),
+  spring: () => ({ start: () => undefined }),
+  parallel: () => ({ start: () => undefined }),
+  sequence: () => ({ start: () => undefined }),
+};
+
+const LogBox = {
   ignoreLogs: () => {},
   ignoreAllLogs: () => {},
 };
 
-export const Platform = {
-  OS: 'ios' as const,
-  select: <T extends Record<string, unknown>>(obj: T): T[keyof T] =>
-    (obj.ios ?? obj.default) as T[keyof T],
+export {
+  View,
+  Text,
+  TextInput,
+  Image,
+  Switch,
+  ScrollView,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  SafeAreaView,
+  FlatList,
+  SectionList,
+  ActivityIndicator,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  Keyboard,
+  Alert,
+  Animated,
+  LogBox,
+};
+
+export default {
+  View,
+  Text,
+  TextInput,
+  Image,
+  Switch,
+  ScrollView,
+  Modal,
+  Pressable,
+  TouchableOpacity,
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+  SafeAreaView,
+  FlatList,
+  SectionList,
+  ActivityIndicator,
+  StyleSheet,
+  Platform,
+  Dimensions,
+  Keyboard,
+  Alert,
+  Animated,
+  LogBox,
 };

@@ -13,6 +13,7 @@ function makeAdv(id: string, tier: Adventurer['tier']): Adventurer {
     skillBorrowUsed: false,
     recruitedYear: 0,
     retiredYear: null,
+    housingType: 'dorm',
   };
 }
 

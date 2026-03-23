@@ -11,9 +11,12 @@ import {
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   TICKS_PER_DAY,
+  BASE_DORM_CAPACITY,
+  OVERCAPACITY_RECRUIT_SURCHARGE,
+  PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS,
 } from '../../data/balance';
 import { BUILDING_TEMPLATES } from '../../data/buildingTemplates';
-import type { GameState, TransientVisitor } from '@idle-hero-rpg/shared';
+import type { GameState, TransientVisitor, Adventurer } from '@idle-hero-rpg/shared';
 
 /** Helper to create a visitor with sensible defaults. */
 function makeVisitor(overrides: Partial<TransientVisitor> = {}): TransientVisitor {
@@ -87,7 +90,9 @@ describe('dispatch', () => {
   });
 
   describe('START_QUEST', () => {
-    function stateWithUnassignedQuest(): GameState {
+    function stateWithUnassignedQuest(
+      minTier: GameState['quests'][string]['minTier'] = 'F',
+    ): GameState {
       const state = createInitialGameState();
       return {
         ...state,
@@ -99,6 +104,36 @@ describe('dispatch', () => {
             ticksRemaining: 30,
             isComplete: false,
             completedAtTick: null,
+            minTier,
+            partySize: 1,
+            region: 'Heartlands',
+            difficulty: 'easy' as const,
+          },
+        },
+      };
+    }
+
+    /** Build a state with the initial adventurers plus one at the given tier. */
+    function stateWithAdventurerAtTier(
+      tier: Adventurer['tier'],
+      minTier: GameState['quests'][string]['minTier'] = 'F',
+    ): GameState {
+      const base = stateWithUnassignedQuest(minTier);
+      return {
+        ...base,
+        adventurers: {
+          ...base.adventurers,
+          adv_tiered: {
+            id: 'adv_tiered',
+            name: 'TieredAdv',
+            tier,
+            archetype: 'Fighter',
+            xp: 0,
+            milestones: [],
+            skillBorrowUsed: false,
+            recruitedYear: 0,
+            retiredYear: null,
+            housingType: 'dorm' as const,
           },
         },
       };
@@ -188,6 +223,84 @@ describe('dispatch', () => {
         adventurerId: 'adv_starter_1',
       });
       expect(state.quests['qst_test_1']?.assignedAdventurerId).toBeNull();
+    });
+
+    describe('minTier gate', () => {
+      it('allows assignment when adventurer tier exactly meets minTier', () => {
+        // quest requires D, adventurer is D — should succeed
+        const state = stateWithAdventurerAtTier('D', 'D');
+        const next = dispatch(state, {
+          type: 'START_QUEST',
+          questId: 'qst_test_1',
+          adventurerId: 'adv_tiered',
+        });
+        expect(next.quests['qst_test_1']?.assignedAdventurerId).toBe('adv_tiered');
+      });
+
+      it('allows assignment when adventurer tier exceeds minTier', () => {
+        // quest requires D, adventurer is B — should succeed
+        const state = stateWithAdventurerAtTier('B', 'D');
+        const next = dispatch(state, {
+          type: 'START_QUEST',
+          questId: 'qst_test_1',
+          adventurerId: 'adv_tiered',
+        });
+        expect(next.quests['qst_test_1']?.assignedAdventurerId).toBe('adv_tiered');
+      });
+
+      it('returns state unchanged when adventurer is below minTier (F vs D)', () => {
+        // quest requires D, adventurer is F — should be blocked
+        const state = stateWithAdventurerAtTier('F', 'D');
+        const next = dispatch(state, {
+          type: 'START_QUEST',
+          questId: 'qst_test_1',
+          adventurerId: 'adv_tiered',
+        });
+        expect(next.quests['qst_test_1']?.assignedAdventurerId).toBeNull();
+      });
+
+      it('returns state unchanged when adventurer is one tier below minTier (C vs B)', () => {
+        // quest requires B, adventurer is C — should be blocked
+        const state = stateWithAdventurerAtTier('C', 'B');
+        const next = dispatch(state, {
+          type: 'START_QUEST',
+          questId: 'qst_test_1',
+          adventurerId: 'adv_tiered',
+        });
+        expect(next.quests['qst_test_1']?.assignedAdventurerId).toBeNull();
+      });
+
+      it('emits no pending event when tier gate blocks assignment', () => {
+        const state = stateWithAdventurerAtTier('F', 'D');
+        const next = dispatch(state, {
+          type: 'START_QUEST',
+          questId: 'qst_test_1',
+          adventurerId: 'adv_tiered',
+        });
+        expect(next.pendingEvents).toHaveLength(0);
+      });
+
+      it('property: tier gate always blocks when adventurer rank < minTier rank', () => {
+        const tierOrder = ['F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'Legendary'] as const;
+        fc.assert(
+          fc.property(
+            fc.integer({ min: 0, max: tierOrder.length - 1 }),
+            fc.integer({ min: 0, max: tierOrder.length - 1 }),
+            (advIdx, minIdx) => {
+              if (advIdx >= minIdx) return true; // only testing the blocked cases
+              const advTier = tierOrder[advIdx]!;
+              const minTier = tierOrder[minIdx]!;
+              const testState = stateWithAdventurerAtTier(advTier, minTier);
+              const next = dispatch(testState, {
+                type: 'START_QUEST',
+                questId: 'qst_test_1',
+                adventurerId: 'adv_tiered',
+              });
+              return next.quests['qst_test_1']?.assignedAdventurerId === null;
+            },
+          ),
+        );
+      });
     });
   });
 
@@ -534,6 +647,91 @@ describe('dispatch', () => {
       dispatch(state, { type: 'RECRUIT_ADVENTURER' });
       expect(state).toEqual(original);
     });
+
+    it('new adventurer has housingType dorm', () => {
+      const state: GameState = {
+        ...createInitialGameState(),
+        guild: { ...createInitialGameState().guild, gold: PLACEHOLDER_RECRUIT_COST + 100 },
+      };
+      const existingIds = new Set(Object.keys(state.adventurers));
+
+      const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+      const newId = Object.keys(next.adventurers).find((id) => !existingIds.has(id));
+      expect(newId).toBeDefined();
+      expect(next.adventurers[newId!]!.housingType).toBe('dorm');
+    });
+
+    describe('dorm capacity surcharge', () => {
+      /** Build a state with exactly N dorm-type adventurers and no dorm buildings (capacity = BASE_DORM_CAPACITY). */
+      function stateAtCapacity(dormOccupants: number, gold: number): GameState {
+        const advs: Record<string, Adventurer> = {};
+        for (let i = 0; i < dormOccupants; i++) {
+          advs[`adv_fill_${String(i)}`] = {
+            id: `adv_fill_${String(i)}`,
+            name: 'Filler',
+            tier: 'F',
+            archetype: 'Fighter',
+            xp: 0,
+            milestones: [],
+            skillBorrowUsed: false,
+            recruitedYear: 0,
+            retiredYear: null,
+            housingType: 'dorm',
+          };
+        }
+        return {
+          ...createInitialGameState(),
+          guild: { ...createInitialGameState().guild, gold },
+          adventurers: advs,
+          buildings: {},
+        };
+      }
+
+      it('under capacity: deducts standard PLACEHOLDER_RECRUIT_COST', () => {
+        // 1 dorm occupant vs BASE_DORM_CAPACITY — well under capacity
+        const startGold = PLACEHOLDER_RECRUIT_COST + 500;
+        const state = stateAtCapacity(1, startGold);
+
+        const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+        expect(next.guild.gold).toBe(startGold - PLACEHOLDER_RECRUIT_COST);
+      });
+
+      it('at capacity: deducts surcharge cost', () => {
+        const surchargeCost = Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE);
+        const startGold = surchargeCost + 500;
+        const state = stateAtCapacity(BASE_DORM_CAPACITY, startGold);
+
+        const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+        expect(next.guild.gold).toBe(startGold - surchargeCost);
+      });
+
+      it('at capacity: recruit succeeds if player can afford surcharge', () => {
+        const surchargeCost = Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE);
+        const startGold = surchargeCost + 1;
+        const state = stateAtCapacity(BASE_DORM_CAPACITY, startGold);
+        const startCount = Object.keys(state.adventurers).length;
+
+        const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+        expect(Object.keys(next.adventurers).length).toBe(startCount + 1);
+      });
+
+      it('at capacity: recruit blocked if player cannot afford surcharge', () => {
+        const surchargeCost = Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE);
+        // Give exactly surchargeCost - 1 so player can't afford surcharge
+        const state = stateAtCapacity(BASE_DORM_CAPACITY, surchargeCost - 1);
+
+        const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+        expect(next).toEqual(state);
+      });
+
+      it('at capacity: recruit blocked returns state reference unchanged', () => {
+        const surchargeCost = Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE);
+        const state = stateAtCapacity(BASE_DORM_CAPACITY, surchargeCost - 1);
+
+        const next = dispatch(state, { type: 'RECRUIT_ADVENTURER' });
+        expect(next).toBe(state);
+      });
+    });
   });
 
   describe('BUILD_BUILDING', () => {
@@ -727,6 +925,101 @@ describe('dispatch', () => {
       };
       const original = JSON.parse(JSON.stringify(state)) as GameState;
       dispatch(state, { type: 'EXPAND_CITY', cityId: 'cty_coast', cityName: 'Seaside Haven' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('APPROVE_VISITOR', () => {
+    it('awards serviceFee gold to the guild', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_1' });
+      expect(next.guild.gold).toBe(150);
+    });
+
+    it('sets heldUntilTick to current tick + service duration', () => {
+      const visitor = makeVisitor({ id: 'vis_1' });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_1' });
+      const approved = next.transientVisitors['vis_1']!;
+      expect(approved.heldUntilTick).toBe(
+        10 + PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS * TICKS_PER_DAY,
+      );
+    });
+
+    it('visitor remains in transientVisitors after approval', () => {
+      const visitor = makeVisitor({ id: 'vis_1' });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_1' });
+      expect(next.transientVisitors['vis_1']).toBeDefined();
+    });
+
+    it('emits a VISITOR_APPROVED event', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_1' });
+      const approvedEvents = next.pendingEvents.filter((e) => e.type === 'VISITOR_APPROVED');
+      expect(approvedEvents).toHaveLength(1);
+    });
+
+    it('returns state unchanged if visitor does not exist', () => {
+      const state = createInitialGameState();
+      const next = dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_nonexistent' });
+      expect(next).toEqual(state);
+    });
+
+    it('does not mutate input state', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+
+      dispatch(state, { type: 'APPROVE_VISITOR', visitorId: 'vis_1' });
+      expect(state).toEqual(original);
+    });
+  });
+
+  describe('DENY_VISITOR', () => {
+    it('removes visitor from transientVisitors', () => {
+      const visitor = makeVisitor({ id: 'vis_1' });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'DENY_VISITOR', visitorId: 'vis_1' });
+      expect(next.transientVisitors['vis_1']).toBeUndefined();
+    });
+
+    it('does not award any gold', () => {
+      const visitor = makeVisitor({ id: 'vis_1', serviceFee: 50 });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'DENY_VISITOR', visitorId: 'vis_1' });
+      expect(next.guild.gold).toBe(100);
+    });
+
+    it('emits a VISITOR_DENIED event', () => {
+      const visitor = makeVisitor({ id: 'vis_1' });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+
+      const next = dispatch(state, { type: 'DENY_VISITOR', visitorId: 'vis_1' });
+      const deniedEvents = next.pendingEvents.filter((e) => e.type === 'VISITOR_DENIED');
+      expect(deniedEvents).toHaveLength(1);
+    });
+
+    it('returns state unchanged if visitor does not exist', () => {
+      const state = createInitialGameState();
+      const next = dispatch(state, { type: 'DENY_VISITOR', visitorId: 'vis_nonexistent' });
+      expect(next).toEqual(state);
+    });
+
+    it('does not mutate input state', () => {
+      const visitor = makeVisitor({ id: 'vis_1' });
+      const state = stateWithVisitorAndGold(visitor, 100, 10);
+      const original = JSON.parse(JSON.stringify(state)) as GameState;
+
+      dispatch(state, { type: 'DENY_VISITOR', visitorId: 'vis_1' });
       expect(state).toEqual(original);
     });
   });

@@ -19,6 +19,7 @@ function makeAdventurer(overrides: Partial<Adventurer> = {}): Adventurer {
     skillBorrowUsed: false,
     recruitedYear: 0,
     retiredYear: null,
+    housingType: 'dorm',
     ...overrides,
   };
 }
@@ -51,6 +52,10 @@ describe('processAdventurers', () => {
             ticksRemaining: 20,
             isComplete: false,
             completedAtTick: null,
+            minTier: 'F',
+            partySize: 1,
+            region: 'Heartlands',
+            difficulty: 'easy' as const,
           },
         },
       };
@@ -72,6 +77,10 @@ describe('processAdventurers', () => {
             ticksRemaining: 0,
             isComplete: true,
             completedAtTick: null,
+            minTier: 'F',
+            partySize: 1,
+            region: 'Heartlands',
+            difficulty: 'easy' as const,
           },
         },
       };

@@ -5,13 +5,14 @@ import { nanoid } from 'nanoid';
  * Each prefix maps to a domain entity type.
  */
 export type IdPrefix =
-  | 'adv'  // adventurer
-  | 'vis'  // transient visitor
-  | 'qst'  // quest
-  | 'bld'  // building
-  | 'rvl'  // rival guild
-  | 'evt'  // game event
-  | 'cty'; // city
+  | 'adv' // adventurer
+  | 'vis' // transient visitor
+  | 'qst' // quest
+  | 'bld' // building
+  | 'rvl' // rival guild
+  | 'evt' // game event
+  | 'cty' // city
+  | 'tst'; // toast notification (UI only)
 
 /**
  * Creates a prefixed unique ID for a live game object.
