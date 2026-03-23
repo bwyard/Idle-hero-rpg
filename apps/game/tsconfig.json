@@ -2,19 +2,38 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "target": "ESNext",
-    "lib": ["ESNext"],
+    "lib": [
+      "ESNext"
+    ],
     "jsx": "react-jsx",
     "moduleResolution": "bundler",
     "module": "ESNext",
     "allowImportingTsExtensions": true,
     "noEmit": true,
     "paths": {
-      "@idle-hero-rpg/shared": ["../../packages/shared/src/index.ts"],
-      "@prime/prime-random": ["../../../prime/packages/prime-random/src/index.ts"],
-      "@stage/stage-economy": ["../../../stage/packages/stage-economy/src/index.ts"],
-      "@stage/stage-time": ["../../../stage/packages/stage-time/src/index.ts"]
+      "@idle-hero-rpg/shared": [
+        "../../packages/shared/src/index.ts"
+      ],
+      "@prime/prime-random": [
+        "../../../prime/packages/prime-random/src/index.ts"
+      ],
+      "@stage/stage-economy": [
+        "../../../stage/packages/stage-economy/src/index.ts"
+      ],
+      "@stage/stage-time": [
+        "../../../stage/packages/stage-time/src/index.ts"
+      ]
     }
   },
-  "include": ["src/**/*", "app/**/*", "*.ts", "*.tsx"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*",
+    "app/**/*",
+    "*.ts",
+    "*.tsx",
+    ".expo/types/**/*.ts",
+    "expo-env.d.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
