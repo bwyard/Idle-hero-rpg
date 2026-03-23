@@ -6,6 +6,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
+    setupFiles: ['src/__tests__/setup.rntl.ts'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
@@ -14,6 +15,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
+      'react-native': path.resolve(__dirname, 'src/__mocks__/react-native.ts'),
       '@idle-hero-rpg/shared': path.resolve(__dirname, '../../packages/shared/src/index.ts'),
       '@prime/prime-random': path.resolve(
         __dirname,

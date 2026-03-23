@@ -6,6 +6,7 @@ LogBox.ignoreLogs(['props.pointerEvents is deprecated']);
 export default function RootLayout() {
   return (
     <Stack
+      initialRouteName="splash"
       screenOptions={{
         headerStyle: { backgroundColor: '#140a24' },
         headerTintColor: '#f0d060',

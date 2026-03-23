@@ -18,9 +18,9 @@
   "dependencies": {
     "@idle-hero-rpg/shared": "*",
     "@prime/prime-random": "file:../../../prime/packages/prime-random",
+    "@react-navigation/native": "^7.1.33",
     "@stage/stage-economy": "file:../../../stage/packages/stage-economy",
     "@stage/stage-time": "file:../../../stage/packages/stage-time",
-    "@react-navigation/native": "^7.1.33",
     "expo": "~52.0.0",
     "expo-linking": "~7.0.5",
     "expo-router": "~4.0.0",
@@ -41,6 +41,7 @@
     "@types/react": "~18.3.0",
     "@types/react-native": "~0.73.0",
     "fast-check": "^3.19.0",
+    "react-test-renderer": "^18.3.1",
     "typescript": "^5.4.0",
     "vitest": "^4.1.0"
   }
