@@ -47,6 +47,7 @@ function makeState(
       skillBorrowUsed: false,
       recruitedYear: 0,
       retiredYear: null,
+      housingType: 'dorm' as const,
     };
   }
 

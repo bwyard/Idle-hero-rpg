@@ -63,6 +63,18 @@ export interface DismissVisitorAction {
   readonly visitorId: string;
 }
 
+/** Approve a visitor's service request — collects serviceFee, sets heldUntilTick for service duration. */
+export interface ApproveVisitorAction {
+  readonly type: 'APPROVE_VISITOR';
+  readonly visitorId: string;
+}
+
+/** Deny a visitor's service request — removes visitor immediately, emits a departure event. */
+export interface DenyVisitorAction {
+  readonly type: 'DENY_VISITOR';
+  readonly visitorId: string;
+}
+
 /** Upgrade an existing building to the next level. */
 export interface UpgradeBuildingAction {
   readonly type: 'UPGRADE_BUILDING';
@@ -88,5 +100,7 @@ export type GameAction =
   | ServeVisitorAction
   | EngageVisitorAction
   | DismissVisitorAction
+  | ApproveVisitorAction
+  | DenyVisitorAction
   | UpgradeBuildingAction
   | ExpandCityAction;

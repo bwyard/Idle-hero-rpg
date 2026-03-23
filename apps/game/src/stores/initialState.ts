@@ -41,6 +41,7 @@ export function createInitialGameState(): GameState {
         skillBorrowUsed: false,
         recruitedYear: 0,
         retiredYear: null,
+        housingType: 'dorm',
       },
       adv_starter_2: {
         id: 'adv_starter_2',
@@ -52,6 +53,7 @@ export function createInitialGameState(): GameState {
         skillBorrowUsed: false,
         recruitedYear: 0,
         retiredYear: null,
+        housingType: 'dorm',
       },
     },
     transientVisitors: {},
