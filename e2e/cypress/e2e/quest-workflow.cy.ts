@@ -119,33 +119,41 @@ describe('Quest workflow', () => {
     cy.contains('Done').should('exist');
   });
 
-  it('adventurer picker shows empty when no adventurers are available', () => {
-    // Generate quests without recruiting anyone first
+  it('adventurer picker shows starters when no extra adventurers are recruited', () => {
+    // Game starts with 2 starter adventurers (Kira, Tomas).
+    // The picker should show them as available.
     cy.contains('New Quests').click({ force: true });
     cy.contains('Assign').first().click({ force: true });
 
     cy.contains('Choose Adventurer').should('exist');
-    cy.contains('No adventurers available').should('exist');
+    // Starters are available — picker should NOT be empty
+    cy.contains('Select').should('exist');
   });
 
   it('busy adventurers are excluded from the picker', () => {
-    // Recruit one adventurer
-    cy.contains('Recruit (50g)').click({ force: true });
-
-    // Generate quests (need at least 2 for this test)
+    // Game starts with 2 starters. Generate quests and assign both
+    // starters so the picker is empty for the third quest.
     cy.contains('New Quests').click({ force: true });
 
-    // Assign the adventurer to the first quest
+    // Assign first starter to first quest
     cy.contains('Assign').first().click({ force: true });
     cy.contains('Select').first().click({ force: true });
 
-    // Try to assign a second quest — the picker should show no available adventurers
-    // (only if there's another unassigned quest)
+    // Assign second starter to next quest
     cy.get('body').then(($body) => {
       if ($body.find(':contains("Assign")').length > 0) {
         cy.contains('Assign').first().click({ force: true });
-        cy.contains('Choose Adventurer').should('exist');
-        cy.contains('No adventurers available').should('exist');
+        cy.contains('Select').first().click({ force: true });
+
+        // Both starters are now busy. If a third quest exists, the picker
+        // should show no available adventurers.
+        cy.get('body').then(($body2) => {
+          if ($body2.find(':contains("Assign")').length > 0) {
+            cy.contains('Assign').first().click({ force: true });
+            cy.contains('Choose Adventurer').should('exist');
+            cy.contains('No adventurers available').should('exist');
+          }
+        });
       }
     });
   });

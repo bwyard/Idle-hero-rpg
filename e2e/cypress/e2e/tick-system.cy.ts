@@ -82,12 +82,14 @@ describe('Tick System — play/pause toggle', () => {
     // Start auto-ticking
     cy.contains('Play').click({ force: true });
 
-    // Advance real time by several tick intervals (1000ms each)
-    cy.tick(5000);
+    // Advance real time by several tick intervals (1000ms each).
+    // Tick extra beyond the 5 intervals so React's scheduler (which uses
+    // rAF / MessageChannel) has time to flush state updates to the DOM.
+    cy.tick(5500);
 
     // Tick count should have advanced beyond 0
-    cy.get('[data-testid="tick-count"]').invoke('text').then((text) => {
-      const ticks = parseInt(text, 10);
+    cy.get('[data-testid="tick-count"]').should(($el) => {
+      const ticks = parseInt($el.text(), 10);
       expect(ticks).to.be.greaterThan(0);
     });
   });

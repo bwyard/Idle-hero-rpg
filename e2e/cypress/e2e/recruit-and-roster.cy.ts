@@ -99,11 +99,14 @@ describe('Recruit and Roster flow', () => {
     cy.contains('Recruit (50g)').click({ force: true });
     cy.contains('Recruit (50g)').click({ force: true });
 
-    // 500 - 150 = 350
+    // Dorm capacity = 4 (BASE_DORM_CAPACITY). 2 starters already occupy dorm.
+    // Recruit 1: 2 in dorm → not at capacity → cost 50. Gold: 500 - 50 = 450
+    // Recruit 2: 3 in dorm → not at capacity → cost 50. Gold: 450 - 50 = 400
+    // Recruit 3: 4 in dorm → at capacity → cost ceil(50 × 1.5) = 75. Gold: 400 - 75 = 325
     cy.get('[data-testid="stats-gold"]')
       .invoke('text')
       .should((gold) => {
-        expect(Number(gold)).to.eq(350);
+        expect(Number(gold)).to.eq(325);
       });
 
     // 2 starters + 3 recruits = 5 adventurers

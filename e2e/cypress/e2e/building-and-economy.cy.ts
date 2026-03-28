@@ -82,19 +82,29 @@ describe('Building and Economy', () => {
   it('building a building adds it to the buildings display', () => {
     cy.contains('Build (100g)').click({ force: true });
 
-    // After building, the upgrade button should now be functional
-    // (it targets the first building, which now exists)
-    // Verify we can upgrade — this implicitly confirms a building was created
+    // Gold should have decreased by 100 (from 500 to 400)
+    cy.get('[data-testid="stats-gold"]')
+      .invoke('text')
+      .should((gold) => {
+        expect(Number(gold)).to.eq(400);
+      });
+
+    // Tick to generate passive income — the new building (training-grounds lv1)
+    // adds to the building-level sum, increasing income per tick.
+    // Before build: 1 building × 3 gold/level = 3 + 2 base - 2 upkeep = 3/tick
+    // After build: 2 buildings × 3 gold/level = 6 + 2 base - 2 upkeep = 6/tick
+    // The higher income rate confirms the building was created.
     cy.get('[data-testid="stats-gold"]').invoke('text').then((goldAfterBuild) => {
       const afterBuild = Number(goldAfterBuild);
 
-      cy.contains('Upgrade').click({ force: true });
+      for (let i = 0; i < 5; i++) {
+        cy.contains('Tick +1').click({ force: true });
+      }
 
-      // If upgrade succeeded, gold should have decreased further
       cy.get('[data-testid="stats-gold"]')
         .invoke('text')
-        .should((goldAfterUpgrade) => {
-          expect(Number(goldAfterUpgrade)).to.be.lessThan(afterBuild);
+        .should((goldAfterTicks) => {
+          expect(Number(goldAfterTicks)).to.be.greaterThan(afterBuild);
         });
     });
   });

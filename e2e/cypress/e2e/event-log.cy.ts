@@ -61,11 +61,16 @@ describe('Event Log', () => {
     cy.contains('feast').should('exist');
   });
 
-  it('generating quests adds an event after ticking', () => {
-    cy.contains('New Quests').click({ force: true });
-    cy.contains('Tick +1').click({ force: true });
+  it('generating quests populates the quest board', () => {
+    // GENERATE_QUESTS is a pure state transform that does not create
+    // pendingEvents, so no event appears in the log. Instead, verify
+    // the quest board itself was populated.
+    cy.contains('No quests available').should('exist');
 
-    cy.contains('No events yet').should('not.exist');
+    cy.contains('New Quests').click({ force: true });
+
+    cy.contains('No quests available').should('not.exist');
+    cy.contains('Available').should('exist');
   });
 
   it('events are shown newest first', () => {

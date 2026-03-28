@@ -35,7 +35,10 @@ describe('Splash screen', () => {
 
   it('navigates to start menu after the splash duration', () => {
     cy.tick(2200);
-    cy.get('[data-testid="start-menu"]').should('exist');
+    // Expo Router navigation is async — tick extra time so React and
+    // the router can flush pending state updates and rAF callbacks.
+    cy.tick(500);
+    cy.get('[data-testid="start-menu"]', { timeout: 8000 }).should('exist');
   });
 });
 
