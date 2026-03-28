@@ -39,3 +39,6 @@ out/
 
 # local only — not ready to publish
 THESIS.md
+
+# Claude Code agent worktrees
+.claude/worktrees/

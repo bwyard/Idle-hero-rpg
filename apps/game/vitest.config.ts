@@ -5,8 +5,8 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
     setupFiles: ['src/__tests__/setup.rntl.ts'],
+    include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],

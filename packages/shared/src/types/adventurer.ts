@@ -100,4 +100,10 @@ export interface Adventurer {
   readonly recruitedYear: number;
   /** In-game year this adventurer retired (null if still active). */
   readonly retiredYear: number | null;
+  /**
+   * Where this adventurer sleeps.
+   * - 'dorm'  — counts against dorm capacity; default for all recruits.
+   * - 'owned' — has their own housing; does not count against dorm capacity.
+   */
+  readonly housingType: 'dorm' | 'owned';
 }

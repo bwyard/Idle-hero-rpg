@@ -67,6 +67,7 @@ describe('StartMenuScreen — with save', () => {
             skillBorrowUsed: false,
             recruitedYear: 0,
             retiredYear: null,
+            housingType: 'dorm' as const,
           },
         },
       },

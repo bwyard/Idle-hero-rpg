@@ -1,11 +1,4 @@
-/**
- * dispatch — Pure function for applying player actions to GameState.
- *
- * ARCHITECTURE RULES (non-negotiable):
- * - This is a pure function. No mutations, no side effects.
- * - Takes a GameState and an Action, returns a new GameState.
- * - UI calls dispatch; dispatch never calls into React.
- */
+/** dispatch — Pure function for applying player actions to GameState. */
 
 import type { GameState, GameAction } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
@@ -26,12 +19,15 @@ import {
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
+  PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS,
   TICKS_PER_DAY,
+  OVERCAPACITY_RECRUIT_SURCHARGE,
+  ADVENTURER_TIER_ORDER,
 } from '../data/balance';
 import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 import { generateQuests } from '../systems/generateQuests';
+import { isAtDormCapacity } from '../utils/housing';
 
-/** Small pool of fantasy names for recruited adventurers (display data). */
 const ADVENTURER_NAMES = [
   'Arin',
   'Brynn',
@@ -55,17 +51,15 @@ const ADVENTURER_NAMES = [
   'Thane',
 ];
 
-/**
- * Apply a player action to the current game state.
- *
- * @param state - The current GameState (immutable input)
- * @param action - The action to apply
- * @returns A new GameState after applying the action
- */
 export const dispatch = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'RECRUIT_ADVENTURER': {
-      if (!canAffordGold(state.guild.gold, PLACEHOLDER_RECRUIT_COST)) return state;
+      const atCapacity = isAtDormCapacity(state);
+      const recruitCost = atCapacity
+        ? Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE)
+        : PLACEHOLDER_RECRUIT_COST;
+
+      if (!canAffordGold(state.guild.gold, recruitCost)) return state;
 
       const advId = createId('adv');
       const [nameIdx, nextSeed] = prngRangeInt(state.rngSeed, ADVENTURER_NAMES.length);
@@ -84,7 +78,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         rngSeed: nextSeed,
         guild: {
           ...state.guild,
-          gold: spendGold(state.guild.gold, PLACEHOLDER_RECRUIT_COST),
+          gold: spendGold(state.guild.gold, recruitCost),
         },
         adventurers: {
           ...state.adventurers,
@@ -98,6 +92,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
             skillBorrowUsed: false,
             recruitedYear: state.time.currentYear,
             retiredYear: null,
+            housingType: 'dorm' as const,
           },
         },
         pendingEvents: [...state.pendingEvents, event],
@@ -138,13 +133,16 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
     }
 
     case 'START_QUEST': {
-      // Assign an existing unassigned quest to an adventurer
       const quest = state.quests[action.questId];
       if (!quest || quest.assignedAdventurerId !== null) return state;
 
-      // Verify adventurer exists
       const adventurer = state.adventurers[action.adventurerId];
       if (!adventurer) return state;
+
+      // Tier gate — partySize > 1 not yet enforced (future extension).
+      const advTierRank = ADVENTURER_TIER_ORDER.indexOf(adventurer.tier);
+      const minTierRank = ADVENTURER_TIER_ORDER.indexOf(quest.minTier);
+      if (advTierRank < minTierRank) return state;
 
       const event = {
         id: createId('evt'),
@@ -267,6 +265,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
             skillBorrowUsed: false,
             recruitedYear: state.time.currentYear,
             retiredYear: null,
+            housingType: 'dorm' as const,
           },
         },
         pendingEvents: [...state.pendingEvents, event],
@@ -388,6 +387,55 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
             isUnlocked: true,
           },
         },
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'APPROVE_VISITOR': {
+      const visitor = state.transientVisitors[action.visitorId];
+      if (!visitor) return state;
+
+      const serviceDurationTicks = PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS * TICKS_PER_DAY;
+
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'VISITOR_APPROVED',
+        message: `${visitor.name}'s request (${visitor.serviceRequest}) was approved — ${String(visitor.serviceFee)} gold collected.`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        guild: { ...state.guild, gold: addGold(state.guild.gold, visitor.serviceFee) },
+        transientVisitors: {
+          ...state.transientVisitors,
+          [action.visitorId]: {
+            ...visitor,
+            heldUntilTick: state.time.ticksElapsed + serviceDurationTicks,
+          },
+        },
+        pendingEvents: [...state.pendingEvents, event],
+      };
+    }
+
+    case 'DENY_VISITOR': {
+      const visitor = state.transientVisitors[action.visitorId];
+      if (!visitor) return state;
+
+      const { [action.visitorId]: _removed, ...remainingVisitors } = state.transientVisitors;
+
+      const event = {
+        id: createId('evt'),
+        tick: state.time.ticksElapsed,
+        type: 'VISITOR_DENIED',
+        message: `${visitor.name}'s request was denied — they have departed.`,
+        achievementKey: null,
+      } as const;
+
+      return {
+        ...state,
+        transientVisitors: remainingVisitors,
         pendingEvents: [...state.pendingEvents, event],
       };
     }

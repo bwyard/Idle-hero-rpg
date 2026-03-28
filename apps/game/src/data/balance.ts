@@ -131,6 +131,34 @@ export const PLACEHOLDER_QUEST_DURATION_DAYS = 8;
 export const PLACEHOLDER_MAX_QUEST_BOARD_SIZE = 5;
 
 /**
+ * XP multiplier applied to the base XP reward based on quest difficulty.
+ * processQuests multiplies PLACEHOLDER_QUEST_XP_REWARD by this value on completion.
+ */
+export const QUEST_XP_MULTIPLIER_BY_DIFFICULTY = {
+  easy: 1,
+  medium: 1.5,
+  hard: 2.5,
+  legendary: 5,
+} as const;
+
+/**
+ * Ordered adventurer tier list used by the tier gate in dispatch.
+ * Index position encodes tier rank — higher index = higher tier.
+ * Matches ADVENTURER_TIERS but typed as AdventurerTier[] for guard logic.
+ */
+export const ADVENTURER_TIER_ORDER = [
+  'F',
+  'E',
+  'D',
+  'C',
+  'B',
+  'A',
+  'S',
+  'SS',
+  'Legendary',
+] as const;
+
+/**
  * Ticks after completion before a quest is pruned from state.quests.
  * 40 ticks = 10 in-game days — enough for the player to see the Done badge.
  * Prevents unbounded growth of the quests record across a 50-year run.
@@ -233,6 +261,12 @@ export const PLACEHOLDER_VISITOR_STAY_DAYS = 60;
 export const PLACEHOLDER_HOLD_DURATION_DAYS = 30;
 
 /**
+ * Number of days a visitor stays after their request is approved (APPROVE_VISITOR).
+ * After this duration their visit is considered complete and they may depart.
+ */
+export const PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS = 7;
+
+/**
  * Gold earned by the guild when serving a visitor's request (SERVE_VISITOR).
  * Keyed by AdventurerTier — scales with visitor quality.
  * Placeholder values — tune during balance pass.
@@ -249,7 +283,29 @@ export const PLACEHOLDER_VISITOR_SERVICE_FEE: Record<string, number> = {
   Legendary: 1500,
 };
 
+// ─── Housing ─────────────────────────────────────────────────────────────────
+
+/** Base dorm capacity (before any housing buildings). */
+export const BASE_DORM_CAPACITY = 4;
+
+/** Additional capacity added per Dormitory building level. */
+export const DORM_CAPACITY_PER_LEVEL = 2;
+
+/**
+ * Gold surcharge multiplier when recruiting over dorm capacity.
+ * e.g. 1.5 = 50% more than the standard recruit cost.
+ */
+export const OVERCAPACITY_RECRUIT_SURCHARGE = 1.5;
+
 // ─── Event Log ──────────────────────────────────────────────────────────────
 
 /** Maximum number of events retained in the event log. Oldest trimmed first. */
 export const EVENT_LOG_MAX_LENGTH = 500;
+
+// ─── Toast Notifications ─────────────────────────────────────────────────────
+
+/** How long (ms) a toast stays visible before auto-dismissing. */
+export const TOAST_DURATION_MS = 3000;
+
+/** Maximum number of toasts visible simultaneously. Oldest drops off when exceeded. */
+export const TOAST_MAX_COUNT = 3;

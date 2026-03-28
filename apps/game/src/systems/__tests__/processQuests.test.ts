@@ -5,6 +5,7 @@ import {
   PLACEHOLDER_QUEST_GOLD_REWARD,
   PLACEHOLDER_QUEST_XP_REWARD,
   QUEST_PRUNE_DELAY_TICKS,
+  QUEST_XP_MULTIPLIER_BY_DIFFICULTY,
 } from '../../data/balance';
 import type { GameState, Quest, Adventurer } from '@idle-hero-rpg/shared';
 
@@ -16,6 +17,10 @@ function makeQuest(overrides: Partial<Quest> = {}): Quest {
     ticksRemaining: 30,
     isComplete: false,
     completedAtTick: null,
+    minTier: 'F',
+    partySize: 1,
+    region: 'Heartlands',
+    difficulty: 'easy',
     ...overrides,
   };
 }
@@ -31,6 +36,7 @@ function makeAdventurer(overrides: Partial<Adventurer> = {}): Adventurer {
     skillBorrowUsed: false,
     recruitedYear: 0,
     retiredYear: null,
+    housingType: 'dorm',
     ...overrides,
   };
 }
@@ -206,6 +212,87 @@ describe('processQuests', () => {
 
       const next = processQuests(state);
       expect(next.quests['qst_null_tick']).toBeDefined();
+    });
+  });
+
+  describe('XP scaling by difficulty', () => {
+    it('easy quest awards base XP × 1', () => {
+      const quest = makeQuest({
+        id: 'qst_easy',
+        assignedAdventurerId: 'adv_1',
+        ticksRemaining: 1,
+        difficulty: 'easy',
+      });
+      const adv = makeAdventurer({ id: 'adv_1', xp: 0 });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.adventurers['adv_1']?.xp).toBe(
+        PLACEHOLDER_QUEST_XP_REWARD * QUEST_XP_MULTIPLIER_BY_DIFFICULTY.easy,
+      );
+    });
+
+    it('medium quest awards base XP × 1.5', () => {
+      const quest = makeQuest({
+        id: 'qst_medium',
+        assignedAdventurerId: 'adv_1',
+        ticksRemaining: 1,
+        difficulty: 'medium',
+      });
+      const adv = makeAdventurer({ id: 'adv_1', xp: 0 });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.adventurers['adv_1']?.xp).toBe(
+        PLACEHOLDER_QUEST_XP_REWARD * QUEST_XP_MULTIPLIER_BY_DIFFICULTY.medium,
+      );
+    });
+
+    it('hard quest awards base XP × 2.5', () => {
+      const quest = makeQuest({
+        id: 'qst_hard',
+        assignedAdventurerId: 'adv_1',
+        ticksRemaining: 1,
+        difficulty: 'hard',
+      });
+      const adv = makeAdventurer({ id: 'adv_1', xp: 0 });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.adventurers['adv_1']?.xp).toBe(
+        PLACEHOLDER_QUEST_XP_REWARD * QUEST_XP_MULTIPLIER_BY_DIFFICULTY.hard,
+      );
+    });
+
+    it('legendary quest awards base XP × 5', () => {
+      const quest = makeQuest({
+        id: 'qst_legendary',
+        assignedAdventurerId: 'adv_1',
+        ticksRemaining: 1,
+        difficulty: 'legendary',
+      });
+      const adv = makeAdventurer({ id: 'adv_1', xp: 0 });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+
+      const next = processQuests(state);
+      expect(next.adventurers['adv_1']?.xp).toBe(
+        PLACEHOLDER_QUEST_XP_REWARD * QUEST_XP_MULTIPLIER_BY_DIFFICULTY.legendary,
+      );
+    });
+
+    it('XP scaling does not affect gold reward', () => {
+      const quest = makeQuest({
+        id: 'qst_hard_gold',
+        assignedAdventurerId: 'adv_1',
+        ticksRemaining: 1,
+        difficulty: 'hard',
+      });
+      const adv = makeAdventurer({ id: 'adv_1' });
+      const state = stateWithQuestAndAdventurer(quest, adv);
+      const startGold = state.guild.gold;
+
+      const next = processQuests(state);
+      expect(next.guild.gold).toBe(startGold + PLACEHOLDER_QUEST_GOLD_REWARD);
     });
   });
 });

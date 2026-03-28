@@ -24,7 +24,7 @@ export type { Guild, Building, GuildType } from './types/guild';
 export type { City, Region, Season } from './types/kingdom';
 
 // Quest domain
-export type { Quest } from './types/quest';
+export type { Quest, QuestDifficulty } from './types/quest';
 
 // Dynasty domain
 export type {
@@ -55,6 +55,8 @@ export type {
   HoldVisitorAction,
   EngageVisitorAction,
   DismissVisitorAction,
+  ApproveVisitorAction,
+  DenyVisitorAction,
   UpgradeBuildingAction,
   ExpandCityAction,
 } from './types/actions';

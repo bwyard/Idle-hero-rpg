@@ -16,6 +16,7 @@ function makeAdventurer(overrides: Partial<Adventurer> = {}): Adventurer {
     skillBorrowUsed: false,
     recruitedYear: 0,
     retiredYear: null,
+    housingType: 'dorm',
     ...overrides,
   };
 }

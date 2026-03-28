@@ -21,6 +21,7 @@ import { EventLog } from '../src/components/EventLog';
 import { ActionButtons } from '../src/components/ActionButtons';
 import { TickControls } from '../src/components/TickControls';
 import { VisitorCard } from '../src/components/VisitorCard';
+import { ToastStack } from '../src/components/ToastStack';
 
 export default function DemoScreen() {
   const state = useGameStore((s) => s.state);
@@ -91,80 +92,86 @@ export default function DemoScreen() {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <GuildHeader
-        guildName={state.guild.name || 'The Iron Hearth'}
-        guildType={state.guild.type}
-        prestigeCount={state.dynasty.prestigeCount}
-      />
+    <View style={styles.root}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+        <GuildHeader
+          guildName={state.guild.name || 'The Iron Hearth'}
+          guildType={state.guild.type}
+          prestigeCount={state.dynasty.prestigeCount}
+        />
 
-      <StatsBar
-        currentYear={state.time.currentYear}
-        gold={state.guild.gold}
-        reputation={state.guild.reputation}
-        adventurerCount={adventurerList.length}
-        currentDay={state.time.currentDay}
-        currentSeason={state.time.currentSeason}
-      />
+        <StatsBar
+          currentYear={state.time.currentYear}
+          gold={state.guild.gold}
+          reputation={state.guild.reputation}
+          adventurerCount={adventurerList.length}
+          currentDay={state.time.currentDay}
+          currentSeason={state.time.currentSeason}
+        />
 
-      <HeroCard
-        name={state.hero.name || 'Aldric'}
-        heroClass={state.hero.heroClass}
-        actionPoints={state.hero.actionPoints}
-        maxActionPoints={HERO_ACTION_POINT_MAX}
-      />
+        <HeroCard
+          name={state.hero.name || 'Aldric'}
+          heroClass={state.hero.heroClass}
+          actionPoints={state.hero.actionPoints}
+          maxActionPoints={HERO_ACTION_POINT_MAX}
+        />
 
-      <AdventurerRoster adventurers={adventurerList} />
+        <AdventurerRoster adventurers={adventurerList} />
 
-      <QuestBoard quests={questList} onAssignQuest={handleAssignQuest} />
+        <QuestBoard quests={questList} onAssignQuest={handleAssignQuest} />
 
-      <AdventurerPicker
-        visible={pickerQuestId !== null}
-        questId={pickerQuestId}
-        adventurers={adventurerList}
-        activeQuests={questList}
-        onSelect={handlePickAdventurer}
-        onClose={() => setPickerQuestId(null)}
-      />
+        <AdventurerPicker
+          visible={pickerQuestId !== null}
+          questId={pickerQuestId}
+          adventurers={adventurerList}
+          activeQuests={questList}
+          onSelect={handlePickAdventurer}
+          onClose={() => setPickerQuestId(null)}
+        />
 
-      <View style={styles.visitorsSection}>
-        <Text style={styles.sectionTitle}>Visitors ({visitorList.length})</Text>
-        {visitorList.length === 0 ? (
-          <Text style={styles.placeholderText}>No visitors at the guild house</Text>
-        ) : (
-          visitorList.map((visitor) => (
-            <VisitorCard
-              key={visitor.id}
-              visitor={visitor}
-              currentTick={state.time.ticksElapsed}
-              onHold={handleHoldVisitor}
-              onServe={handleServeVisitor}
-              onEngage={handleEngageVisitor}
-              onDismiss={handleDismissVisitor}
-            />
-          ))
-        )}
-      </View>
+        <View style={styles.visitorsSection}>
+          <Text style={styles.sectionTitle}>Visitors ({visitorList.length})</Text>
+          {visitorList.length === 0 ? (
+            <Text style={styles.placeholderText}>No visitors at the guild house</Text>
+          ) : (
+            visitorList.map((visitor) => (
+              <VisitorCard
+                key={visitor.id}
+                visitor={visitor}
+                currentTick={state.time.ticksElapsed}
+                onHold={handleHoldVisitor}
+                onServe={handleServeVisitor}
+                onEngage={handleEngageVisitor}
+                onDismiss={handleDismissVisitor}
+              />
+            ))
+          )}
+        </View>
 
-      <EventLog events={recentEvents} />
+        <EventLog events={recentEvents} />
 
-      <ActionButtons onAction={handleAction} />
+        <ActionButtons onAction={handleAction} />
 
-      <TickControls
-        isRunning={isRunning}
-        ticksElapsed={state.time.ticksElapsed}
-        onTogglePlayPause={togglePlayPause}
-        onTickOnce={tickOnce}
-      />
+        <TickControls
+          isRunning={isRunning}
+          ticksElapsed={state.time.ticksElapsed}
+          onTogglePlayPause={togglePlayPause}
+          onTickOnce={tickOnce}
+        />
 
-      <View style={styles.footer}>
-        <Text style={styles.footerText}>Engine: 13-system tick pipe | v{state.version}</Text>
-      </View>
-    </ScrollView>
+        <View style={styles.footer}>
+          <Text style={styles.footerText}>Engine: 13-system tick pipe | v{state.version}</Text>
+        </View>
+      </ScrollView>
+      <ToastStack />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+  },
   container: {
     flex: 1,
     backgroundColor: '#140a24',
