@@ -1,11 +1,4 @@
-/**
- * dispatch — Pure function for applying player actions to GameState.
- *
- * ARCHITECTURE RULES (non-negotiable):
- * - This is a pure function. No mutations, no side effects.
- * - Takes a GameState and an Action, returns a new GameState.
- * - UI calls dispatch; dispatch never calls into React.
- */
+/** dispatch — Pure function for applying player actions to GameState. */
 
 import type { GameState, GameAction } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
@@ -35,7 +28,6 @@ import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 import { generateQuests } from '../systems/generateQuests';
 import { isAtDormCapacity } from '../utils/housing';
 
-/** Small pool of fantasy names for recruited adventurers (display data). */
 const ADVENTURER_NAMES = [
   'Arin',
   'Brynn',
@@ -59,17 +51,9 @@ const ADVENTURER_NAMES = [
   'Thane',
 ];
 
-/**
- * Apply a player action to the current game state.
- *
- * @param state - The current GameState (immutable input)
- * @param action - The action to apply
- * @returns A new GameState after applying the action
- */
 export const dispatch = (state: GameState, action: GameAction): GameState => {
   switch (action.type) {
     case 'RECRUIT_ADVENTURER': {
-      // Apply overcapacity surcharge when the dorm is full; cost is rounded up.
       const atCapacity = isAtDormCapacity(state);
       const recruitCost = atCapacity
         ? Math.ceil(PLACEHOLDER_RECRUIT_COST * OVERCAPACITY_RECRUIT_SURCHARGE)
@@ -149,19 +133,13 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
     }
 
     case 'START_QUEST': {
-      // Assign an existing unassigned quest to an adventurer
       const quest = state.quests[action.questId];
       if (!quest || quest.assignedAdventurerId !== null) return state;
 
-      // Verify adventurer exists
       const adventurer = state.adventurers[action.adventurerId];
       if (!adventurer) return state;
 
-      // Tier gate: adventurer must meet the quest's minTier requirement.
-      // The UI should not surface invalid assignments, but the engine ignores
-      // them silently here rather than throwing — defensive guard only.
-      // NOTE: partySize > 1 is not enforced here. Party quest assignment is a
-      // known future extension — only partySize === 1 is fully handled for now.
+      // Tier gate — partySize > 1 not yet enforced (future extension).
       const advTierRank = ADVENTURER_TIER_ORDER.indexOf(adventurer.tier);
       const minTierRank = ADVENTURER_TIER_ORDER.indexOf(quest.minTier);
       if (advTierRank < minTierRank) return state;
