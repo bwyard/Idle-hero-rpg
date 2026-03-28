@@ -75,7 +75,8 @@
       "tick": 0,
       "type": "GUILD_FOUNDED",
       "message": "The Hearthstone Guild was founded by Aldric the Retired.",
-      "achievementKey": null
+      "achievementKey": null,
+      "causeId": null
     }
   ],
   "pendingEvents": [],

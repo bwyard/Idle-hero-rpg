@@ -84,6 +84,7 @@ export const processAdventurers = (
               type: 'TIER_UP',
               message: `${updated.name} advanced to tier ${tierUpNext}!`,
               achievementKey: null,
+              causeId: null,
             } as const,
           ],
         };

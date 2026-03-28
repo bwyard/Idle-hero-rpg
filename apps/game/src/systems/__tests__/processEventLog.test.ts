@@ -13,6 +13,7 @@ function makeEvent(id: string, tick: number): GameEvent {
     type: 'test',
     message: `Event ${id}`,
     achievementKey: null,
+    causeId: null,
   };
 }
 
@@ -61,7 +62,10 @@ describe('processEventLog', () => {
     const existing = Array.from({ length: EVENT_LOG_MAX_LENGTH }, (_, i) =>
       makeEvent(`old-${String(i)}`, i),
     );
-    const pending = [makeEvent('overflow-1', EVENT_LOG_MAX_LENGTH), makeEvent('overflow-2', EVENT_LOG_MAX_LENGTH)];
+    const pending = [
+      makeEvent('overflow-1', EVENT_LOG_MAX_LENGTH),
+      makeEvent('overflow-2', EVENT_LOG_MAX_LENGTH),
+    ];
     const state = {
       ...createInitialGameState(),
       eventLog: existing,
@@ -107,6 +111,7 @@ describe('processEventLog', () => {
       type: fc.constant('test'),
       message: fc.string(),
       achievementKey: fc.constant(null),
+      causeId: fc.constant(null),
     }) as fc.Arbitrary<GameEvent>;
 
     fc.assert(
@@ -133,6 +138,7 @@ describe('processEventLog', () => {
       type: fc.constant('test'),
       message: fc.string(),
       achievementKey: fc.constant(null),
+      causeId: fc.constant(null),
     }) as fc.Arbitrary<GameEvent>;
 
     fc.assert(

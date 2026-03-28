@@ -71,6 +71,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'RECRUIT',
         message: `${name} joined the guild!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -110,6 +111,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'BUILD',
         message: `A new ${action.buildingTemplateId} was constructed!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -150,6 +152,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'QUEST_START',
         message: `${adventurer.name} embarked on quest ${quest.templateId}!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -186,6 +189,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'FEAST',
         message: 'A grand feast was held! All adventurers gained experience.',
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -214,6 +218,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_HOLD',
         message: `${visitor.name} has been asked to wait.`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -244,6 +249,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_ENGAGE',
         message: `${visitor.name} has joined the guild!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -284,6 +290,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_SERVED',
         message: `${visitor.name} was served (${visitor.serviceRequest}) — ${String(visitor.serviceFee)} gold earned.`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -306,6 +313,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_DISMISS',
         message: `${visitor.name} has been dismissed.`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -334,6 +342,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'UPGRADE_START',
         message: `${building.templateId} upgrade to level ${targetLevel} started!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -370,6 +379,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'CITY_EXPANSION',
         message: `The guild expanded to ${action.cityName}!`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -403,6 +413,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_APPROVED',
         message: `${visitor.name}'s request (${visitor.serviceRequest}) was approved — ${String(visitor.serviceFee)} gold collected.`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {
@@ -431,6 +442,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
         type: 'VISITOR_DENIED',
         message: `${visitor.name}'s request was denied — they have departed.`,
         achievementKey: null,
+        causeId: null,
       } as const;
 
       return {

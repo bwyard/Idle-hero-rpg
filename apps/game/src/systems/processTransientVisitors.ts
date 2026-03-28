@@ -172,6 +172,7 @@ export const processTransientVisitors = (
         type: 'VISITOR_DEPARTURE',
         message: `${visitor.name} has left the guild house.`,
         achievementKey: null,
+        causeId: null,
       });
     } else {
       newVisitors[id] = visitor;
@@ -199,6 +200,7 @@ export const processTransientVisitors = (
         type: 'VISITOR_ARRIVAL',
         message: `${visitor.name} (${visitor.tier}) has arrived seeking ${visitor.serviceRequest}.`,
         achievementKey: null,
+        causeId: null,
       });
     }
     return { ...state, transientVisitors: newVisitors, pendingEvents };
@@ -219,6 +221,7 @@ export const processTransientVisitors = (
       type: 'VISITOR_ARRIVAL',
       message: `${visitor.name} (${visitor.tier}) has arrived seeking ${visitor.serviceRequest}.`,
       achievementKey: null,
+      causeId: null,
     });
     return { ...state, rngSeed: s2, transientVisitors: newVisitors, pendingEvents };
   }

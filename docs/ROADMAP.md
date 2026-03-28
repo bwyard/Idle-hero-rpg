@@ -1,7 +1,7 @@
 # Retired Hero's Guild — Development Roadmap
 
-**Last updated:** 2026-03-16
-**Status:** Phases 0–3 complete. Phase 4 next.
+**Last updated:** 2026-03-28
+**Status:** Phases 0–3 complete. Temporal Architecture adopted (ADR-012). Phase 4 next.
 
 This document tracks the full development arc from first commit to Google Play
 launch. It also calls out the portfolio milestone — the point where the project
@@ -43,6 +43,10 @@ implemented. The game renders, ticks, and responds to player actions.
 | All branches merged | Done |
 
 264 tests pass across 27 test files. The game renders and ticks.
+
+**Temporal Architecture (ADR-012) adopted:** `GameEvent` now carries `causeId`
+for causal linking. New systems (Phase 4+) are event-sourced from day one.
+Existing systems migrate incrementally. See `docs/architecture/temporal.md`.
 
 ---
 
@@ -168,6 +172,15 @@ created, and the dynasty grows.
   flags this as unresolved. It must be closed before the hero system is built.
 
 ### Deliverables
+
+#### Temporal Architecture (ADR-012) — event-sourced from day one
+- [ ] Prestige as causal branch — `PRESTIGE` event preserves pre-prestige
+  history, post-prestige state derives from events after the marker
+- [ ] Hero identity as causal chain — hero state derived from event projections
+- [ ] Dynasty meta-progression derived from cross-run event history
+- [ ] Typed event discriminated unions for prestige/hero/dynasty events
+
+#### Core systems
 - [ ] `processHero` — passive ability effects, action point regen, career
   milestone tracking
 - [ ] Hero class ability system (passive + career milestone active per class)
@@ -181,6 +194,8 @@ created, and the dynasty grows.
 - [ ] Dynasty layer wiring — `loadDynastyLayer` deferred load after first render
 - [ ] State version + migration for dynasty data
 - [ ] Wire MMKV dynasty layer to Zustand
+
+#### UI
 - [ ] Prestige flow UI — retire screen, career summary, class selection
 - [ ] Hero overview screen — current hero, passive ability, action points,
   career milestone progress
@@ -204,6 +219,14 @@ real history. Dynasty reputation grows.
 **Estimated duration:** 10–16 weeks part-time / 5–8 weeks full-time
 
 ### Deliverables
+
+#### Temporal Architecture migration (incremental)
+- [ ] Existing systems enrich events to capture full state-change data
+- [ ] Projection functions replace direct state reads where history matters
+- [ ] Zustand store transitions: `events` becomes source of truth
+- [ ] Snapshot + events-since-snapshot persistence for large event logs
+
+#### Kingdom & world
 - [ ] Kingdom map — `react-native-svg` implementation (ADR approved), 5
   regions, 15–20 locations, 1 capital (Heartlands start, Capital Region end)
 - [ ] Region unlocking — Coast, Mountains, Wilds, Capital Region

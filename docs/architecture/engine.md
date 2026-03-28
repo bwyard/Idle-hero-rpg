@@ -56,7 +56,8 @@ All player-initiated state changes go through `dispatch`. The `GameAction` type 
 - No mutations. Always spread or return new objects.
 - No side effects. No I/O, no logging, no React, no storage.
 - All numeric constants come from `apps/game/src/data/balance.ts`. No magic numbers in system files.
-- Systems that need to emit events append to `state.pendingEvents`. `processEventLog` (system 12) commits them to `state.eventLog`.
+- Systems that need to emit events append to `state.pendingEvents`. `processEventLog` (system 13) commits them to `state.eventLog`.
+- Every event carries a `causeId` linking to its causal parent (or `null` for root events). See ADR-012.
 
 ---
 
@@ -68,3 +69,19 @@ Property-based tests cover the tick invariants:
 - Same input always produces the same output
 
 See `apps/game/src/engine/__tests__/tick.property.test.ts`.
+
+---
+
+## Temporal Architecture
+
+The engine follows the Temporal Architecture (ADR-012). The four primitives:
+
+| Primitive | How it applies |
+|---|---|
+| **Time** | Game tick is the temporal coordinate. Never wall clock. |
+| **Causality** | Every `GameEvent` carries a `causeId` linking to its parent event. |
+| **Information** | Systems share events via the event log, not mutable objects. |
+| **Context** | Multiple projections (player view, achievements, prestige) over the same log. |
+
+New systems (Phase 4+) are built event-sourced from day one. Existing systems
+migrate incrementally. Full reference: `docs/architecture/temporal.md`.

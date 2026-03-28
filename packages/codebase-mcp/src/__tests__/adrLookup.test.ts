@@ -6,7 +6,7 @@ describe('adr_lookup', () => {
   it('lists all ADRs when no query provided', async () => {
     const result = await adrLookup.handler({});
     const parsed = parseJsonResponse(result);
-    expect(parsed).toHaveProperty('count', 11);
+    expect(parsed).toHaveProperty('count', 12);
     const adrs = parsed.adrs as { number: string }[];
     expect(adrs[0]!.number).toBe('001');
   });

@@ -17,6 +17,7 @@ the dynasty grows. Portfolio milestone reached.
 ## Where We Are Right Now
 
 Phases 0–3 complete. 264 tests passing across 27 test files.
+Temporal Architecture adopted (ADR-012) — `GameEvent.causeId` field added.
 
 | Layer | Status |
 |---|---|
@@ -36,6 +37,7 @@ Phases 0–3 complete. 264 tests passing across 27 test files.
 | Transient visitors | Complete (arrive/hold/engage/dismiss) |
 | Adventurer detail | Complete (roster, tiers, XP bars) |
 | Buildings & economy | Complete (build, upgrade, expand city) |
+| Temporal Architecture | ADR-012 adopted, `causeId` on all events |
 | All branches merged | Done |
 
 ---
@@ -44,6 +46,15 @@ Phases 0–3 complete. 264 tests passing across 27 test files.
 
 ### Open design question (must close first)
 - [ ] **ADR-006 Option 3**: shared vs per-leader hero ability system
+
+### Temporal Architecture (ADR-012) — event-sourced from day one
+- [x] `GameEvent.causeId` field added for causal linking
+- [x] ADR-012 written and accepted
+- [x] `docs/architecture/temporal.md` — local temporal architecture reference
+- [ ] Prestige as causal branch — `PRESTIGE` event preserves pre-prestige history
+- [ ] Hero identity as causal chain — hero state derived from event projections
+- [ ] Dynasty meta-progression derived from cross-run event history
+- [ ] Typed event discriminated unions for prestige/hero/dynasty events
 
 ### Core
 - [ ] `processHero` — passive ability effects, action point regen, career milestone tracking

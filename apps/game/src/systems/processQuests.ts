@@ -95,6 +95,7 @@ export const processQuests = (
           type: 'QUEST_COMPLETE',
           message: `Quest complete! ${adv?.name ?? 'Unknown'} earned ${String(goldEarned)} gold and ${String(advXp)} XP.`,
           achievementKey: null,
+          causeId: null,
         } as const,
       ],
     };
