@@ -18,7 +18,7 @@ import type {
   VisitorServiceRequest,
 } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
-import { prngRangeInt, prngNext } from '@prime/prime-random';
+import { prngRangeInt, prngNext, weightedChoice } from '@prime/prime-random';
 import {
   PLACEHOLDER_VISITOR_SPAWN_CHANCE,
   PLACEHOLDER_MAX_VISITORS,
@@ -29,35 +29,15 @@ import {
 import { VISITOR_NAMES } from '../data/visitorNames';
 import { canFulfillService } from '../utils/serviceGates';
 
-/** Weighted tier selection — favors F and D tiers for visitors. */
-const VISITOR_TIER_WEIGHTS: readonly { tier: AdventurerTier; weight: number }[] = [
-  { tier: 'F', weight: 30 },
-  { tier: 'E', weight: 25 },
-  { tier: 'D', weight: 20 },
-  { tier: 'C', weight: 12 },
-  { tier: 'B', weight: 7 },
-  { tier: 'A', weight: 4 },
-  { tier: 'S', weight: 1.5 },
-  { tier: 'SS', weight: 0.4 },
-  { tier: 'Legendary', weight: 0.1 },
+/** Tier names in weight order — index maps to weightedChoice result. */
+const VISITOR_TIER_NAMES: readonly AdventurerTier[] = [
+  'F', 'E', 'D', 'C', 'B', 'A', 'S', 'SS', 'Legendary',
 ];
 
-const VISITOR_TIER_TOTAL_WEIGHT = VISITOR_TIER_WEIGHTS.reduce((sum, w) => sum + w.weight, 0);
-
-/** Pick a tier based on weighted random. */
-const pickWeightedTier = (roll: number): AdventurerTier => {
-  const target = roll * VISITOR_TIER_TOTAL_WEIGHT;
-  // Thread remaining budget forward — first tier that consumes past it wins.
-  return VISITOR_TIER_WEIGHTS.reduce<{ tier: AdventurerTier; remaining: number }>(
-    (acc, { tier, weight }) =>
-      acc.remaining <= 0
-        ? acc
-        : weight > acc.remaining
-          ? { tier, remaining: 0 }
-          : { tier: acc.tier, remaining: acc.remaining - weight },
-    { tier: 'F', remaining: target },
-  ).tier;
-};
+/** Weighted tier selection — favors F and D tiers for visitors. */
+const VISITOR_TIER_WEIGHTS: readonly number[] = [
+  30, 25, 20, 12, 7, 4, 1.5, 0.4, 0.1,
+];
 
 /** Archetypes available for visitors (null means no archetype for low tiers). */
 const VISITOR_ARCHETYPES: readonly (AdventurerArchetype | null)[] = [
@@ -87,6 +67,18 @@ const isExpired = (visitor: TransientVisitor, ticksElapsed: number): boolean => 
   return true;
 };
 
+/** Pick a tier from a [0,1) roll using cumulative weights (test seam path). */
+const pickWeightedTierFromRoll = (roll: number): AdventurerTier => {
+  const total = VISITOR_TIER_WEIGHTS.reduce((s, w) => s + w, 0);
+  const target = roll * total;
+  let acc = 0;
+  for (let i = 0; i < VISITOR_TIER_WEIGHTS.length; i++) {
+    acc += VISITOR_TIER_WEIGHTS[i] ?? 0;
+    if (acc > target) return VISITOR_TIER_NAMES[i] ?? 'F';
+  }
+  return 'F';
+};
+
 /** Create a new visitor using an injected random function (test seam). */
 const spawnVisitorFromRandom = (
   ticksElapsed: number,
@@ -94,7 +86,7 @@ const spawnVisitorFromRandom = (
   fulfillableServices: readonly VisitorServiceRequest[] = SERVICE_REQUESTS,
 ): TransientVisitor => {
   const name = VISITOR_NAMES[Math.floor(random() * VISITOR_NAMES.length)] ?? 'Traveler';
-  const tier = pickWeightedTier(random());
+  const tier = pickWeightedTierFromRoll(random());
   const archetype = VISITOR_ARCHETYPES[Math.floor(random() * VISITOR_ARCHETYPES.length)] ?? null;
   const serviceRequest =
     fulfillableServices[Math.floor(random() * fulfillableServices.length)] ?? 'Quest';
@@ -121,8 +113,8 @@ const spawnVisitorFromSeed = (
 ): [TransientVisitor, number] => {
   const [nameIdx, s1] = prngRangeInt(seed, VISITOR_NAMES.length);
   const name = VISITOR_NAMES[nameIdx] ?? 'Traveler';
-  const [tierRoll, s2] = prngNext(s1);
-  const tier = pickWeightedTier(tierRoll);
+  const [tierIdx, s2] = weightedChoice(s1, VISITOR_TIER_WEIGHTS);
+  const tier = VISITOR_TIER_NAMES[tierIdx] ?? 'F';
   const [archetypeIdx, s3] = prngRangeInt(s2, VISITOR_ARCHETYPES.length);
   const archetype = VISITOR_ARCHETYPES[archetypeIdx] ?? null;
   const [serviceIdx, s4] = prngRangeInt(s3, fulfillableServices.length);
