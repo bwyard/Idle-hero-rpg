@@ -85,7 +85,7 @@ describe('checkPrestigeConditions', () => {
         },
         3,
       ),
-      flags: { prestigeAvailable: true },
+      flags: { prestigeAvailable: true, forcedPrestigeTriggered: false, leaderPressureLevel: 'none' },
     };
     const next = checkPrestigeConditions(state);
     const prestigeEvents = next.pendingEvents.filter((e) => e.type === 'PRESTIGE_AVAILABLE');
@@ -97,7 +97,7 @@ describe('checkPrestigeConditions', () => {
       ...stateWithAdventurers({
         adv_1: makeAdventurer({ id: 'adv_1', tier: 'S', retiredYear: null }),
       }),
-      flags: { prestigeAvailable: true },
+      flags: { prestigeAvailable: true, forcedPrestigeTriggered: false, leaderPressureLevel: 'none' },
     };
     const next = checkPrestigeConditions(state);
     expect(next.flags.prestigeAvailable).toBe(false);
