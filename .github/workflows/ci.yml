@@ -5,10 +5,12 @@ on:
     branches-ignore:
       - main
       - develop
+      - Dev
   pull_request:
     branches:
       - develop
       - main
+      - Dev
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -26,7 +28,7 @@ jobs:
         run: git clone --depth 1 --branch dev https://github.com/bwyard/stage.git ../stage
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run lint
@@ -42,7 +44,7 @@ jobs:
         run: git clone --depth 1 --branch dev https://github.com/bwyard/stage.git ../stage
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run typecheck
@@ -58,7 +60,7 @@ jobs:
         run: git clone --depth 1 --branch dev https://github.com/bwyard/stage.git ../stage
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - run: npm run test:unit
@@ -71,7 +73,7 @@ jobs:
   e2e:
     name: E2E Tests (Expo Web)
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop')
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'Dev')
     steps:
       - uses: actions/checkout@v4
       - name: Clone prime monorepo for local deps
@@ -80,7 +82,7 @@ jobs:
         run: git clone --depth 1 --branch dev https://github.com/bwyard/stage.git ../stage
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
           cache: npm
       - run: npm ci
       - name: Build Expo Web
@@ -88,12 +90,12 @@ jobs:
         env:
           EXPO_PUBLIC_ENV: test
       - name: Start Expo Web server
-        run: npx serve apps/game/dist -p 8081 &
+        run: npx serve apps/game/dist -p 8081 -s &
         shell: bash
       - name: Wait for server
         run: npx wait-on http://localhost:8081 --timeout 30000
       - name: Run Cypress E2E
-        run: npm run test:e2e --workspace=e2e
+        run: cd e2e && npx cypress run
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
