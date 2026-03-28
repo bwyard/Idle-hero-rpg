@@ -91,9 +91,11 @@ Zustand — two stores (game state persisted via MMKV, UI state not persisted)
 Monorepo
 Turborepo
 Unit/Property Tests
-Vitest + fast-check
+Vitest + fast-check + react-native-testing-library
 E2E
 Cypress on Expo Web target
+Game Math
+@prime/prime-random (deterministic RNG), @stage/stage-economy, @stage/stage-time
 Types
 TypeScript strict, project references, barrel exports
 Linting
@@ -103,7 +105,7 @@ Prettier
 Commits
 Conventional commits, enforced via Husky + lint-staged + commitlint
 CI
-GitHub Actions
+GitHub Actions — lint, typecheck, unit, property on every push; E2E on PRs to develop
 Tick Pipe — System Order
 advanceTime
 processEconomy
@@ -328,11 +330,15 @@ A feature is done when:
 [ ] PR description explains the decisions, not the code generation
 
 Current Status (updated 2026-03-28)
-- Phases 0–3: Complete — 264 tests, 27 test files
-- Phase 4 (Prestige & Hero System): Next — no blockers remaining
+- Phases 0–3: Complete — 359 unit tests (32 files) + 128 E2E tests (13 specs)
+- Phase 4 (Prestige & Hero System): Layer 1 complete — no design blockers remaining
 - Temporal Architecture: Adopted (ADR-012) — GameEvent.causeId added, new systems event-sourced from day one
+- Ecosystem libs integrated: prime-random (deterministic RNG), stage-economy, stage-time
 - ID strategy: prefixed nanoid (closed)
 - Prestige design: locked (2026-03-10)
+- Option 3: CLOSED (2026-03-17) — hybrid model, per-hero class abilities + guild legacy skills
 - Dispatch actions: RECRUIT_ADVENTURER, BUILD_BUILDING, START_QUEST, HOLD_FEAST, GENERATE_QUESTS, HOLD/ENGAGE/DISMISS/SERVE/APPROVE/DENY_VISITOR, UPGRADE_BUILDING, EXPAND_CITY
-- UI components: 8 demo components + adventurer detail page
+- UI screens: splash, start menu, dashboard, adventurer detail, visitor queue
+- UI components: 11+ (incl. ErrorBoundary, ToastStack, VisitorCard)
+- Security: MCP server, storage, UI safety hardened
 - Placeholder impls active for: economy, adventurers, buildings, hero, quests

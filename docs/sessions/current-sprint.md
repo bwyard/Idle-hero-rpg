@@ -1,8 +1,8 @@
 # Current Sprint
 
 ## Sprint: Phase 4 — Prestige & Hero System
-**Status:** Not started
-**Started:** TBD
+**Status:** Layer 1 complete, core systems next
+**Started:** 2026-03-17
 **Previous sprints:** Phase 0–3 complete (see ROADMAP.md and decisions.md)
 
 ---
@@ -16,28 +16,32 @@ the dynasty grows. Portfolio milestone reached.
 
 ## Where We Are Right Now
 
-Phases 0–3 complete. 264 tests passing across 27 test files.
-Temporal Architecture adopted (ADR-012) — `GameEvent.causeId` field added.
+Phases 0–3 complete. Phase 4 Layer 1 complete.
+359 unit tests (32 files) + 128 E2E tests (13 Cypress specs).
 
 | Layer | Status |
 |---|---|
 | Monorepo + tooling | Complete |
-| Shared types | Complete |
-| Pure engine (pipe, dispatch, tick) | Complete |
+| Shared types | Complete (readonly, barrel exports) |
+| Pure engine (pipe, dispatch, tick) | Complete (stage-economy + stage-time integrated) |
 | 13-system tick pipe | Complete (all systems wired) |
-| advanceTime | Done (365-day calendar, 4 seasons) |
+| Deterministic RNG | Done (prime-random seeded) |
+| advanceTime | Done (365-day calendar, 4 seasons via stage-time) |
 | processEventLog | Done |
 | Zustand stores | Complete, wired to MMKV |
 | MMKV persistence | Wired |
-| State migrations | Done |
-| MCP server (4 tools) | Complete — 20 tests |
-| CI (lint, typecheck, unit, property) | Complete |
-| Demo dashboard | Complete (8+ components) |
-| Quest board | Complete (10 templates, generation, assignment) |
-| Transient visitors | Complete (arrive/hold/engage/dismiss) |
+| State migrations | Done (v1→v2, rngSeed + dynasty) |
+| MCP server (4 tools) | Complete + security hardened |
+| CI | lint, typecheck, unit, property, E2E on PRs, functional style enforcement |
+| UI screens | Splash, start menu, dashboard, adventurer detail, visitor queue |
+| UI components | 11+ (incl. ErrorBoundary, ToastStack, VisitorCard) |
+| Quest board | Complete (10 templates, generation, assignment, completion) |
+| Transient visitors | Complete (7 actions: hold/engage/dismiss/serve/approve/deny + arrival) |
 | Adventurer detail | Complete (roster, tiers, XP bars) |
-| Buildings & economy | Complete (build, upgrade, expand city) |
-| Temporal Architecture | ADR-012 adopted, `causeId` on all events |
+| Buildings & economy | Complete (build, upgrade, expand, per-template income) |
+| Housing system | Complete (dorm capacity, overcapacity surcharge) |
+| Temporal Architecture | ADR-012 adopted, causeId on all events |
+| Phase 4 Layer 1 | Shared types + ADRs + dynasty migration + template registries |
 | All branches merged | Done |
 
 ---
