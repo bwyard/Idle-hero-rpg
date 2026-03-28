@@ -7,7 +7,6 @@ export default defineConfig({
     environment: 'node',
     setupFiles: ['src/__tests__/setup.rntl.ts'],
     include: ['src/**/__tests__/**/*.{test,spec}.{ts,tsx}'],
-    setupFiles: ['src/__tests__/setup.rntl.ts'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       include: ['src/**/*.{ts,tsx}'],
@@ -30,10 +29,6 @@ export default defineConfig({
         __dirname,
         '../../../stage/packages/stage-time/src/index.ts',
       ),
-      // Stub out react-native for Vitest (node env) — allows RNTL component tests
-      // to run without a native bridge. Only primitives used by tested components
-      // need to be mocked here.
-      'react-native': path.resolve(__dirname, 'src/__mocks__/react-native.ts'),
     },
   },
 });
