@@ -79,5 +79,12 @@ export interface GameState {
   /** Transient flags set by systems, consumed by UI or other systems. */
   readonly flags: {
     readonly prestigeAvailable: boolean;
+    /** True when the forced prestige window has been reached for this run. */
+    readonly forcedPrestigeTriggered: boolean;
+    /**
+     * Current leader pressure level: 'none' | 'soft' | 'moderate' | 'real' | 'hard'.
+     * Set by checkLeaderPressure based on prestige count and leader tenure.
+     */
+    readonly leaderPressureLevel: 'none' | 'soft' | 'moderate' | 'real' | 'hard';
   };
 }

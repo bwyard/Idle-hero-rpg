@@ -76,6 +76,7 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
       name: 'Test Hero',
       heroClass: 'Warblade',
       actionPoints: heroAP,
+      leaderStartYear: 0,
     },
     guild: {
       name: 'Test Guild',
@@ -99,6 +100,8 @@ export function createTestState(overrides: TestStateOverrides = {}): GameState {
     pendingEvents: [],
     flags: {
       prestigeAvailable: false,
+      forcedPrestigeTriggered: false,
+      leaderPressureLevel: 'none',
     },
   };
 }

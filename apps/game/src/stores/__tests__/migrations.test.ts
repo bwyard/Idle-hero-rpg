@@ -53,7 +53,7 @@ describe('migrateState', () => {
     >;
     delete v1State['rngSeed'];
     const result = migrateState(v1State);
-    expect(result?.version).toBe(2);
+    expect(result?.version).toBe(3);
     expect(result?.rngSeed).toBe(0);
   });
 });
