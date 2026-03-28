@@ -9,6 +9,7 @@ on:
     branches:
       - develop
       - main
+      - Dev
 
 concurrency:
   group: ci-${{ github.ref }}
@@ -71,7 +72,7 @@ jobs:
   e2e:
     name: E2E Tests (Expo Web)
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop')
+    if: github.event_name == 'pull_request' && (github.base_ref == 'main' || github.base_ref == 'develop' || github.base_ref == 'Dev')
     steps:
       - uses: actions/checkout@v4
       - name: Clone prime monorepo for local deps
