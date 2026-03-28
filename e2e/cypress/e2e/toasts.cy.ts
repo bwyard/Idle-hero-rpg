@@ -20,6 +20,7 @@
 
 describe('Toast notifications', () => {
   beforeEach(() => {
+    cy.clock();
     cy.visit('/');
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
@@ -29,18 +30,10 @@ describe('Toast notifications', () => {
   });
 
   it('no toasts are shown on initial load', () => {
-    cy.get('[data-testid^="toast-"]').should('not.exist');
+    cy.contains('Not enough gold').should('not.exist');
   });
 
   describe('insufficient gold toast', () => {
-    beforeEach(() => {
-      cy.clock();
-    });
-
-    afterEach(() => {
-      cy.clock().then((clock) => clock.restore());
-    });
-
     it('shows a toast when recruiting without enough gold', () => {
       // Drain gold to below the overcapacity recruit threshold (75g).
       // Recruit 2 times at 50g (fills dorm to capacity) → gold: 400

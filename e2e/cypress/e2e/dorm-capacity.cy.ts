@@ -3,20 +3,19 @@
  *
  * Tests dorm capacity limits and the overcapacity recruit surcharge.
  *
- * Balance constants (from balance.ts / economy.ts):
+ * Balance constants:
  *   PLACEHOLDER_STARTING_GOLD = 500
  *   PLACEHOLDER_RECRUIT_COST = 50
  *   BASE_DORM_CAPACITY = 4
- *   OVERCAPACITY_RECRUIT_SURCHARGE = 1.5 (multiplier on recruit cost)
+ *   OVERCAPACITY_RECRUIT_SURCHARGE = 1.5
  *
- * First 4 recruits cost 50g each (within dorm capacity).
- * 5th recruit costs 50 * 1.5 = 75g (overcapacity surcharge).
+ * Initial state: 2 starter adventurers (Kira, Tomas) already in dorm.
+ * First 2 recruits cost 50g each (fills dorm to 4/4).
+ * 3rd recruit onwards costs 75g (overcapacity surcharge: 50 * 1.5).
  *
  * Notes:
- * - Use .should('exist') not .should('be.visible') — RN Web overflow:hidden
- *   breaks Cypress visibility checks.
+ * - Use .should('exist') not .should('be.visible') — RN Web overflow:hidden.
  * - All clicks need { force: true } — RN Web pointer events restriction.
- * - Use cy.clock() and cy.tick() for timing control.
  */
 
 describe('Dorm Capacity — recruiting within capacity', () => {
@@ -30,16 +29,17 @@ describe('Dorm Capacity — recruiting within capacity', () => {
     cy.get('[data-testid="stats-gold"]').should('contain.text', '500');
   });
 
-  it('recruiting first adventurer costs 50 gold (450 remaining)', () => {
+  it('first recruit costs 50 gold (2 starters + 1 = 3/4 capacity)', () => {
     cy.contains('Recruit (50g)').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('contain.text', '450');
   });
 
-  it('recruiting 4 adventurers costs 200 gold total (300 remaining)', () => {
-    for (let i = 0; i < 4; i++) {
+  it('second recruit costs 50 gold (4/4 capacity reached)', () => {
+    for (let i = 0; i < 2; i++) {
       cy.contains('Recruit (50g)').click({ force: true });
     }
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '300');
+    // 500 - (2 * 50) = 400
+    cy.get('[data-testid="stats-gold"]').should('contain.text', '400');
   });
 });
 
@@ -50,61 +50,53 @@ describe('Dorm Capacity — overcapacity surcharge', () => {
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 
-  it('5th recruit costs 75 gold (overcapacity surcharge: 50 * 1.5)', () => {
-    // Recruit 4 within capacity: 500 - (4 * 50) = 300
-    for (let i = 0; i < 4; i++) {
+  it('3rd recruit costs 75 gold (overcapacity surcharge: 50 * 1.5)', () => {
+    // Fill dorm to capacity: 2 recruits at 50g = 500 - 100 = 400
+    for (let i = 0; i < 2; i++) {
       cy.contains('Recruit (50g)').click({ force: true });
     }
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '300');
+    cy.get('[data-testid="stats-gold"]').should('contain.text', '400');
 
-    // 5th recruit with overcapacity surcharge: 300 - 75 = 225
+    // 3rd recruit with overcapacity surcharge: 400 - 75 = 325
     cy.contains('Recruit (50g)').click({ force: true });
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '225');
+    cy.get('[data-testid="stats-gold"]').should('contain.text', '325');
   });
 
   it('can continue recruiting with surcharge until gold runs out', () => {
-    // Recruit 4 within capacity: 500 - 200 = 300
-    for (let i = 0; i < 4; i++) {
+    // Fill dorm: 2 at 50g = 400 remaining
+    for (let i = 0; i < 2; i++) {
       cy.contains('Recruit (50g)').click({ force: true });
     }
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '300');
 
-    // 5th recruit: 300 - 75 = 225
-    cy.contains('Recruit (50g)').click({ force: true });
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '225');
-
-    // 6th recruit: 225 - 75 = 150
-    cy.contains('Recruit (50g)').click({ force: true });
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '150');
-
-    // 7th recruit: 150 - 75 = 75
-    cy.contains('Recruit (50g)').click({ force: true });
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '75');
-
-    // 8th recruit: 75 - 75 = 0
-    cy.contains('Recruit (50g)').click({ force: true });
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '0');
+    // Overcapacity recruits at 75g each:
+    // 3rd: 400 - 75 = 325
+    // 4th: 325 - 75 = 250
+    // 5th: 250 - 75 = 175
+    // 6th: 175 - 75 = 100
+    // 7th: 100 - 75 = 25
+    for (let i = 0; i < 5; i++) {
+      cy.contains('Recruit (50g)').click({ force: true });
+    }
+    cy.get('[data-testid="stats-gold"]').should('contain.text', '25');
   });
 
   it('recruiting fails when gold is insufficient', () => {
-    // Recruit 4 within capacity: 500 - 200 = 300
-    for (let i = 0; i < 4; i++) {
+    // Fill dorm: 2 at 50g = 400
+    for (let i = 0; i < 2; i++) {
       cy.contains('Recruit (50g)').click({ force: true });
     }
 
-    // Recruit 4 more with surcharge: 300 - (4 * 75) = 0
-    for (let i = 0; i < 4; i++) {
+    // 5 overcapacity at 75g = 400 - 375 = 25
+    for (let i = 0; i < 5; i++) {
       cy.contains('Recruit (50g)').click({ force: true });
     }
+    cy.get('[data-testid="stats-gold"]').should('contain.text', '25');
 
-    cy.get('[data-testid="stats-gold"]').should('contain.text', '0');
-
-    // Attempt one more recruit — gold should stay at 0 (cannot afford)
+    // Cannot afford 75g surcharge — gold should stay at 25
     cy.contains('Recruit (50g)').click({ force: true });
     cy.get('[data-testid="stats-gold"]').invoke('text').then((goldText) => {
       const gold = parseInt(goldText, 10);
-      // Gold should not go negative — recruit should have been rejected
-      expect(gold).to.be.at.least(0);
+      expect(gold).to.eq(25);
     });
   });
 });

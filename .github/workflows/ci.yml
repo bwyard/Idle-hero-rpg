@@ -90,7 +90,7 @@ jobs:
         env:
           EXPO_PUBLIC_ENV: test
       - name: Start Expo Web server
-        run: npx serve apps/game/dist -p 8081 &
+        run: npx serve apps/game/dist -p 8081 -s &
         shell: bash
       - name: Wait for server
         run: npx wait-on http://localhost:8081 --timeout 30000
