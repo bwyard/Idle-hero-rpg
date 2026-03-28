@@ -13,10 +13,7 @@
 
 describe('Error Boundary — normal operation', () => {
   beforeEach(() => {
-    cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 

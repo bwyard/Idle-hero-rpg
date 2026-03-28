@@ -14,10 +14,7 @@
 
 describe('Accessibility — main screen buttons', () => {
   beforeEach(() => {
-    cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 
@@ -65,11 +62,8 @@ describe('Accessibility — main screen buttons', () => {
 
 describe('Accessibility — visitor queue buttons', () => {
   beforeEach(() => {
-    // Tick the game from main screen to spawn visitors, then navigate to queue
     cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
 
     // Tick enough to give visitor spawn system a chance (spawn chance ~5%/tick)

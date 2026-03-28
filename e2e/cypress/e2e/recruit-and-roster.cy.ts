@@ -52,7 +52,7 @@ describe('Recruit and Roster flow', () => {
 
     // Wait for the adventurer to appear in the roster, then click the row.
     // Adventurer rows are Pressable elements with accessibilityLabel starting with "View".
-    cy.get('[accessibilityrole="button"][aria-label^="View"]')
+    cy.get('[role="button"][aria-label^="View"]')
       .first()
       .click({ force: true });
 
@@ -67,7 +67,7 @@ describe('Recruit and Roster flow', () => {
     cy.contains('Recruit (50g)').click({ force: true });
 
     // Navigate to the first adventurer's detail
-    cy.get('[accessibilityrole="button"][aria-label^="View"]')
+    cy.get('[role="button"][aria-label^="View"]')
       .first()
       .invoke('attr', 'aria-label')
       .then((label) => {
@@ -76,7 +76,7 @@ describe('Recruit and Roster flow', () => {
         const adventurerName = nameMatch?.[1] ?? '';
         const tier = nameMatch?.[2] ?? '';
 
-        cy.get('[accessibilityrole="button"][aria-label^="View"]')
+        cy.get('[role="button"][aria-label^="View"]')
           .first()
           .click({ force: true });
 
@@ -100,7 +100,7 @@ describe('Recruit and Roster flow', () => {
   it('can navigate back from detail page to the main screen', () => {
     cy.contains('Recruit (50g)').click({ force: true });
 
-    cy.get('[accessibilityrole="button"][aria-label^="View"]')
+    cy.get('[role="button"][aria-label^="View"]')
       .first()
       .click({ force: true });
 
@@ -127,7 +127,7 @@ describe('Recruit and Roster flow', () => {
       });
 
     // Multiple adventurer rows should exist
-    cy.get('[accessibilityrole="button"][aria-label^="View"]')
+    cy.get('[role="button"][aria-label^="View"]')
       .should('have.length', 3);
   });
 });

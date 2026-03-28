@@ -108,9 +108,9 @@ describe('Quest workflow', () => {
     cy.contains('In Progress').should('exist');
 
     // Tick forward enough times to complete the quest.
-    // Quest durations vary but placeholder quests are short (3-10 ticks).
-    // Tick 20 times to ensure completion.
-    for (let i = 0; i < 20; i++) {
+    // PLACEHOLDER_QUEST_DURATION_DAYS=8 × TICKS_PER_DAY=4 = 32 ticks per quest.
+    // Tick 40 times to ensure completion.
+    for (let i = 0; i < 40; i++) {
       cy.contains('Tick +1').click({ force: true });
     }
 

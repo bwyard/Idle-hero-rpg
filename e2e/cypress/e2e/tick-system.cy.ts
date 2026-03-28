@@ -17,8 +17,6 @@ describe('Tick System — manual ticking', () => {
   beforeEach(() => {
     cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 
@@ -60,8 +58,6 @@ describe('Tick System — play/pause toggle', () => {
   beforeEach(() => {
     cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 
@@ -101,8 +97,6 @@ describe('Tick System — calendar progression', () => {
   beforeEach(() => {
     cy.clock();
     cy.visit('/');
-    cy.tick(2500);
-    cy.get('[data-testid="btn-start-game"]').should('exist').click({ force: true });
     cy.get('[data-testid="stats-gold"]').should('exist');
   });
 
