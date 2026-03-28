@@ -17,6 +17,7 @@
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useGameStore } from '../src/stores/gameStore';
 import type { TransientVisitor } from '@idle-hero-rpg/shared';
+import { truncateText } from '../src/utils/truncateText';
 
 // ─── Visitor Card ────────────────────────────────────────────────────────────
 
@@ -34,7 +35,7 @@ function VisitorCard({ visitor, ticksElapsed, onApprove, onDeny }: VisitorCardPr
   return (
     <View style={styles.card} testID={`visitor-card-${visitor.id}`}>
       <View style={styles.cardHeader}>
-        <Text style={styles.visitorName}>{visitor.name}</Text>
+        <Text style={styles.visitorName}>{truncateText(visitor.name)}</Text>
         <Text style={styles.visitorTier}>{visitor.tier}</Text>
       </View>
 
@@ -55,6 +56,8 @@ function VisitorCard({ visitor, ticksElapsed, onApprove, onDeny }: VisitorCardPr
             onApprove(visitor.id);
           }}
           testID={`btn-approve-${visitor.id}`}
+          accessibilityLabel={`Approve ${visitor.name}`}
+          accessibilityRole="button"
         >
           <Text style={styles.approveButtonText}>Approve</Text>
         </TouchableOpacity>
@@ -65,6 +68,8 @@ function VisitorCard({ visitor, ticksElapsed, onApprove, onDeny }: VisitorCardPr
             onDeny(visitor.id);
           }}
           testID={`btn-deny-${visitor.id}`}
+          accessibilityLabel={`Deny ${visitor.name}`}
+          accessibilityRole="button"
         >
           <Text style={styles.denyButtonText}>Deny</Text>
         </TouchableOpacity>

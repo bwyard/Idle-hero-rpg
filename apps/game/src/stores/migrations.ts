@@ -34,6 +34,41 @@ const migrations: Record<number, Migration> = {
 };
 
 /**
+ * Validate that a migrated state has the expected top-level shape.
+ * This is a lightweight runtime check — not a full schema validation.
+ * Returns true if the state looks like a valid GameState.
+ */
+function validateMigratedState(state: Record<string, unknown>): boolean {
+  const requiredKeys: readonly string[] = [
+    'version',
+    'guild',
+    'adventurers',
+    'buildings',
+    'quests',
+    'time',
+    'hero',
+    'dynasty',
+    'cities',
+    'rivals',
+    'eventLog',
+    'pendingEvents',
+    'flags',
+    'transientVisitors',
+  ];
+
+  for (const key of requiredKeys) {
+    if (!(key in state)) return false;
+  }
+
+  if (typeof state['version'] !== 'number') return false;
+  if (typeof state['time'] !== 'object' || state['time'] === null) return false;
+  if (typeof state['guild'] !== 'object' || state['guild'] === null) return false;
+  if (typeof state['rngSeed'] !== 'number') return false;
+
+  return true;
+}
+
+/**
  * Run all necessary migrations on loaded state.
  *
  * @param state - The raw state loaded from storage (may be outdated)
@@ -45,7 +80,13 @@ export const migrateState = (state: unknown): GameState | null => {
   const record = state as Record<string, unknown>;
   const version = typeof record['version'] === 'number' ? record['version'] : 0;
 
-  if (version === CURRENT_VERSION) return state as GameState;
+  if (version === CURRENT_VERSION) {
+    if (!validateMigratedState(record)) {
+      console.error('[migrations] State at current version failed validation, forcing fresh state');
+      return null;
+    }
+    return state as GameState;
+  }
   if (version > CURRENT_VERSION) return null;
 
   // Build the list of version numbers to migrate through: [version, version+1, ..., CURRENT_VERSION-1]
@@ -60,8 +101,15 @@ export const migrateState = (state: unknown): GameState | null => {
     state,
   );
 
-  return {
+  const result = {
     ...(migrated as Record<string, unknown>),
     version: CURRENT_VERSION,
-  } as GameState;
+  } as Record<string, unknown>;
+
+  if (!validateMigratedState(result)) {
+    console.error('[migrations] Migrated state failed validation, forcing fresh state');
+    return null;
+  }
+
+  return result as unknown as GameState;
 };
