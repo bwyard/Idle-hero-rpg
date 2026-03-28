@@ -14,6 +14,7 @@
 
 import type { GameState, AdventurerProgressionImpl } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
+import { makeXpTable, xpToLevel } from '@stage/stage-progression';
 import {
   ADVENTURER_TIERS,
   PLACEHOLDER_AMBIENT_XP_PER_TICK,
@@ -21,6 +22,23 @@ import {
   PLACEHOLDER_LEGENDARY_RETIRE_DAYS,
   TICKS_PER_DAY,
 } from '../data/balance';
+
+/**
+ * Stage-progression XP table built from balance.ts tier thresholds.
+ * Maps adventurer tiers to levels: F=1, E=2, ..., Legendary=9.
+ * Uses 'per-level' mode — each entry's xpNeeded is the delta to reach that level.
+ */
+const ADVENTURER_XP_TABLE = makeXpTable(
+  [
+    { level: 1, xpNeeded: 0, gains: [] }, // F tier (starting)
+    ...ADVENTURER_TIERS.slice(0, -1).map((tier, i) => ({
+      level: i + 2,
+      xpNeeded: PLACEHOLDER_TIER_XP_THRESHOLDS[tier] ?? 0,
+      gains: [],
+    })),
+  ],
+  'per-level',
+);
 
 /** Check if an adventurer is currently assigned to an active quest. */
 const isOnQuest = (adventurerId: string, state: GameState): boolean => {
@@ -46,9 +64,12 @@ export const placeholderAdventurerProgressionImpl: AdventurerProgressionImpl = {
     return PLACEHOLDER_AMBIENT_XP_PER_TICK[adventurer.tier] ?? 0;
   },
   isReadyForTierUp: (adventurer) => {
-    const threshold = PLACEHOLDER_TIER_XP_THRESHOLDS[adventurer.tier];
-    if (threshold === undefined) return false;
-    return adventurer.xp >= threshold;
+    const currentTierIdx = ADVENTURER_TIERS.indexOf(adventurer.tier);
+    if (currentTierIdx < 0 || currentTierIdx >= ADVENTURER_TIERS.length - 1) return false;
+    // Use stage-progression to determine level from XP
+    const derivedLevel = xpToLevel(adventurer.xp, ADVENTURER_XP_TABLE, ADVENTURER_TIERS.length);
+    // derivedLevel > currentTierIdx + 1 means XP has crossed the threshold
+    return derivedLevel > currentTierIdx + 1;
   },
   nextTier: (current) => {
     const idx = ADVENTURER_TIERS.indexOf(current);
