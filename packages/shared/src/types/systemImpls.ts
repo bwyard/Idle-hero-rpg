@@ -77,8 +77,8 @@ export interface BuildingProductionImpl {
 
 // ---------------------------------------------------------------------------
 // Hero abilities
-// Pending: Option 3 — shared vs per-leader ability system (unresolved in CLAUDE.md)
-// Do not implement shared vs per-leader divergence until Option 3 is closed.
+// Option 3 CLOSED (2026-03-17, ADR-006): hybrid model — per-hero class
+// abilities + guild legacy skills that persist across runs via dynasty layer.
 // ---------------------------------------------------------------------------
 
 export interface HeroAbilityImpl {

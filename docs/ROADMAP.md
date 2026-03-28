@@ -167,9 +167,9 @@ created, and the dynasty grows.
 
 **Estimated duration:** 8–12 weeks part-time / 4–6 weeks full-time
 
-### Open design question that must close before this phase
-- **ADR-006 Option 3**: shared vs per-leader hero ability system. CLAUDE.md
-  flags this as unresolved. It must be closed before the hero system is built.
+### Design questions (all closed)
+- ~~**ADR-006 Option 3**~~: CLOSED 2026-03-17 — hybrid model (per-hero class
+  abilities + guild legacy skills). See ADR-006.
 
 ### Deliverables
 
@@ -347,8 +347,8 @@ real-device testing all run on calendar time, not coding time.
 
 **With AI — Google Play launch window: Q3–Q4 2026**
 The bottleneck shifts entirely from implementation to your decision bandwidth.
-Every phase waits on design conversations (economy pass, Option 3, ID strategy)
-not on code being written.
+Every phase waits on design conversations (economy pass, etc.)
+not on code being written. ID strategy and Option 3 are both closed.
 
 **Portfolio milestone (end of Phase 4):**
 - Without AI: Q4 2026–Q1 2027
@@ -363,8 +363,7 @@ everything downstream.
 
 1. ~~**Close ID strategy decision**~~ — CLOSED. Prefixed nanoid adopted.
 2. ~~**Merge `claude/` branches to `develop`**~~ — CLOSED. All PRs merged to dev.
-3. **Option 3 resolution (shared vs per-leader hero ability system)** — must
-   close before Phase 4 hero system implementation begins. **Gates Apr 20 target.**
+3. ~~**Option 3 resolution (shared vs per-leader hero ability system)**~~ — CLOSED 2026-03-17. Hybrid model adopted. See ADR-006.
 4. ~~**Economy design conversation**~~ — CLOSED. Placeholder values active, interface-first pattern proven.
 
 ---

@@ -239,7 +239,7 @@ These tests are the acceptance criteria for any live implementation.
 
 **Still open:**
 - ID strategy decision (prefixed nanoid preferred — see TODO.md P1)
-- Option 3: shared vs per-leader hero ability system (gates Phase 4 only)
+- ~~Option 3: shared vs per-leader hero ability system~~ — CLOSED 2026-03-17 (ADR-006)
 - Economy values (design conversation when tuning is needed, not before)
 
 ---

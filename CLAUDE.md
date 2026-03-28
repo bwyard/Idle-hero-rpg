@@ -303,7 +303,7 @@ ADRs live in docs/adr/. Each ADR records: context, decision, consequences.
 Deferred Design Decisions
 The following are not yet decided. Do not implement them until a design conversation closes them.
 Branch merging conditions — one hero upgrading to take over two locations. Deferred until core systems are stable.
-Hero ability system scope — Option 3: whether all leaders share one hero ability system or each leader has their own. Must be decided before building the hero system.
+~~Hero ability system scope — Option 3~~ — CLOSED 2026-03-17. Hybrid model: per-hero class abilities + guild legacy skills. See ADR-006.
 NPC guild minimum tenure numbers — principle is locked (NPC guilds have minimum lifespans), specific numbers need tuning.
 Development dashboard — revisit after core systems are built.
 Detox mobile E2E — revisit if a Mac becomes available.
@@ -329,7 +329,7 @@ A feature is done when:
 
 Current Status (updated 2026-03-28)
 - Phases 0–3: Complete — 264 tests, 27 test files
-- Phase 4 (Prestige & Hero System): Next — blocked on ADR-006 Option 3
+- Phase 4 (Prestige & Hero System): Next — no blockers remaining
 - Temporal Architecture: Adopted (ADR-012) — GameEvent.causeId added, new systems event-sourced from day one
 - ID strategy: prefixed nanoid (closed)
 - Prestige design: locked (2026-03-10)

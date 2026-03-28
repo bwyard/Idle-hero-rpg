@@ -44,8 +44,8 @@ Temporal Architecture adopted (ADR-012) — `GameEvent.causeId` field added.
 
 ## Phase 4 Deliverables
 
-### Open design question (must close first)
-- [ ] **ADR-006 Option 3**: shared vs per-leader hero ability system
+### Design questions (all closed)
+- [x] **ADR-006 Option 3**: CLOSED 2026-03-17 — hybrid model (per-hero class abilities + guild legacy skills)
 
 ### Temporal Architecture (ADR-012) — event-sourced from day one
 - [x] `GameEvent.causeId` field added for causal linking
