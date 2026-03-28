@@ -80,6 +80,7 @@ export function parseBalanceConstants(source: string): readonly BalanceConstant[
 const inputSchema = z.object({
   filter: z
     .string()
+    .max(200)
     .optional()
     .describe('Optional keyword filter to narrow results (e.g. "GOLD", "PRESTIGE")'),
 });
@@ -103,7 +104,7 @@ export const balanceConfigReader = {
               {
                 error: 'Could not read balance.ts',
                 path: BALANCE_PATH,
-                detail: String(readResult.err),
+                detail: 'Failed to read fixture data',
               },
               null,
               2,

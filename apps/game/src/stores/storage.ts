@@ -21,7 +21,12 @@ export interface KVStorage {
 
 /** Save active run state to storage. */
 export function saveActiveRun(storage: KVStorage, state: GameState): void {
-  storage.set(ACTIVE_RUN_KEY, JSON.stringify(state));
+  try {
+    const json = JSON.stringify(state);
+    storage.set(ACTIVE_RUN_KEY, json);
+  } catch (error: unknown) {
+    console.error('[storage] Failed to save active run:', error);
+  }
 }
 
 /** Load active run state from storage. Returns undefined if no save exists. */
@@ -31,7 +36,8 @@ export function loadActiveRun(storage: KVStorage): GameState | undefined {
 
   try {
     return JSON.parse(raw) as GameState;
-  } catch {
+  } catch (error: unknown) {
+    console.error('[storage] Corrupted save data, discarding:', error);
     return undefined;
   }
 }

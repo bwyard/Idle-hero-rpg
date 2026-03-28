@@ -50,9 +50,15 @@ export const gameStateInspector = {
     'Inspect the current game state loaded from the dev fixture. Specify a section to narrow the output.',
   inputSchema: { section: inputSchema.shape.section },
   handler: async (args: z.infer<typeof inputSchema>) => {
+    const gameStateSchema = z.record(z.string(), z.unknown());
+
     const readResult = await readFile(FIXTURE_PATH, 'utf-8')
-      .then((text) => ({ ok: true as const, state: JSON.parse(text) as Record<string, unknown> }))
-      .catch((err: unknown) => ({ ok: false as const, err }));
+      .then((text) => {
+        const parsed: unknown = JSON.parse(text);
+        const validated = gameStateSchema.parse(parsed);
+        return { ok: true as const, state: validated };
+      })
+      .catch(() => ({ ok: false as const }));
 
     if (!readResult.ok) {
       return {
@@ -63,7 +69,7 @@ export const gameStateInspector = {
               {
                 error: 'Could not read game state fixture',
                 path: FIXTURE_PATH,
-                detail: String(readResult.err),
+                detail: 'Failed to read fixture data',
               },
               null,
               2,

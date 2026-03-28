@@ -4,6 +4,7 @@
 
 import { StyleSheet, Text, View } from 'react-native';
 import type { GameEvent } from '@idle-hero-rpg/shared';
+import { truncateText } from '../utils/truncateText';
 
 interface EventLogProps {
   events: readonly GameEvent[];
@@ -20,7 +21,7 @@ export function EventLog({ events }: EventLogProps) {
           <View key={event.id} style={styles.eventRow}>
             <Text style={styles.eventTick}>T{event.tick}</Text>
             <Text style={styles.eventMessage} numberOfLines={2}>
-              {event.message}
+              {truncateText(event.message)}
             </Text>
           </View>
         ))

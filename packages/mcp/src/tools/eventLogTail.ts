@@ -13,14 +13,6 @@ import { z } from 'zod';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PATH = resolve(__dirname, '../../dev-fixtures/gameState.json');
 
-interface GameEvent {
-  id: string;
-  tick: number;
-  type: string;
-  message: string;
-  achievementKey: string | null;
-}
-
 const inputSchema = z.object({
   count: z
     .number()
@@ -30,7 +22,7 @@ const inputSchema = z.object({
     .optional()
     .default(50)
     .describe('Number of recent events to return (max 500, default 50)'),
-  filter: z.string().optional().describe('Optional event type filter (e.g. "PRESTIGE", "TIER_UP")'),
+  filter: z.string().max(200).optional().describe('Optional event type filter (e.g. "PRESTIGE", "TIER_UP")'),
 });
 
 export const eventLogTail = {
@@ -39,12 +31,24 @@ export const eventLogTail = {
     'Tail the game event log. Returns the most recent N events from the dev fixture, optionally filtered by event type.',
   inputSchema: { count: inputSchema.shape.count, filter: inputSchema.shape.filter },
   handler: async (args: z.infer<typeof inputSchema>) => {
+    const gameEventSchema = z.object({
+      id: z.string(),
+      tick: z.number(),
+      type: z.string(),
+      message: z.string(),
+      achievementKey: z.string().nullable(),
+    });
+    const eventLogFileSchema = z.object({
+      eventLog: z.array(gameEventSchema).optional(),
+    }).passthrough();
+
     const readResult = await readFile(FIXTURE_PATH, 'utf-8')
-      .then((text) => ({
-        ok: true as const,
-        events: (JSON.parse(text) as { eventLog?: GameEvent[] }).eventLog ?? [],
-      }))
-      .catch((err: unknown) => ({ ok: false as const, err }));
+      .then((text) => {
+        const parsed: unknown = JSON.parse(text);
+        const validated = eventLogFileSchema.parse(parsed);
+        return { ok: true as const, events: validated.eventLog ?? [] };
+      })
+      .catch(() => ({ ok: false as const }));
 
     if (!readResult.ok) {
       return {
@@ -55,7 +59,7 @@ export const eventLogTail = {
               {
                 error: 'Could not read game state fixture',
                 path: FIXTURE_PATH,
-                detail: String(readResult.err),
+                detail: 'Failed to read fixture data',
               },
               null,
               2,
