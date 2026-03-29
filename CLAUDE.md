@@ -58,6 +58,8 @@ No mutations inside tick or dispatch
 No side effects inside tick or dispatch
 Use the pipe utility to chain transformations
 UI is a swappable layer over the engine — the engine has no knowledge of React
+Temporal Architecture (ADR-012)
+Every GameEvent carries a causeId linking to its causal parent. New systems (Phase 4+) are event-sourced from day one — state derives from events, not the other way around. Prestige is a causal branch, not a state reset. Hero identity is a causal chain. See docs/architecture/temporal.md for the full reference and decision rules.
 Balance Constants
 Every numeric constant lives in apps/game/src/data/balance.ts. Never hardcode magic numbers in engine or system files. If you are writing a number directly into a system file, stop and add it to balance.ts first.
 Static vs Dynamic State
@@ -89,9 +91,11 @@ Zustand — two stores (game state persisted via MMKV, UI state not persisted)
 Monorepo
 Turborepo
 Unit/Property Tests
-Vitest + fast-check
+Vitest + fast-check + react-native-testing-library
 E2E
 Cypress on Expo Web target
+Game Math
+@prime/prime-random (deterministic RNG), @stage/stage-economy, @stage/stage-time
 Types
 TypeScript strict, project references, barrel exports
 Linting
@@ -101,7 +105,7 @@ Prettier
 Commits
 Conventional commits, enforced via Husky + lint-staged + commitlint
 CI
-GitHub Actions
+GitHub Actions — lint, typecheck, unit, property on every push; E2E on PRs to develop
 Tick Pipe — System Order
 advanceTime
 processEconomy
@@ -295,11 +299,13 @@ Progressive disclosure on kingdom view
 Feature gating and entitlements architecture
 011
 Accessibility architecture
+012
+Temporal architecture
 ADRs live in docs/adr/. Each ADR records: context, decision, consequences.
 Deferred Design Decisions
 The following are not yet decided. Do not implement them until a design conversation closes them.
 Branch merging conditions — one hero upgrading to take over two locations. Deferred until core systems are stable.
-Hero ability system scope — Option 3: whether all leaders share one hero ability system or each leader has their own. Must be decided before building the hero system.
+~~Hero ability system scope — Option 3~~ — CLOSED 2026-03-17. Hybrid model: per-hero class abilities + guild legacy skills. See ADR-006.
 NPC guild minimum tenure numbers — principle is locked (NPC guilds have minimum lifespans), specific numbers need tuning.
 Development dashboard — revisit after core systems are built.
 Detox mobile E2E — revisit if a Mac becomes available.
@@ -319,15 +325,20 @@ A feature is done when:
 [ ] Engine logic is pure functions with no side effects
 [ ] All numeric constants are in balance.ts
 [ ] Types are in packages/shared with barrel exports
+[ ] New events carry causeId linking to their causal parent (ADR-012)
 [ ] CI passes (lint, typecheck, unit, property)
 [ ] PR description explains the decisions, not the code generation
 
-Current Status (updated 2026-03-16)
-- Phase 1 (Core Loop MVP): Complete — demo dashboard renders, ticks, dispatches
-- Phase 2 (Adventurers & Quests): In progress — roster + detail exist, quest board + visitors next
-- 66 tests, 8 test files, Vitest 4.1.0
+Current Status (updated 2026-03-28)
+- Phases 0–3: Complete — 359 unit tests (32 files) + 128 E2E tests (13 specs)
+- Phase 4 (Prestige & Hero System): Layer 1 complete — no design blockers remaining
+- Temporal Architecture: Adopted (ADR-012) — GameEvent.causeId added, new systems event-sourced from day one
+- Ecosystem libs integrated: prime-random (deterministic RNG), stage-economy, stage-time
 - ID strategy: prefixed nanoid (closed)
 - Prestige design: locked (2026-03-10)
-- Dispatch actions: RECRUIT_ADVENTURER, BUILD_BUILDING, START_QUEST, HOLD_FEAST
-- UI components: 8 demo components + adventurer detail page
+- Option 3: CLOSED (2026-03-17) — hybrid model, per-hero class abilities + guild legacy skills
+- Dispatch actions: RECRUIT_ADVENTURER, BUILD_BUILDING, START_QUEST, HOLD_FEAST, GENERATE_QUESTS, HOLD/ENGAGE/DISMISS/SERVE/APPROVE/DENY_VISITOR, UPGRADE_BUILDING, EXPAND_CITY
+- UI screens: splash, start menu, dashboard, adventurer detail, visitor queue
+- UI components: 11+ (incl. ErrorBoundary, ToastStack, VisitorCard)
+- Security: MCP server, storage, UI safety hardened
 - Placeholder impls active for: economy, adventurers, buildings, hero, quests

@@ -51,6 +51,7 @@ export const checkPrestigeConditions = (state: GameState): GameState => {
           type: 'PRESTIGE_AVAILABLE',
           message: 'A legendary adventurer has retired — prestige is available!',
           achievementKey: null,
+          causeId: null,
         },
       ]
     : state.pendingEvents;

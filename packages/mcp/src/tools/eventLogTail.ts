@@ -37,6 +37,7 @@ export const eventLogTail = {
       type: z.string(),
       message: z.string(),
       achievementKey: z.string().nullable(),
+      causeId: z.string().nullable(),
     });
     const eventLogFileSchema = z.object({
       eventLog: z.array(gameEventSchema).optional(),

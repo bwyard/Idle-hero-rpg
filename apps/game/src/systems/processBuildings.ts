@@ -71,6 +71,7 @@ export const processBuildings = (
               type: 'BUILDING_UPGRADE',
               message: `${building.templateId} upgraded to level ${String(building.level + 1)}!`,
               achievementKey: null,
+              causeId: null,
             },
           ],
         };

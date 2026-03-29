@@ -18,4 +18,11 @@ export interface GameEvent {
   readonly message: string;
   /** Optional achievement key for future Google Play integration. Nullable stub. */
   readonly achievementKey: AchievementKey | null;
+  /**
+   * Causal parent event ID — links this event to the event that caused it.
+   * Null for root events (game start, external triggers like recruitment).
+   * Forms a causal chain: every state change can be traced back to its origin.
+   * See ADR-012 (Temporal Architecture).
+   */
+  readonly causeId: string | null;
 }

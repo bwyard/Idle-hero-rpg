@@ -64,6 +64,7 @@ describe('tick pipeline — integration', () => {
       type: 'test',
       message: `Event ${String(i)}`,
       achievementKey: null,
+      causeId: null,
     }));
     const state: GameState = {
       ...createInitialGameState(),

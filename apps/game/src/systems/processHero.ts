@@ -4,15 +4,14 @@
  * Regenerates action points and applies the hero's passive class ability.
  * Tracks career milestone progress toward the active ability unlock.
  *
- * Design decisions pending:
+ * Design decisions:
  * - Action point regen rate and cap (balance.ts stubs)
  * - Passive ability effects per hero class (HeroAbilityImpl)
- * - Option 3: shared vs per-leader ability system — NOT implemented here.
- *   Do not add shared vs per-leader divergence until Option 3 is closed.
+ * - Option 3 CLOSED (2026-03-17, ADR-006): hybrid model — per-hero class
+ *   abilities + guild legacy skills that persist across runs.
  *
  * stubHeroAbilityImpl satisfies the contract and keeps CI green. Swap in a
- * live impl per hero class when Option 3 is resolved — this function does not
- * change.
+ * live impl per hero class — this function does not change.
  *
  * Pure function — no mutations, no side effects.
  */

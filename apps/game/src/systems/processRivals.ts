@@ -84,6 +84,7 @@ export const processRivals = (
               type: 'RIVAL_DISSOLVED' as const,
               message: `${rival.name} has dissolved after years of activity.`,
               achievementKey: null,
+              causeId: null,
             },
           ],
           rngSeed: nextSeed,
@@ -131,6 +132,7 @@ export const processRivals = (
       type: 'RIVAL_APPEARED',
       message: `A new rival guild has appeared: ${name}!`,
       achievementKey: null,
+      causeId: null,
     } as const;
 
     return {

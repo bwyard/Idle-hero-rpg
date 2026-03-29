@@ -60,6 +60,7 @@ export const processEconomy = (
       type: 'MAGIC_REWIND',
       message: "Magic Rewind triggered! The guild's finances were restored.",
       achievementKey: null,
+      causeId: null,
     } as const;
 
     return {

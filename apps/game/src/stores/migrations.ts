@@ -11,7 +11,7 @@
 import type { GameState } from '@idle-hero-rpg/shared';
 
 /** The current schema version. Increment when adding a new migration. */
-export const CURRENT_VERSION = 2;
+export const CURRENT_VERSION = 3;
 
 /** A migration function transforms state from version N to N+1. */
 export type Migration = (state: unknown) => unknown;
@@ -30,6 +30,24 @@ const migrations: Record<number, Migration> = {
   1: (state: unknown) => {
     const s = state as Record<string, unknown>;
     return { ...s, rngSeed: 0 };
+  },
+
+  /**
+   * v2 → v3: Add hero.leaderStartYear and new flags for forced prestige / leader pressure.
+   */
+  2: (state: unknown) => {
+    const s = state as Record<string, unknown>;
+    const hero = (s['hero'] ?? {}) as Record<string, unknown>;
+    const flags = (s['flags'] ?? {}) as Record<string, unknown>;
+    return {
+      ...s,
+      hero: { ...hero, leaderStartYear: hero['leaderStartYear'] ?? 0 },
+      flags: {
+        ...flags,
+        forcedPrestigeTriggered: flags['forcedPrestigeTriggered'] ?? false,
+        leaderPressureLevel: flags['leaderPressureLevel'] ?? 'none',
+      },
+    };
   },
 };
 

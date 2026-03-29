@@ -10,7 +10,7 @@ import { PLACEHOLDER_STARTING_GOLD } from '../data/balance';
 
 export function createInitialGameState(): GameState {
   return {
-    version: 2,
+    version: 3,
     rngSeed: Date.now() & 0xffff_ffff,
     time: {
       ticksElapsed: 0,
@@ -23,6 +23,7 @@ export function createInitialGameState(): GameState {
       name: 'Aldric',
       heroClass: 'Warblade',
       actionPoints: 3,
+      leaderStartYear: 0,
     },
     guild: {
       name: 'The Iron Hearth',
@@ -86,6 +87,8 @@ export function createInitialGameState(): GameState {
     pendingEvents: [],
     flags: {
       prestigeAvailable: false,
+      forcedPrestigeTriggered: false,
+      leaderPressureLevel: 'none',
     },
   };
 }

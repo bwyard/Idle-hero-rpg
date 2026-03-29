@@ -164,6 +164,17 @@ These tests are the acceptance criteria for any live implementation.
 - No energy systems, stamina gates, loot boxes, or mechanics that make free players feel a hard ceiling
 - Monetization model decided later — architecture supports any of them without code changes
 
+### Temporal Architecture — ADOPTED (2026-03-28)
+- **ADR-012** written and accepted
+- Every `GameEvent` now carries a `causeId` field linking to its causal parent event
+- Four primitives: Time (game tick), Causality (causeId), Information (event log), Context (projections)
+- New systems (Phase 4+) are event-sourced from day one
+- Existing systems migrate incrementally — snapshot state remains ground truth for legacy systems
+- Prestige is a causal branch, not a state reset
+- Hero identity is a causal chain derived from event projections
+- Full reference: `docs/architecture/temporal.md`
+- The temporal architecture thesis remains local to this project — no external thesis files committed
+
 ---
 
 ## Open Questions
@@ -228,7 +239,7 @@ These tests are the acceptance criteria for any live implementation.
 
 **Still open:**
 - ID strategy decision (prefixed nanoid preferred — see TODO.md P1)
-- Option 3: shared vs per-leader hero ability system (gates Phase 4 only)
+- ~~Option 3: shared vs per-leader hero ability system~~ — CLOSED 2026-03-17 (ADR-006)
 - Economy values (design conversation when tuning is needed, not before)
 
 ---

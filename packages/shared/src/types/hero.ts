@@ -11,4 +11,6 @@ export interface Hero {
   readonly name: string;
   readonly heroClass: HeroClass;
   readonly actionPoints: number;
+  /** The in-game year this leader took over. Used for tenure tracking. */
+  readonly leaderStartYear: number;
 }

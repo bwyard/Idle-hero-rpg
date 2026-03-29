@@ -105,6 +105,35 @@ export const PRESTIGE_ESCALATION_THRESHOLD = 10;
 /** Prestige rank at which Mythic world status is reached. */
 export const MYTHIC_STATUS_PRESTIGE = 16;
 
+/**
+ * Forced prestige window — the year by which transition must happen.
+ * Keyed by prestige count. Missing key = no forced transition (player control).
+ * See docs/design/prestige.md § Forced Prestige Windows.
+ */
+export const FORCED_PRESTIGE_YEAR: Readonly<Record<number, number>> = {
+  1: 25,
+  2: 30,
+  3: 35,
+  4: 40,
+  5: 45,
+  6: 45,
+};
+
+/** Prestige count at which forced prestige windows no longer apply. */
+export const FORCED_PRESTIGE_FREE_AT = 7;
+
+/**
+ * Leader pressure tiers — indexed by prestige count range.
+ * See docs/design/prestige.md § Involuntary Leader Replacement.
+ */
+export const LEADER_PRESSURE_NONE_MAX = 3;
+export const LEADER_PRESSURE_SOFT_MAX = 6;
+export const LEADER_PRESSURE_MODERATE_MAX = 9;
+export const LEADER_PRESSURE_REAL_MAX = 12;
+
+/** Years a leader must have served before moderate pressure can apply. */
+export const LEADER_TENURE_PRESSURE_THRESHOLD_YEARS = 20;
+
 // ─── Master Mentor ───────────────────────────────────────────────────────────
 
 /** Prestige rank at which Master Mentor ability unlocks. */

@@ -17,8 +17,26 @@
       "@prime/prime-random": [
         "../../../prime/packages/prime-random/src/index.ts"
       ],
+      "@stage/stage-combat": [
+        "../../../stage/packages/stage-combat/src/index.ts"
+      ],
       "@stage/stage-economy": [
         "../../../stage/packages/stage-economy/src/index.ts"
+      ],
+      "@stage/stage-events": [
+        "../../../stage/packages/stage-events/src/index.ts"
+      ],
+      "@stage/stage-loop": [
+        "../../../stage/packages/stage-loop/src/index.ts"
+      ],
+      "@stage/stage-progression": [
+        "../../../stage/packages/stage-progression/src/index.ts"
+      ],
+      "@stage/stage-quest": [
+        "../../../stage/packages/stage-quest/src/index.ts"
+      ],
+      "@stage/stage-skills": [
+        "../../../stage/packages/stage-skills/src/index.ts"
       ],
       "@stage/stage-time": [
         "../../../stage/packages/stage-time/src/index.ts"

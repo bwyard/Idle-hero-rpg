@@ -21,6 +21,7 @@
 
 import { create } from 'zustand';
 import type { GameState, GameAction } from '@idle-hero-rpg/shared';
+import { offlineTicks } from '@stage/stage-loop';
 import { tick } from '../engine/tick';
 import { dispatch as engineDispatch } from '../engine/dispatch';
 import { createInitialGameState } from './initialState';
@@ -28,14 +29,23 @@ import { saveActiveRun, loadActiveRun, clearActiveRun } from './storage';
 import type { KVStorage } from './storage';
 import { migrateState } from './migrations';
 import { useUIStore } from './uiStore';
+import { TICK_INTERVAL_MS } from '../data/balance';
 
 interface GameStore {
   state: GameState;
+  /** Wall-clock timestamp of the last save — used for offline progress. */
+  lastSavedAt: number;
   tick: () => void;
   dispatch: (action: GameAction) => void;
   initFromStorage: (storage: KVStorage) => void;
   saveToStorage: (storage: KVStorage) => void;
   resetGame: (storage: KVStorage) => void;
+  /**
+   * Process offline ticks accumulated while the app was closed.
+   * Uses stage-loop's offlineTicks to derive exact tick count from wall-clock delta.
+   * Each tick is a deterministic pure function — offline progress is exact, not estimated.
+   */
+  processOfflineProgress: (nowMs: number) => number;
   loadDynastyLayer: () => Promise<void>;
 }
 
@@ -72,6 +82,7 @@ const getFailureToast = (action: GameAction, prev: GameState, next: GameState): 
 
 export const useGameStore = create<GameStore>((set, get) => ({
   state: createInitialGameState(),
+  lastSavedAt: Date.now(),
 
   tick: () => {
     set((store) => ({ state: tick(store.state) }));
@@ -107,6 +118,22 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   saveToStorage: (storage: KVStorage) => {
     saveActiveRun(storage, get().state);
+    set({ lastSavedAt: Date.now() });
+  },
+
+  processOfflineProgress: (nowMs: number) => {
+    const elapsed = offlineTicks(get().lastSavedAt, nowMs, TICK_INTERVAL_MS);
+    if (elapsed <= 0) return 0;
+
+    // Fold ticks deterministically — same state + same count = same result
+    set((store) => {
+      const finalState = Array.from({ length: elapsed }).reduce<GameState>(
+        (s) => tick(s),
+        store.state,
+      );
+      return { state: finalState, lastSavedAt: nowMs };
+    });
+    return elapsed;
   },
 
   resetGame: (storage: KVStorage) => {

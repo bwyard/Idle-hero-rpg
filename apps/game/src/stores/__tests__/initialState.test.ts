@@ -2,8 +2,8 @@ import { describe, it, expect } from 'vitest';
 import { createInitialGameState } from '../initialState';
 
 describe('createInitialGameState', () => {
-  it('returns a state with version 2', () => {
-    expect(createInitialGameState().version).toBe(2);
+  it('returns a state with version 3', () => {
+    expect(createInitialGameState().version).toBe(3);
   });
 
   it('starts with a non-zero rngSeed', () => {

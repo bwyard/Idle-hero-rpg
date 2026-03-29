@@ -1,7 +1,7 @@
 # Retired Hero's Guild — Development Roadmap
 
-**Last updated:** 2026-03-16
-**Status:** Phases 0–3 complete. Phase 4 next.
+**Last updated:** 2026-03-28
+**Status:** Phases 0–3 complete. Temporal Architecture adopted (ADR-012). Phase 4 next.
 
 This document tracks the full development arc from first commit to Google Play
 launch. It also calls out the portfolio milestone — the point where the project
@@ -17,32 +17,41 @@ Estimates are rough effort ranges, not commitments.
 
 ## Where We Are Right Now
 
-Phases 0 through 3 are complete. The engine is live with a 13-system tick pipe,
-full dispatch actions, demo dashboard, and all core gameplay systems stubbed or
-implemented. The game renders, ticks, and responds to player actions.
+Phases 0–3 complete. Phase 4 Layer 1 in progress. The engine is live with a
+13-system tick pipe, full dispatch actions, and all core gameplay systems
+stubbed or implemented. The game renders, ticks, and responds to player actions.
 
 | Layer | Status |
 |---|---|
 | Monorepo + tooling | Complete |
-| Shared types | Complete |
-| Pure engine (pipe, dispatch, tick) | Complete |
+| Shared types | Complete (readonly, barrel exports) |
+| Pure engine (pipe, dispatch, tick) | Complete (stage-economy + stage-time integrated) |
 | 13-system tick pipe | Complete (all systems wired) |
-| advanceTime | Done (365-day calendar, seasons) |
+| advanceTime | Done (365-day calendar, 4 seasons via stage-time) |
 | processEventLog | Done (collect, append, trim) |
+| Deterministic RNG | Done (prime-random seeded, all call sites threaded) |
 | Zustand stores | Complete, wired to MMKV |
 | MMKV persistence | Wired |
-| State migrations | Done |
-| MCP server (4 tools) | Complete + tested |
-| CI (lint, typecheck, unit, property) | Complete |
-| Demo dashboard | Complete (8+ components) |
+| State migrations | Done (v1→v2, rngSeed migration) |
+| MCP server (4 tools) | Complete + tested + security hardened |
+| CI | lint, typecheck, unit, property, E2E on PRs, functional style enforcement |
+| UI screens | Splash, start menu, dashboard, adventurer detail, visitor queue |
+| UI components | 11+ (incl. ErrorBoundary, ToastStack, VisitorCard) |
 | Calendar system | Complete (365 days/yr, 4 seasons) |
-| Quest board | Complete (10 templates, generation, assignment) |
-| Transient visitors | Complete (arrive/hold/engage/dismiss) |
+| Quest board | Complete (10 templates, generation, assignment, completion) |
+| Transient visitors | Complete (arrive/hold/engage/dismiss/serve/approve/deny) |
 | Adventurer detail | Complete (roster, tiers, XP bars) |
-| Buildings & economy | Complete (build, upgrade, expand city) |
+| Buildings & economy | Complete (build, upgrade, expand city, per-template income) |
+| Housing system | Complete (dorm capacity, overcapacity surcharge) |
+| Temporal Architecture | ADR-012 adopted, causeId on all events |
+| Phase 4 Layer 1 | Shared types + ADR updates + dynasty v2 migration done |
 | All branches merged | Done |
 
-264 tests pass across 27 test files. The game renders and ticks.
+359 unit tests across 32 test files. 128 E2E tests across 13 Cypress specs.
+
+**Temporal Architecture (ADR-012) adopted:** `GameEvent` now carries `causeId`
+for causal linking. New systems (Phase 4+) are event-sourced from day one.
+Existing systems migrate incrementally. See `docs/architecture/temporal.md`.
 
 ---
 
@@ -53,7 +62,7 @@ Phase 0   Foundation                    █████████████�
 Phase 1   Core Loop MVP                 ████████████████  COMPLETE  (Mar 12-14)
 Phase 2   Adventurers & Quests          ████████████████  COMPLETE  (Mar 14-15)
 Phase 3   Buildings & Economy           ████████████████  COMPLETE  (Mar 15-16)
-Phase 4   Prestige & Hero System        ░░░░░░░░░░░░░░░░  → Apr 20  ★ PORTFOLIO
+Phase 4   Prestige & Hero System        ████░░░░░░░░░░░░  → Apr 20  ★ PORTFOLIO
 Phase 5   Kingdom & Depth               ░░░░░░░░░░░░░░░░  → May 10
 Phase 6   Polish & Optimization         ░░░░░░░░░░░░░░░░  → May 25
 Phase 7   Pre-Launch & Submission       ░░░░░░░░░░░░░░░░  → Aug 1   ★ GOOGLE PLAY
@@ -128,9 +137,10 @@ the point a hiring panel can evaluate the project seriously.
 - [x] Quest generation by region and guild tier (10 templates)
 - [x] `processTransientVisitors` — arrival rate, expiry, hold mechanic
 - [x] `HOLD_VISITOR`, `ENGAGE_VISITOR`, `DISMISS_VISITOR` actions in dispatch
+- [x] `SERVE_VISITOR`, `APPROVE_VISITOR`, `DENY_VISITOR` actions (service income model)
 - [x] Adventurer roster screen with per-adventurer detail
 - [x] Quest board screen — available quests, assign adventurers
-- [x] Visitor card UI — hold / engage / dismiss actions
+- [x] Visitor card UI — hold / engage / dismiss / serve / approve / deny
 - [x] Name generation — curated fantasy name tables
 
 ---
@@ -143,31 +153,61 @@ the point a hiring panel can evaluate the project seriously.
 ### Deliverables completed
 - [x] `processBuildings` — passive income per tick, upgrade progress
 - [x] Building upgrade system — cost check, progress advance, max level cap
+- [x] Per-template building income, max level, upgrade cost and duration
 - [x] City expansion system — unlock new building slots, cost check
 - [x] BUILD_BUILDING, UPGRADE_BUILDING, EXPAND_CITY dispatch actions
 - [x] `processRivals` — NPC guild tick progression (stub impl running)
+- [x] Unbounded quest/rival growth fixed (max caps enforced)
+- [x] Housing system — dorm capacity, overcapacity recruit surcharge
+- [x] Deterministic RNG — prime-random seeded, all random call sites threaded
+- [x] stage-economy wired into dispatch (pure gold utilities)
+- [x] stage-time wired into advanceTime (calendar delegation)
+- [x] Splash screen + start menu + navigation flow
+- [x] Visitor-queue screen (approve/deny UI)
+- [x] ErrorBoundary + ToastStack components
+- [x] RNTL component testing infrastructure
+- [x] E2E comprehensive coverage (13 Cypress specs, 128 tests)
+- [x] Security hardening (MCP server, storage, UI safety)
+- [x] ESLint functional style enforcement (arrow functions, no let)
+- [x] Readonly shared types, turbo lint
 - [x] Demo buttons for all building/economy actions
 
 ### Deferred to later phases
 - [ ] Magic Rewind implementation (needs economy tuning pass)
 - [ ] Building management screen (dedicated UI)
 - [ ] Economy overview UI — income/expense breakdown
-- [ ] Transient visitor service requirements (building gates)
 
 ---
 
 ## Phase 4 — Prestige & Hero System
+
+**Status: Layer 1 COMPLETE, core systems next**
+**Started:** 2026-03-17
 
 **Goal:** A full run can complete. The prestige trigger fires, a new hero is
 created, and the dynasty grows.
 
 **Estimated duration:** 8–12 weeks part-time / 4–6 weeks full-time
 
-### Open design question that must close before this phase
-- **ADR-006 Option 3**: shared vs per-leader hero ability system. CLAUDE.md
-  flags this as unresolved. It must be closed before the hero system is built.
+### Layer 1 completed (PRs #25–29, #48)
+- [x] ADR-006 Option 3 closed — hybrid model (per-hero class abilities + guild
+  legacy skills)
+- [x] ADRs 001, 006, 010 updated for Phase 4 design decisions
+- [x] Shared types for prestige and hero system (Phase 4 Layer 1)
+- [x] Engine systems — static template registries, feature gates, dispatch handlers
+- [x] Dynasty store and v2 state migration (dynasty Zustand slice, deferred load)
+- [x] Temporal Architecture adopted (ADR-012) — causeId on all events
 
 ### Deliverables
+
+#### Temporal Architecture (ADR-012) — event-sourced from day one
+- [ ] Prestige as causal branch — `PRESTIGE` event preserves pre-prestige
+  history, post-prestige state derives from events after the marker
+- [ ] Hero identity as causal chain — hero state derived from event projections
+- [ ] Dynasty meta-progression derived from cross-run event history
+- [ ] Typed event discriminated unions for prestige/hero/dynasty events
+
+#### Core systems
 - [ ] `processHero` — passive ability effects, action point regen, career
   milestone tracking
 - [ ] Hero class ability system (passive + career milestone active per class)
@@ -181,6 +221,8 @@ created, and the dynasty grows.
 - [ ] Dynasty layer wiring — `loadDynastyLayer` deferred load after first render
 - [ ] State version + migration for dynasty data
 - [ ] Wire MMKV dynasty layer to Zustand
+
+#### UI
 - [ ] Prestige flow UI — retire screen, career summary, class selection
 - [ ] Hero overview screen — current hero, passive ability, action points,
   career milestone progress
@@ -204,6 +246,14 @@ real history. Dynasty reputation grows.
 **Estimated duration:** 10–16 weeks part-time / 5–8 weeks full-time
 
 ### Deliverables
+
+#### Temporal Architecture migration (incremental)
+- [ ] Existing systems enrich events to capture full state-change data
+- [ ] Projection functions replace direct state reads where history matters
+- [ ] Zustand store transitions: `events` becomes source of truth
+- [ ] Snapshot + events-since-snapshot persistence for large event logs
+
+#### Kingdom & world
 - [ ] Kingdom map — `react-native-svg` implementation (ADR approved), 5
   regions, 15–20 locations, 1 capital (Heartlands start, Capital Region end)
 - [ ] Region unlocking — Coast, Mountains, Wilds, Capital Region
@@ -311,8 +361,8 @@ Working assumptions:
 | Phase 0 — Foundation | 3–4 weeks | 3–5 days | — | **2 days** (Mar 10–11) |
 | Phase 1 — Core Loop MVP | 4–6 weeks | 2–4 days | **Mar 20** | **3 days** (Mar 12–14) |
 | Phase 2 — Adventurers & Quests | 8–12 weeks | 4–7 days | **Mar 28** | **2 days** (Mar 14–15) |
-| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | **Apr 7** | **1 day** (Mar 15–16) |
-| Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | **Apr 20** | — |
+| Phase 3 — Buildings & Economy | 6–10 weeks | 3–5 days | **Apr 7** | **~12 days** (Mar 15–28) |
+| Phase 4 — Prestige & Hero System | 8–12 weeks | 4–7 days | **Apr 20** | Layer 1 done (Mar 17–28) |
 | Phase 5 — Kingdom & Depth | 10–16 weeks | 5–8 days | **May 10** | — |
 | Phase 6 — Polish & Optimization | 6–10 weeks | 3–5 days | **May 25** | — |
 | Phase 7 — Pre-Launch & Submission | 8–12 weeks | 8–12 weeks* | **Aug 1** | — |
@@ -324,8 +374,8 @@ real-device testing all run on calendar time, not coding time.
 
 **With AI — Google Play launch window: Q3–Q4 2026**
 The bottleneck shifts entirely from implementation to your decision bandwidth.
-Every phase waits on design conversations (economy pass, Option 3, ID strategy)
-not on code being written.
+Every phase waits on design conversations (economy pass, etc.)
+not on code being written. ID strategy and Option 3 are both closed.
 
 **Portfolio milestone (end of Phase 4):**
 - Without AI: Q4 2026–Q1 2027
@@ -340,8 +390,7 @@ everything downstream.
 
 1. ~~**Close ID strategy decision**~~ — CLOSED. Prefixed nanoid adopted.
 2. ~~**Merge `claude/` branches to `develop`**~~ — CLOSED. All PRs merged to dev.
-3. **Option 3 resolution (shared vs per-leader hero ability system)** — must
-   close before Phase 4 hero system implementation begins. **Gates Apr 20 target.**
+3. ~~**Option 3 resolution (shared vs per-leader hero ability system)**~~ — CLOSED 2026-03-17. Hybrid model adopted. See ADR-006.
 4. ~~**Economy design conversation**~~ — CLOSED. Placeholder values active, interface-first pattern proven.
 
 ---
