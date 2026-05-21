@@ -16,7 +16,7 @@ export function HeroCard({ name, heroClass, actionPoints, maxActionPoints }: Her
   const fillPercent = maxActionPoints > 0 ? (actionPoints / maxActionPoints) * 100 : 0;
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="hero-card">
       <Text style={styles.sectionTitle}>Hero</Text>
       <View style={styles.row}>
         <View style={styles.info}>
