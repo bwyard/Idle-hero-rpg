@@ -3,12 +3,12 @@ import { useGameStore } from '../../src/stores/gameStore';
 import { AdventurerRoster } from '../../src/components/AdventurerRoster';
 
 export default function RosterScreen() {
-  const adventurers = useGameStore((s) => Object.values(s.state.adventurers));
+  const adventurers = useGameStore((s) => s.state.adventurers);
 
   return (
     <View style={styles.root} testID="roster-screen">
       <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-        <AdventurerRoster adventurers={adventurers} />
+        <AdventurerRoster adventurers={Object.values(adventurers)} />
       </ScrollView>
     </View>
   );
