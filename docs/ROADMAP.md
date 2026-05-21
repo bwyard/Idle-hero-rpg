@@ -62,10 +62,11 @@ Phase 0   Foundation                    █████████████�
 Phase 1   Core Loop MVP                 ████████████████  COMPLETE  (Mar 12-14)
 Phase 2   Adventurers & Quests          ████████████████  COMPLETE  (Mar 14-15)
 Phase 3   Buildings & Economy           ████████████████  COMPLETE  (Mar 15-16)
-Phase 4   Prestige & Hero System        ████░░░░░░░░░░░░  → Apr 20  ★ PORTFOLIO
-Phase 5   Kingdom & Depth               ░░░░░░░░░░░░░░░░  → May 10
-Phase 6   Polish & Optimization         ░░░░░░░░░░░░░░░░  → May 25
-Phase 7   Pre-Launch & Submission       ░░░░░░░░░░░░░░░░  → Aug 1   ★ GOOGLE PLAY
+Phase 4   Prestige & Hero System        ████░░░░░░░░░░░░  → TBD     ★ PORTFOLIO
+Phase 5   Kingdom, Depth & Guild Score  ░░░░░░░░░░░░░░░░  → TBD
+Phase 6   Demon King Endgame            ░░░░░░░░░░░░░░░░  → TBD
+Phase 7   Polish & Optimization         ░░░░░░░░░░░░░░░░  → TBD
+Phase 8   Pre-Launch & Submission       ░░░░░░░░░░░░░░░░  → TBD     ★ GOOGLE PLAY
 ```
 
 **Portfolio milestone:** end of Phase 4. Architecture is demonstrated,
@@ -238,10 +239,11 @@ with dynasty bonuses from run 1.
 
 ---
 
-## Phase 5 — Kingdom & Depth
+## Phase 5 — Kingdom, Depth & Guild Score
 
-**Goal:** The world feels like a world. Kingdom map is interactive. Rivals have
-real history. Dynasty reputation grows.
+**Goal:** The world feels alive. The Guild Score system is fully visible and
+ticking. Guild Rankings competition runs every season. The Survivor's Mark
+starts building silently.
 
 **Estimated duration:** 10–16 weeks part-time / 5–8 weeks full-time
 
@@ -252,6 +254,17 @@ real history. Dynasty reputation grows.
 - [ ] Projection functions replace direct state reads where history matters
 - [ ] Zustand store transitions: `events` becomes source of truth
 - [ ] Snapshot + events-since-snapshot persistence for large event logs
+
+#### Guild Score system
+- [ ] Guild Score UI — four pillars visible (Rank, Reputation, Dynasty Power,
+  Survivor's Mark hidden/locked until WorldFamous)
+- [ ] Guild Rankings competition — seasonal (91-day) active event, 4 trial
+  types (A/B/C/D), adventurer deployment, Guild Rank outcomes
+- [ ] `processGuildRankings` system — tick-based seasonal trigger, trial
+  resolution, rival guild results
+- [ ] Survivor's Mark foundation — quest choice detection system, trait
+  accumulation per guild master, curation UI at prestige
+  (See docs/design/survivor-mark.md — content TBD, structure locked)
 
 #### Kingdom & world
 - [ ] Kingdom map — `react-native-svg` implementation (ADR approved), 5
@@ -271,15 +284,58 @@ real history. Dynasty reputation grows.
 - [ ] Guild relationship tiers by prestige (Affiliate → World event)
 - [ ] Dynasty meta-progression UI — permanent bonuses, world awareness,
   unlocked heroes and cities, legacy history
+- [ ] Relationships via co-op quests — allied guilds, dynasty offshoots from
+  previous prestiges, rival history
 
 ### Definition of done
-The kingdom map is interactive. Multiple regions are accessible across runs.
-NPC rival guilds appear with names and histories pulled from prior prestige
-events. World awareness tier is visible to the player.
+The kingdom map is interactive. Guild Rankings fires every season and produces
+real rank changes. Survivor's Mark is accumulating silently. NPC rival guilds
+appear with names and histories pulled from prior prestige events. World
+awareness tier is visible to the player.
 
 ---
 
-## Phase 6 — Polish & Optimization
+## Phase 6 — Demon King Endgame
+
+**Goal:** The dynasty has a destination. The quest chain delivers the backstory.
+The demon king fight is playable end-to-end.
+
+**Estimated duration:** 8–12 weeks part-time / 4–6 weeks full-time
+
+### Deliverables
+
+#### Survivor's Mark reveal
+- [ ] WorldFamous tier unlock — Survivor's Mark becomes visible to player
+- [ ] Mark reveal UI — composed dynasty identity + retroactive score contribution
+- [ ] Survivor's Mark quest line — the founding hero's survival story told through play
+
+#### Demon king quest chain (Gate 1)
+- [ ] Late-game quest chain unlocks at WorldFamous tier
+- [ ] Quests recover ancient knowledge from the original battle
+- [ ] Demon knowledge items — specific tactical advantages for the fight
+- [ ] Quest chain completion flag gates the fight option
+
+#### Dynasty power threshold (Gate 2)
+- [ ] Threshold check system — world awareness tier, adventurer requirements,
+  prestige count (exact values: balance tuning)
+- [ ] "Challenge the Demon King" option unlocks when both gates clear
+
+#### The Fight
+- [ ] Multi-front campaign: Army / Champions / Source
+- [ ] Chess-piece deployment UI — assign adventurers to fronts, use guild master
+  ability, call allied guilds
+- [ ] Champion mechanics — weakness system, demon knowledge counters
+- [ ] Phase resolution — outcomes, demon king responses, redeployment between phases
+- [ ] Win / lose outcomes (see docs/design/demon-king.md)
+
+### Definition of done
+A player can complete the quest chain, meet the dynasty threshold, trigger the
+demon king fight, deploy their pieces across three fronts, and reach either a
+win or a defeat outcome. Post-demon-king content layer stub exists.
+
+---
+
+## Phase 7 — Polish & Optimization
 
 **Goal:** The game feels complete. Performance is validated. Accessibility is
 implemented. Edge cases are handled.
@@ -309,7 +365,7 @@ implemented. Edge cases are handled.
 
 ---
 
-## Phase 7 — Pre-Launch & Google Play Submission
+## Phase 8 — Pre-Launch & Google Play Submission
 
 **Goal:** The game is in players' hands.
 

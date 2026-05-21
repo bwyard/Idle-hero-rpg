@@ -6,12 +6,21 @@
 
 ## Core Philosophy
 
-**Prestige is story, not mechanics.**
+**Prestige is guild master succession — you choose when to pass the torch.**
 
-Your most accomplished adventurer retires from active duty and founds their own guild.
-The class they become as a retired hero emerges from who they were as an adventurer —
-their combat style, their magic school, their career milestones. From run 2 onward
-the player never picks a class from a menu. The class is earned through play.
+You are always the guild master. You never retire to found another guild. When the
+dynasty is ready, you hand leadership to a qualified member and that person becomes
+the next chapter in the dynasty's story. The class they start with is derived from
+their adventurer career — their combat style, their magic school, their milestones.
+From run 2 onward the player never picks a class from a menu. The class is earned
+through play.
+
+**The player decides when to prestige.**
+
+Minimum requirement is a C-tier or higher adventurer ready to take over. Higher tier
+successor = better dynasty bonus at handoff. Prestige early with a C-tier and you get
+more generations with smaller bonuses. Wait for a Legendary and you get fewer generations
+with maximum bonuses. Both are valid strategies.
 
 **The guild continues after you prestige.**
 
@@ -20,20 +29,22 @@ play run lasts 50 years maximum. The guild itself lives 75–100 years total wit
 4 leaders across its lifespan. Every guild in the world has a minimum of 2 leaders in
 its history — guaranteed.
 
-**Each run is a chapter. The dynasty is the story.**
+**Each run is a chapter. The dynasty is the story. The demon king is the destination.**
 
 Previous guilds persist in the world as living NPC entities. They appear in future runs
-as rivals with real history. The world remembers what you built.
+as rivals with real history. The world remembers what you built. Every generation moves
+the dynasty closer to being able to face the demon king.
 
 ---
 
 ## Starting Context
 
-The player begins as a retired legendary hero — already past their adventuring peak —
-who founds a guild from scratch. Run 1 uses a class selection menu because there is no
-prior adventurer career to convert from. What happened to this hero before the game
-starts (a cataclysmic event, the decimation of the kingdom's guilds) is narrative
-backstory — details deferred, to be revealed through play.
+The game opens with the founding hero surviving the original demon king catastrophe —
+the battle that nearly wiped out every guild in the world. The player experiences that
+moment briefly before transitioning to the guild's founding. Run 1 uses a class selection
+menu because there is no prior adventurer career to convert from. The full story of what
+happened in that battle is revealed through play — specifically through the late-game
+Survivor's Mark quest line and the demon king quest chain.
 
 ---
 
