@@ -13,7 +13,7 @@ Shared session state and todos live in `../claude-resources/` (one level up from
 Read `current.md` at the start of every session. Update it and write a closed session log at the end.
 Project Overview
 Retired Hero's Guild is a mobile idle clicker tycoon built with React Native and Expo.
-The player is a retired legendary adventurer who founds a guild and builds it into a dynasty empire across a Fiore-scale kingdom. The goal is to be the greatest guild in the world. There is no demon lord, no forced story ending. Empire building is the point.
+The player is a retired legendary adventurer — a survivor of a catastrophic demon king battle that nearly wiped out every guild in the world. You founded a new guild from nothing and are building a dynasty across a Fiore-scale kingdom, preparing future generations for the demon king's inevitable return. The endgame is real: your dynasty will eventually challenge the demon king. Empire building is how you get there.
 ## Core Philosophy
 
 **Idle Hero is a player-experience product, not a math framework.** Design decisions are driven by what makes a great game, not mathematical purity.
@@ -133,9 +133,9 @@ F, E, D — never prestige-eligible
 C through Legendary — prestige-eligible, escalating benefits and archetype options per tier
 Higher tiers unlock more hero class options at prestige
 Prestige Trigger
-Prestige is triggered when a Legendary adventurer in your roster retires to found their own guild. Their adventurer career — class, stats, milestones — converts to the hero class for the next leader.
-Run 1 only uses a starting class selection menu (no prestige conversion exists yet).
-After prestige 10, requirements escalate: multiple high-tier adventurers must be available simultaneously, not just one.
+Prestige is guild master succession — you choose when to pass the torch. The minimum requirement is a C-tier or higher adventurer ready to take over. Higher tier successor = better dynasty bonus at handoff. The player decides when it is worth it.
+Requirements escalate with prestige count (see docs/design/prestige.md). Run 1 uses a class selection menu. From run 2 onward the incoming guild master's class is derived from their adventurer career.
+After prestige 10, requirements escalate: multiple high-tier adventurers must be available simultaneously.
 Hero Classes
 Class
 Notes
@@ -155,7 +155,12 @@ A career milestone active ability unlocked mid-run
 A Legendary hero who has reached 2× SS rank gets Skill Borrow once per Conclave cycle
 Guild Types
 Combat / Merchant / Knowledge / Hospitality
-Any class can run any guild type. Natural synergies exist but nothing is locked.
+Chosen at founding. Can be changed at prestige — switching resets accumulated type bonuses,
+keeping the same type compounds them. Any guild master class can run any type; natural
+synergies exist but nothing is locked.
+Guild type affects: Guild Rankings trial performance, Survivor's Mark trait affinities,
+pre-demon-king mission strengths, and demon king fight front advantages. See
+docs/design/guild-types.md.
 Prestige Relationship Tiers
 Prestige Rank
 Relationship Created
@@ -179,10 +184,18 @@ Master Mentor Ability
 Unlocks at prestige 10
 Costs 2 action points
 Guides an adventurer's development toward specific milestones
+Guild Score — Four Pillars
+Guild Rank — competitive standing from seasonal Guild Rankings competition
+Reputation — world awareness tier, quest history, relationships
+Dynasty Power — accumulated strength across all prestiges
+Survivor's Mark — hidden until WorldFamous tier; story-flavored legacy traits shaped by quest choices, curated at each prestige. See docs/design/survivor-mark.md.
+Guild Rankings
+Seasonal competition (every 91 in-game days). You pick which adventurers to send to four trial types (A/B/C/D — content TBD). Results determine Guild Rank. Primary game heartbeat between Conclaves. See docs/design/guild-rankings.md.
 Conclave
-Occurs every 5 years as a personal milestone, not a competitive league
+Occurs every 5 in-game years — a dynasty milestone, not a competitive event
 Measures dynasty growth across categories
 Skill Borrow resets each Conclave cycle
+These two events coexist. Do not merge them.
 Kingdom
 Fiore scale — 5 regions, 15–20 locations, 1 capital
 Regions: Heartlands (start), Coast (trade), Mountains (combat), Wilds (exploration), Capital Region (end game)
