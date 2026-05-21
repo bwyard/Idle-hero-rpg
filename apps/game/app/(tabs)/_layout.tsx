@@ -17,7 +17,6 @@ export default function TabLayout() {
         currentSeason={state.time.currentSeason}
       />
       <Tabs
-        style={styles.tabs}
         screenOptions={{
           tabBarStyle: {
             backgroundColor: '#140a24',
@@ -48,8 +47,5 @@ const styles = StyleSheet.create({
     backgroundColor: '#140a24',
     paddingTop: 8,
     paddingHorizontal: 16,
-  },
-  tabs: {
-    flex: 1,
   },
 });
