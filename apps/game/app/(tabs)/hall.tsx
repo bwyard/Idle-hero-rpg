@@ -48,8 +48,8 @@ export default function HallScreen() {
                     <Text style={styles.buildingLevel}>Level {building.level}</Text>
                   </View>
                   <Text style={styles.buildingIncome}>
-                    {building.currentPassiveIncome > 0
-                      ? `+${String(building.currentPassiveIncome)}g/tick`
+                    {(template?.baseIncomePerLevel ?? 0) * building.level > 0
+                      ? `+${String((template?.baseIncomePerLevel ?? 0) * building.level)}g/tick`
                       : '—'}
                   </Text>
                 </View>
