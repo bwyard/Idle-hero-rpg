@@ -110,21 +110,25 @@ const _originalLoad = (
     return _originalLoad(request, ...args);
   };
 
-vi.mock('expo-router', () => ({
-  router: {
-    replace: vi.fn(),
-    push: vi.fn(),
-    back: vi.fn(),
-  },
-  useRouter: () => ({
-    replace: vi.fn(),
-    push: vi.fn(),
-    back: vi.fn(),
-  }),
-  useLocalSearchParams: () => ({}),
-  usePathname: () => '/',
-  Link: ({ children }: { children: React.ReactNode }) => children,
-  Stack: {
+vi.mock('expo-router', () => {
+  const Tabs = Object.assign(({ children }: { children: React.ReactNode }) => children, {
     Screen: () => null,
-  },
-}));
+  });
+  return {
+    router: {
+      replace: vi.fn(),
+      push: vi.fn(),
+      back: vi.fn(),
+    },
+    useRouter: () => ({
+      replace: vi.fn(),
+      push: vi.fn(),
+      back: vi.fn(),
+    }),
+    useLocalSearchParams: () => ({}),
+    usePathname: () => '/',
+    Link: ({ children }: { children: React.ReactNode }) => children,
+    Stack: { Screen: () => null },
+    Tabs,
+  };
+});

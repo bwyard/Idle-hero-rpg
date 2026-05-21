@@ -3,7 +3,6 @@ import { useGameStore } from '../../src/stores/gameStore';
 import { useTickLoop } from '../../src/hooks/useTickLoop';
 import { HERO_ACTION_POINT_MAX } from '../../src/data/balance';
 import { GuildHeader } from '../../src/components/GuildHeader';
-import { StatsBar } from '../../src/components/StatsBar';
 import { HeroCard } from '../../src/components/HeroCard';
 import { EventLog } from '../../src/components/EventLog';
 import { TickControls } from '../../src/components/TickControls';
@@ -41,15 +40,6 @@ export default function GuildScreen() {
           guildName={state.guild.name || 'The Iron Hearth'}
           guildType={state.guild.type}
           prestigeCount={state.dynasty.prestigeCount}
-        />
-
-        <StatsBar
-          currentYear={state.time.currentYear}
-          gold={state.guild.gold}
-          reputation={state.guild.reputation}
-          adventurerCount={Object.keys(state.adventurers).length}
-          currentDay={state.time.currentDay}
-          currentSeason={state.time.currentSeason}
         />
 
         <HeroCard
