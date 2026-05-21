@@ -12,7 +12,7 @@ interface EventLogProps {
 
 export function EventLog({ events }: EventLogProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="event-log">
       <Text style={styles.sectionTitle}>Event Log</Text>
       {events.length === 0 ? (
         <Text style={styles.placeholder}>No events yet</Text>

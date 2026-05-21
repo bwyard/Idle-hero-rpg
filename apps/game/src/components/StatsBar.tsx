@@ -37,7 +37,7 @@ export function StatsBar({
   const dayOfYear = (currentDay % DAYS_PER_YEAR) + 1; // 1-indexed for display
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="stats-bar">
       <StatItem label={currentSeason} value={`Y${String(currentYear + 1)}`} />
       <StatItem label="Day" value={`${String(dayOfYear)}/${String(DAYS_PER_YEAR)}`} />
       <StatItem label="Gold" value={String(gold)} testID="stats-gold" />

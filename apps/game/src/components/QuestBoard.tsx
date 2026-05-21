@@ -21,7 +21,7 @@ export function QuestBoard({ quests, onAssignQuest }: QuestBoardProps) {
   const completed = quests.filter((q) => q.isComplete);
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="quest-board">
       <Text style={styles.sectionTitle}>Quest Board</Text>
 
       {unassigned.length === 0 && inProgress.length === 0 && completed.length === 0 ? (

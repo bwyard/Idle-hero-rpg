@@ -13,7 +13,7 @@ interface GuildHeaderProps {
 
 export function GuildHeader({ guildName, guildType, prestigeCount }: GuildHeaderProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="guild-header">
       <Text style={styles.guildName}>{guildName}</Text>
       <View style={styles.row}>
         <Text style={styles.guildType}>{guildType} Guild</Text>

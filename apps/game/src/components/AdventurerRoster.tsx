@@ -17,7 +17,7 @@ interface AdventurerRosterProps {
 
 export function AdventurerRoster({ adventurers }: AdventurerRosterProps) {
   return (
-    <View style={styles.container}>
+    <View style={styles.container} testID="adventurer-roster">
       <Text style={styles.sectionTitle}>Adventurer Roster</Text>
       {adventurers.length === 0 ? (
         <Text style={styles.placeholder}>No adventurers yet</Text>
