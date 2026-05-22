@@ -36,6 +36,7 @@ export default function TabLayout() {
         <Tabs.Screen name="roster" options={{ title: 'Roster' }} />
         <Tabs.Screen name="hall" options={{ title: 'Hall' }} />
         <Tabs.Screen name="dynasty" options={{ title: 'Dynasty' }} />
+        {__DEV__ && <Tabs.Screen name="dev" options={{ title: 'Dev' }} />}
       </Tabs>
     </View>
   );

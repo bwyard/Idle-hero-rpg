@@ -1023,4 +1023,154 @@ describe('dispatch', () => {
       expect(state).toEqual(original);
     });
   });
+
+  // ─── PRESTIGE ───────────────────────────────────────────────────────────────
+
+  describe('PRESTIGE', () => {
+    function makeAdventurer(overrides: Partial<Adventurer> = {}): Adventurer {
+      return {
+        id: 'adv_s1',
+        name: 'Mira',
+        tier: 'C',
+        archetype: 'Fighter',
+        xp: 0,
+        milestones: [],
+        skillBorrowUsed: false,
+        recruitedYear: 0,
+        retiredYear: null,
+        housingType: 'dorm',
+        ...overrides,
+      };
+    }
+
+    function prestigeReadyState(successorTier: Adventurer['tier'] = 'C'): GameState {
+      return {
+        ...createInitialGameState(),
+        flags: {
+          prestigeAvailable: true,
+          forcedPrestigeTriggered: false,
+          leaderPressureLevel: 'none',
+        },
+        adventurers: {
+          adv_s1: makeAdventurer({ id: 'adv_s1', tier: successorTier }),
+        },
+      };
+    }
+
+    it('increments dynasty.prestigeCount', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.dynasty.prestigeCount).toBe(1);
+    });
+
+    it('resets run time to year 0', () => {
+      const state = {
+        ...prestigeReadyState(),
+        time: {
+          ticksElapsed: 5000,
+          currentDay: 100,
+          currentSeason: 'Winter' as const,
+          currentYear: 12,
+        },
+      };
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.time.currentYear).toBe(0);
+      expect(next.time.ticksElapsed).toBe(0);
+    });
+
+    it('clears adventurer roster', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(Object.keys(next.adventurers)).toHaveLength(0);
+    });
+
+    it('new hero name matches successor name', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.hero.name).toBe('Mira');
+    });
+
+    it('derives Warblade class from Fighter archetype', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.hero.heroClass).toBe('Warblade');
+    });
+
+    it('derives Archmage class from Mage archetype', () => {
+      const state = {
+        ...prestigeReadyState(),
+        adventurers: {
+          adv_s1: makeAdventurer({ id: 'adv_s1', tier: 'C', archetype: 'Mage' as const }),
+        },
+      };
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.hero.heroClass).toBe('Archmage');
+    });
+
+    it('adds the outgoing hero to Hall of Heroes', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.dynasty.hallOfHeroes).toHaveLength(1);
+      expect(next.dynasty.hallOfHeroes[0]?.name).toBe(state.hero.name);
+    });
+
+    it('updates worldAwarenessTier to Local at prestige 1', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.dynasty.worldAwarenessTier).toBe('Local');
+    });
+
+    it('preserves rival guilds across prestige', () => {
+      const state: GameState = {
+        ...prestigeReadyState(),
+        rivals: {
+          rvl_1: {
+            id: 'rvl_1',
+            name: 'The Iron Fang',
+            tier: 'Notable',
+            foundedYear: 0,
+            sourceAdventurerId: null,
+          },
+        },
+      };
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.rivals['rvl_1']).toBeDefined();
+    });
+
+    it('returns state unchanged if successor does not exist', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_nobody' });
+      expect(next).toEqual(state);
+    });
+
+    it('returns state unchanged if successor is below C tier', () => {
+      const state: GameState = {
+        ...prestigeReadyState(),
+        adventurers: {
+          adv_s1: makeAdventurer({ id: 'adv_s1', tier: 'D' }),
+        },
+      };
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next).toEqual(state);
+    });
+
+    it('returns state unchanged if prestigeAvailable flag is false', () => {
+      const state: GameState = {
+        ...prestigeReadyState(),
+        flags: {
+          prestigeAvailable: false,
+          forcedPrestigeTriggered: false,
+          leaderPressureLevel: 'none',
+        },
+      };
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next).toEqual(state);
+    });
+
+    it('emits a PRESTIGE event', () => {
+      const state = prestigeReadyState();
+      const next = dispatch(state, { type: 'PRESTIGE', successorAdventurerId: 'adv_s1' });
+      expect(next.pendingEvents.some((e) => e.type === 'PRESTIGE')).toBe(true);
+    });
+  });
 });

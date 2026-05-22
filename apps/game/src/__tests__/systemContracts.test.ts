@@ -99,7 +99,7 @@ describe('processAdventurers — contract', () => {
     }
   });
 
-  it('impl that triggers retirement removes adventurer and sets prestigeAvailable', () => {
+  it('impl that triggers retirement marks adventurer with retiredYear', () => {
     const impl: AdventurerProgressionImpl = {
       xpGainPerTick: () => 0,
       isReadyForTierUp: () => false,
@@ -108,8 +108,10 @@ describe('processAdventurers — contract', () => {
     };
     const state = createTestState({ adventurerTier: 'Legendary' });
     const result = processAdventurers(state, impl);
-    expect(Object.keys(result.adventurers).length).toBe(0);
-    expect(result.flags.prestigeAvailable).toBe(true);
+    // Adventurer stays in roster but is marked retired — checkPrestigeConditions handles the flag
+    const adventurer = Object.values(result.adventurers)[0];
+    expect(adventurer?.retiredYear).not.toBeNull();
+    expect(result.flags.prestigeAvailable).toBe(false);
   });
 
   it('adventurer count never increases (no recruitment in this system)', () => {

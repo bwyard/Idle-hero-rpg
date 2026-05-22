@@ -20,10 +20,16 @@ import {
   PLACEHOLDER_CITY_EXPANSION_BASE,
   PLACEHOLDER_CITY_EXPANSION_PER_CITY,
   PLACEHOLDER_VISITOR_SERVICE_DURATION_DAYS,
+  PLACEHOLDER_STARTING_GOLD,
+  PLACEHOLDER_PRESTIGE_GOLD_BONUS,
   TICKS_PER_DAY,
   OVERCAPACITY_RECRUIT_SURCHARGE,
   ADVENTURER_TIER_ORDER,
+  WORLD_AWARENESS_THRESHOLDS,
+  PRESTIGE_ELIGIBLE_TIERS,
 } from '../data/balance';
+import type { HeroClass, AdventurerArchetype, WorldAwarenessTier } from '@idle-hero-rpg/shared';
+import { createInitialGameState } from '../stores/initialState';
 import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 import { generateQuests } from '../systems/generateQuests';
 import { isAtDormCapacity } from '../utils/housing';
@@ -465,7 +471,96 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
       };
     }
 
+    case 'PRESTIGE': {
+      const successor = state.adventurers[action.successorAdventurerId];
+      if (!successor) return state;
+      if (!PRESTIGE_ELIGIBLE_TIERS.includes(successor.tier)) return state;
+      if (!state.flags.prestigeAvailable) return state;
+
+      const newPrestigeCount = state.dynasty.prestigeCount + 1;
+      const newWorldAwareness = deriveWorldAwareness(newPrestigeCount);
+      const newHeroClass = deriveHeroClass(successor.archetype);
+
+      const hallEntry = {
+        adventurerId: state.hero.id,
+        name: state.hero.name,
+        heroClass: state.hero.heroClass,
+        highestTierReached: successor.tier,
+        runIndex: state.dynasty.prestigeCount,
+      };
+
+      const fresh = createInitialGameState();
+
+      const prestigeEvent = {
+        id: createId('evt'),
+        tick: 0,
+        type: 'PRESTIGE' as const,
+        message: `${successor.name} has taken the torch — the dynasty continues.`,
+        achievementKey: null,
+        causeId: null,
+      };
+
+      return {
+        ...fresh,
+        rngSeed: state.rngSeed,
+        adventurers: {},
+        transientVisitors: {},
+        buildings: {},
+        quests: {},
+        hero: {
+          ...fresh.hero,
+          id: `hero-${String(newPrestigeCount).padStart(3, '0')}`,
+          name: successor.name,
+          heroClass: newHeroClass,
+          leaderStartYear: 0,
+        },
+        guild: {
+          ...fresh.guild,
+          name: state.guild.name,
+          type: state.guild.type,
+          gold: PLACEHOLDER_STARTING_GOLD + PLACEHOLDER_PRESTIGE_GOLD_BONUS * newPrestigeCount,
+        },
+        dynasty: {
+          ...state.dynasty,
+          prestigeCount: newPrestigeCount,
+          worldAwarenessTier: newWorldAwareness,
+          hallOfHeroes: [...state.dynasty.hallOfHeroes, hallEntry],
+        },
+        rivals: state.rivals,
+        pendingEvents: [prestigeEvent],
+      };
+    }
+
     default:
       return state;
   }
 };
+
+// ─── Prestige helpers ─────────────────────────────────────────────────────────
+
+/**
+ * Derive world awareness tier from prestige count.
+ * WORLD_AWARENESS_THRESHOLDS is sorted highest-first.
+ */
+const deriveWorldAwareness = (prestigeCount: number): WorldAwarenessTier => {
+  const match = WORLD_AWARENESS_THRESHOLDS.find((t) => prestigeCount >= t.minPrestige);
+  return (match?.tier ?? 'Hidden') as WorldAwarenessTier;
+};
+
+/**
+ * Map adventurer archetype to hero class.
+ * Follows docs/design/prestige.md § Adventurer Class to Hero Class Conversion.
+ */
+const ARCHETYPE_TO_HERO_CLASS: Readonly<Record<AdventurerArchetype, HeroClass>> = {
+  Fighter: 'Warblade',
+  Rogue: 'Wanderer',
+  Mage: 'Archmage',
+  Ranger: 'Wanderer',
+  Cleric: 'Diplomat',
+  Bard: 'Bard',
+  Paladin: 'Warblade',
+  Warlock: 'Archmage',
+};
+
+const deriveHeroClass = (archetype: AdventurerArchetype | null): HeroClass =>
+  archetype !== null ? (ARCHETYPE_TO_HERO_CLASS[archetype] ?? 'Bard') : 'Bard';

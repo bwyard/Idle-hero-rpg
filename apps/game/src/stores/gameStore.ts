@@ -47,6 +47,11 @@ interface GameStore {
    */
   processOfflineProgress: (nowMs: number) => number;
   loadDynastyLayer: () => Promise<void>;
+  /**
+   * Dev-only: directly replace state. Used by the Dev tab for fast-forwarding,
+   * gold injection, and tier overrides. Never call in production logic.
+   */
+  _devSetState: (next: GameState) => void;
 }
 
 /**
@@ -143,5 +148,9 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
   loadDynastyLayer: async () => {
     // TODO: Deferred load of dynasty meta-progression from MMKV
+  },
+
+  _devSetState: (next: GameState) => {
+    set({ state: next });
   },
 }));

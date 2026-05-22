@@ -59,6 +59,7 @@ export type {
   DenyVisitorAction,
   UpgradeBuildingAction,
   ExpandCityAction,
+  PrestigeAction,
 } from './types/actions';
 
 // ID generation

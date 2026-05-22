@@ -113,11 +113,14 @@ export const processAdventurers = (
     }
 
     if (impl.shouldRetire(updated, state)) {
-      const { [id]: _retired, ...remaining } = next.adventurers;
+      // Mark retired in place — checkPrestigeConditions reads living adventurers only.
+      // Retiring does not directly set prestigeAvailable; the condition system handles that.
       return {
         ...next,
-        adventurers: remaining,
-        flags: { ...next.flags, prestigeAvailable: true },
+        adventurers: {
+          ...next.adventurers,
+          [id]: { ...updated, retiredYear: state.time.currentYear },
+        },
       };
     }
 
