@@ -237,8 +237,25 @@ export const HERO_ACTION_POINT_MAX = 10;
 
 // ─── World Awareness ─────────────────────────────────────────────────────────
 
-/** Prestige counts at which world awareness tiers unlock. */
-export const WORLD_AWARENESS_HIDDEN_MAX_PRESTIGE = 2;
+/**
+ * Prestige count thresholds for each world awareness tier.
+ * Sorted highest-first so a .find() on prestigeCount stops at the right tier.
+ * (docs/design/prestige.md § World Awareness)
+ */
+export const WORLD_AWARENESS_THRESHOLDS: readonly {
+  readonly minPrestige: number;
+  readonly tier: string;
+}[] = [
+  { minPrestige: 16, tier: 'Mythic' },
+  { minPrestige: 10, tier: 'WorldFamous' },
+  { minPrestige: 6, tier: 'Continental' },
+  { minPrestige: 3, tier: 'Regional' },
+  { minPrestige: 1, tier: 'Local' },
+  { minPrestige: 0, tier: 'Hidden' },
+];
+
+/** Placeholder gold bonus added to starting gold on each prestige. Tune during balance pass. */
+export const PLACEHOLDER_PRESTIGE_GOLD_BONUS = 250;
 
 /**
  * Idle cap in days per world awareness tier.

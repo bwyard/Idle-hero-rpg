@@ -1,55 +1,122 @@
 /**
  * checkPrestigeConditions — System 10 of 13 in the tick pipe.
  *
- * Checks whether prestige conditions have been met:
- * - Before prestige 10: one Legendary adventurer has retired
- * - Prestige 10+: multiple high-tier (S/SS/Legendary) adventurers must have retired
+ * Sets flags.prestigeAvailable when the player has at least one qualifying
+ * successor in the current roster. Prestige is a player choice — this system
+ * only signals readiness; it never forces a transition.
  *
- * Sets flags.prestigeAvailable and emits a PRESTIGE_AVAILABLE event
- * when the condition is newly met. Clears the flag when conditions
- * are no longer satisfied.
+ * Requirements are data (PRESTIGE_REQUIREMENTS), not control flow.
+ * Each row is tried from highest minPrestige down; the first match wins.
+ * Within a row, ANY condition satisfying its count threshold passes.
  *
  * Pure function — no mutations, no side effects.
  */
 
-import type { GameState } from '@idle-hero-rpg/shared';
+import type { GameState, AdventurerTier } from '@idle-hero-rpg/shared';
 import { createId } from '@idle-hero-rpg/shared';
-import { PRESTIGE_ESCALATION_THRESHOLD } from '../data/balance';
 
-/** Tiers that count toward escalated prestige requirements (S and above). */
-const HIGH_TIERS = new Set(['S', 'SS', 'Legendary']);
+// ─── Tier rank ────────────────────────────────────────────────────────────────
 
-/** Minimum retired high-tier adventurers required at prestige 10+. */
-const ESCALATED_REQUIRED_COUNT = 2;
+const TIER_RANK: Readonly<Record<AdventurerTier, number>> = {
+  F: 0,
+  E: 1,
+  D: 2,
+  C: 3,
+  B: 4,
+  A: 5,
+  S: 6,
+  SS: 7,
+  Legendary: 8,
+};
+
+// ─── Requirement table (docs/design/prestige.md) ─────────────────────────────
+
+/** A single "OR" option within a prestige requirement row. */
+type PrestigeOption = { readonly tier: AdventurerTier; readonly count: number };
+
+/** One row of the escalation table. Sorted highest-first so .find stops early. */
+type PrestigeRow = {
+  readonly minPrestige: number;
+  readonly options: readonly PrestigeOption[];
+};
+
+const PRESTIGE_REQUIREMENTS: readonly PrestigeRow[] = [
+  {
+    minPrestige: 16,
+    options: [
+      { tier: 'Legendary', count: 1 },
+      { tier: 'SS', count: 2 },
+      { tier: 'S', count: 3 },
+      { tier: 'A', count: 4 },
+    ],
+  },
+  {
+    minPrestige: 13,
+    options: [
+      { tier: 'SS', count: 1 },
+      { tier: 'S', count: 2 },
+      { tier: 'A', count: 3 },
+    ],
+  },
+  {
+    minPrestige: 10,
+    options: [
+      { tier: 'S', count: 1 },
+      { tier: 'A', count: 2 },
+      { tier: 'B', count: 3 },
+    ],
+  },
+  {
+    minPrestige: 7,
+    options: [
+      { tier: 'A', count: 1 },
+      { tier: 'B', count: 2 },
+    ],
+  },
+  {
+    minPrestige: 4,
+    options: [
+      { tier: 'B', count: 1 },
+      { tier: 'C', count: 2 },
+    ],
+  },
+  { minPrestige: 0, options: [{ tier: 'C', count: 1 }] },
+];
+
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const countAtOrAbove = (adventurers: GameState['adventurers'], minTier: AdventurerTier): number => {
+  const minRank = TIER_RANK[minTier];
+  return Object.values(adventurers).filter(
+    (a) => a.retiredYear === null && TIER_RANK[a.tier] >= minRank,
+  ).length;
+};
+
+const meetsPrestigeRequirement = (
+  adventurers: GameState['adventurers'],
+  prestigeCount: number,
+): boolean => {
+  const row = PRESTIGE_REQUIREMENTS.find((r) => prestigeCount >= r.minPrestige);
+  return (
+    row?.options.some(({ tier, count }) => countAtOrAbove(adventurers, tier) >= count) ?? false
+  );
+};
+
+// ─── System ───────────────────────────────────────────────────────────────────
 
 export const checkPrestigeConditions = (state: GameState): GameState => {
-  const { prestigeCount } = state.dynasty;
-  const adventurers = Object.values(state.adventurers);
-  const isEscalated = prestigeCount >= PRESTIGE_ESCALATION_THRESHOLD;
+  const conditionMet = meetsPrestigeRequirement(state.adventurers, state.dynasty.prestigeCount);
 
-  // Prestige 10+: need multiple retired high-tier adventurers
-  // Pre-escalation: need one retired Legendary adventurer
-  const conditionMet = isEscalated
-    ? adventurers.filter((a) => HIGH_TIERS.has(a.tier) && a.retiredYear !== null).length >=
-      ESCALATED_REQUIRED_COUNT
-    : adventurers.some((a) => a.tier === 'Legendary' && a.retiredYear !== null);
+  if (conditionMet === state.flags.prestigeAvailable) return state;
 
-  const wasAvailable = state.flags.prestigeAvailable;
-
-  // No change needed
-  if (conditionMet === wasAvailable) {
-    return state;
-  }
-
-  // Condition newly met — emit event
   const pendingEvents = conditionMet
     ? [
         ...state.pendingEvents,
         {
           id: createId('evt'),
           tick: state.time.ticksElapsed,
-          type: 'PRESTIGE_AVAILABLE',
-          message: 'A legendary adventurer has retired — prestige is available!',
+          type: 'PRESTIGE_AVAILABLE' as const,
+          message: 'A worthy successor has emerged — prestige is available.',
           achievementKey: null,
           causeId: null,
         },
@@ -58,10 +125,7 @@ export const checkPrestigeConditions = (state: GameState): GameState => {
 
   return {
     ...state,
-    flags: {
-      ...state.flags,
-      prestigeAvailable: conditionMet,
-    },
+    flags: { ...state.flags, prestigeAvailable: conditionMet },
     pendingEvents,
   };
 };

@@ -88,6 +88,16 @@ export interface ExpandCityAction {
   readonly cityName: string;
 }
 
+/**
+ * Execute prestige — hand leadership to a qualified successor.
+ * The successor must be a C-tier or higher adventurer in the current roster.
+ * Their archetype determines the new hero class. The run resets; dynasty persists.
+ */
+export interface PrestigeAction {
+  readonly type: 'PRESTIGE';
+  readonly successorAdventurerId: string;
+}
+
 /** All possible player actions. Add new action types here as features are built. */
 export type GameAction =
   | NoOpAction
@@ -103,4 +113,5 @@ export type GameAction =
   | ApproveVisitorAction
   | DenyVisitorAction
   | UpgradeBuildingAction
-  | ExpandCityAction;
+  | ExpandCityAction
+  | PrestigeAction;
