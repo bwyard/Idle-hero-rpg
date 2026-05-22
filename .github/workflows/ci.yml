@@ -85,6 +85,9 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+        working-directory: e2e
       - name: Build Expo Web
         run: npm run build --workspace=apps/game
         env:
@@ -94,10 +97,11 @@ jobs:
         shell: bash
       - name: Wait for server
         run: npx wait-on http://localhost:8081 --timeout 30000
-      - name: Run Cypress E2E
-        run: cd e2e && npx cypress run
+      - name: Run Playwright E2E
+        run: npx playwright test
+        working-directory: e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:
-          name: cypress-screenshots
-          path: e2e/cypress/screenshots/
+          name: playwright-report
+          path: e2e/playwright-report/
