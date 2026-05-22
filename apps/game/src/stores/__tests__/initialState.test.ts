@@ -42,9 +42,10 @@ describe('createInitialGameState', () => {
     expect(createInitialGameState().flags.prestigeAvailable).toBe(false);
   });
 
-  it('starts with empty eventLog and pendingEvents', () => {
+  it('starts with a GUILD_FOUNDED event and empty pendingEvents', () => {
     const state = createInitialGameState();
-    expect(state.eventLog).toEqual([]);
+    expect(state.eventLog).toHaveLength(1);
+    expect(state.eventLog[0]!.type).toBe('GUILD_FOUNDED');
     expect(state.pendingEvents).toEqual([]);
   });
 

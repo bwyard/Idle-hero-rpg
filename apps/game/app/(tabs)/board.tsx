@@ -61,7 +61,11 @@ export default function BoardScreen() {
           </Pressable>
         </View>
 
-        <QuestBoard quests={questList} onAssignQuest={handleAssignQuest} />
+        <QuestBoard
+          quests={questList}
+          adventurers={state.adventurers}
+          onAssignQuest={handleAssignQuest}
+        />
 
         <AdventurerPicker
           visible={pickerQuestId !== null}
