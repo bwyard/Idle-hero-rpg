@@ -83,7 +83,16 @@ export function createInitialGameState(): GameState {
       hallOfHeroes: [],
     },
     rivals: {},
-    eventLog: [],
+    eventLog: [
+      {
+        id: 'evt_founded',
+        tick: 0,
+        type: 'GUILD_FOUNDED',
+        message: 'The Iron Hearth opens its doors. Your legacy begins.',
+        achievementKey: null,
+        causeId: null,
+      },
+    ],
     pendingEvents: [],
     flags: {
       prestigeAvailable: false,

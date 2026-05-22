@@ -27,6 +27,7 @@ describe('processEventLog', () => {
   it('appends pending events to the event log', () => {
     const state = {
       ...createInitialGameState(),
+      eventLog: [],
       pendingEvents: [makeEvent('e1', 1), makeEvent('e2', 1)],
     };
     const next = processEventLog(state);

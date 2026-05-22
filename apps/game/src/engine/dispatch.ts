@@ -28,6 +28,17 @@ import { BUILDING_TEMPLATES } from '../data/buildingTemplates';
 import { generateQuests } from '../systems/generateQuests';
 import { isAtDormCapacity } from '../utils/housing';
 
+const ADVENTURER_ARCHETYPES = [
+  'Fighter',
+  'Rogue',
+  'Mage',
+  'Ranger',
+  'Cleric',
+  'Bard',
+  'Paladin',
+  'Warlock',
+] as const;
+
 const ADVENTURER_NAMES = [
   'Arin',
   'Brynn',
@@ -62,8 +73,10 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
       if (!canAffordGold(state.guild.gold, recruitCost)) return state;
 
       const advId = createId('adv');
-      const [nameIdx, nextSeed] = prngRangeInt(state.rngSeed, ADVENTURER_NAMES.length);
+      const [nameIdx, seed2] = prngRangeInt(state.rngSeed, ADVENTURER_NAMES.length);
+      const [archetypeIdx, nextSeed] = prngRangeInt(seed2, ADVENTURER_ARCHETYPES.length);
       const name = ADVENTURER_NAMES[nameIdx] ?? 'Unknown';
+      const archetype = ADVENTURER_ARCHETYPES[archetypeIdx] ?? 'Fighter';
 
       const event = {
         id: createId('evt'),
@@ -87,7 +100,7 @@ export const dispatch = (state: GameState, action: GameAction): GameState => {
             id: advId,
             name,
             tier: 'F' as const,
-            archetype: 'Fighter' as const,
+            archetype,
             xp: 0,
             milestones: [],
             skillBorrowUsed: false,
