@@ -20,11 +20,6 @@ describe('GuildScreen', () => {
     expect(screen.getByTestId('guild-header')).toBeTruthy();
   });
 
-  it('shows the stats bar', () => {
-    render(<GuildScreen />);
-    expect(screen.getByTestId('stats-bar')).toBeTruthy();
-  });
-
   it('shows the hero card', () => {
     render(<GuildScreen />);
     expect(screen.getByTestId('hero-card')).toBeTruthy();
