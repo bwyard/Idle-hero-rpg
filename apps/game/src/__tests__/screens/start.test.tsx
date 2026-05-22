@@ -3,9 +3,10 @@
  *
  * Verifies:
  * - Key elements render with correct testIDs
- * - Shows "Start Guild" when no save (empty adventurers)
- * - Shows "Continue" when save exists (adventurers present)
- * - Pressing the button calls router.replace('/')
+ * - Shows "Start Guild" when no save (ticksElapsed === 0)
+ * - Shows "Continue" + "New Game" when save exists (ticksElapsed > 0)
+ * - "Start Guild" / "New Game" dispatch GENERATE_QUESTS and navigate to /(tabs)
+ * - "Continue" navigates without resetting state
  */
 
 import { vi, describe, it, expect, beforeEach } from 'vitest';
@@ -15,15 +16,20 @@ import { useGameStore } from '../../stores/gameStore';
 import { createInitialGameState } from '../../stores/initialState';
 import StartMenuScreen from '../../../app/start';
 
-beforeEach(() => {
-  vi.clearAllMocks();
-  // createInitialGameState includes starter adventurers; clear them for the
-  // "no save" baseline so tests can control presence of adventurers explicitly.
-  const state = createInitialGameState();
-  useGameStore.setState({ state: { ...state, adventurers: {} } });
+const freshState = () => createInitialGameState();
+const savedState = () => ({
+  ...createInitialGameState(),
+  time: { ...createInitialGameState().time, ticksElapsed: 100 },
 });
 
-describe('StartMenuScreen — no save', () => {
+beforeEach(() => {
+  vi.clearAllMocks();
+  useGameStore.setState({ state: freshState() });
+});
+
+// ─── No save ──────────────────────────────────────────────────────────────────
+
+describe('StartMenuScreen — no save (ticksElapsed === 0)', () => {
   it('renders the start menu', () => {
     render(<StartMenuScreen />);
     expect(screen.getByTestId('start-menu')).toBeTruthy();
@@ -35,47 +41,61 @@ describe('StartMenuScreen — no save', () => {
     expect(screen.getByText("Retired Hero's Guild")).toBeTruthy();
   });
 
-  it('shows "Start Guild" when no adventurers exist', () => {
+  it('shows "Start Guild" and no other buttons', () => {
     render(<StartMenuScreen />);
     expect(screen.getByTestId('btn-start-game')).toBeTruthy();
     expect(screen.getByText('Start Guild')).toBeTruthy();
+    expect(screen.queryByTestId('btn-continue')).toBeNull();
+    expect(screen.queryByTestId('btn-new-game')).toBeNull();
   });
 
-  it('navigates to the game on press', () => {
+  it('navigates to /(tabs) on Start Guild', () => {
     render(<StartMenuScreen />);
     fireEvent.press(screen.getByTestId('btn-start-game'));
-    expect(router.replace).toHaveBeenCalledWith('/');
+    expect(router.replace).toHaveBeenCalledWith('/(tabs)');
     expect(router.replace).toHaveBeenCalledTimes(1);
+  });
+
+  it('dispatches GENERATE_QUESTS on Start Guild', () => {
+    render(<StartMenuScreen />);
+    fireEvent.press(screen.getByTestId('btn-start-game'));
+    const quests = Object.values(useGameStore.getState().state.quests);
+    expect(quests.length).toBeGreaterThan(0);
   });
 });
 
-describe('StartMenuScreen — with save', () => {
+// ─── Has save ─────────────────────────────────────────────────────────────────
+
+describe('StartMenuScreen — has save (ticksElapsed > 0)', () => {
   beforeEach(() => {
-    const state = createInitialGameState();
-    // Inject a minimal adventurer to simulate an existing save
-    useGameStore.setState({
-      state: {
-        ...state,
-        adventurers: {
-          'adv-001': {
-            id: 'adv-001',
-            name: 'Aria',
-            tier: 'F',
-            archetype: null,
-            xp: 0,
-            milestones: [],
-            skillBorrowUsed: false,
-            recruitedYear: 0,
-            retiredYear: null,
-            housingType: 'dorm' as const,
-          },
-        },
-      },
-    });
+    useGameStore.setState({ state: savedState() });
   });
 
-  it('shows "Continue" when adventurers exist', () => {
+  it('shows Continue and New Game buttons', () => {
     render(<StartMenuScreen />);
-    expect(screen.getByText('Continue')).toBeTruthy();
+    expect(screen.getByTestId('btn-continue')).toBeTruthy();
+    expect(screen.getByTestId('btn-new-game')).toBeTruthy();
+    expect(screen.queryByTestId('btn-start-game')).toBeNull();
+  });
+
+  it('Continue navigates to /(tabs) without resetting state', () => {
+    render(<StartMenuScreen />);
+    fireEvent.press(screen.getByTestId('btn-continue'));
+    expect(router.replace).toHaveBeenCalledWith('/(tabs)');
+    expect(useGameStore.getState().state.time.ticksElapsed).toBe(100);
+  });
+
+  it('New Game resets state and navigates to /(tabs)', () => {
+    render(<StartMenuScreen />);
+    fireEvent.press(screen.getByTestId('btn-new-game'));
+    expect(router.replace).toHaveBeenCalledWith('/(tabs)');
+    expect(useGameStore.getState().state.time.ticksElapsed).toBe(0);
+  });
+
+  it('New Game dispatches GENERATE_QUESTS after reset', () => {
+    render(<StartMenuScreen />);
+    fireEvent.press(screen.getByTestId('btn-new-game'));
+    const quests = Object.values(useGameStore.getState().state.quests);
+    expect(quests.length).toBeGreaterThan(0);
   });
 });

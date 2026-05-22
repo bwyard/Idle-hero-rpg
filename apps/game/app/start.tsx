@@ -2,23 +2,33 @@
  * Start menu — main menu screen shown after the splash.
  *
  * Entry points:
- *   - New Game → clears save and navigates to the game
- *   - Continue → navigates to the game with existing save (if any)
+ *   - No save:   "Start Guild" → generates initial quests, navigates to game
+ *   - Has save:  "Continue"    → navigates to game with existing save
+ *                "New Game"    → resets save, generates quests, navigates to game
  *
- * Future: Settings, Credits, Hall of Heroes.
+ * hasSave is derived from ticksElapsed > 0 — starter adventurers are always
+ * present in initialState, so adventurer count would always appear as "has save".
  */
 
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { router } from 'expo-router';
 import { useGameStore } from '../src/stores/gameStore';
+import { getPlatformStorage } from '../src/stores/platformStorage';
 
 export default function StartMenuScreen() {
-  // hasSave: true if the player has adventurers from a previous session
-  const hasSave = useGameStore((s) => Object.keys(s.state.adventurers).length > 0);
+  const hasSave = useGameStore((s) => s.state.time.ticksElapsed > 0);
+  const dispatch = useGameStore((s) => s.dispatch);
+  const resetGame = useGameStore((s) => s.resetGame);
 
-  function handleStartGame() {
-    router.replace('/');
-  }
+  const handleContinue = () => {
+    router.replace('/(tabs)');
+  };
+
+  const handleNewGame = () => {
+    resetGame(getPlatformStorage());
+    dispatch({ type: 'GENERATE_QUESTS' });
+    router.replace('/(tabs)');
+  };
 
   return (
     <View style={styles.container} testID="start-menu">
@@ -30,13 +40,32 @@ export default function StartMenuScreen() {
       </View>
 
       <View style={styles.buttons}>
-        <TouchableOpacity
-          style={[styles.button, styles.buttonPrimary]}
-          onPress={handleStartGame}
-          testID="btn-start-game"
-        >
-          <Text style={styles.buttonTextPrimary}>{hasSave ? 'Continue' : 'Start Guild'}</Text>
-        </TouchableOpacity>
+        {hasSave ? (
+          <>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonPrimary]}
+              onPress={handleContinue}
+              testID="btn-continue"
+            >
+              <Text style={styles.buttonTextPrimary}>Continue</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.button, styles.buttonSecondary]}
+              onPress={handleNewGame}
+              testID="btn-new-game"
+            >
+              <Text style={styles.buttonTextSecondary}>New Game</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <TouchableOpacity
+            style={[styles.button, styles.buttonPrimary]}
+            onPress={handleNewGame}
+            testID="btn-start-game"
+          >
+            <Text style={styles.buttonTextPrimary}>Start Guild</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <Text style={styles.version}>v0.1 — Early Development</Text>

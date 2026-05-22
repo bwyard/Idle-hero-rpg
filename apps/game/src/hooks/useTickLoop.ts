@@ -23,7 +23,16 @@ interface UseTickLoopReturn {
   tickOnce: () => void;
 }
 
-export function useTickLoop(): UseTickLoopReturn {
+interface UseTickLoopOptions {
+  /**
+   * When true, the tick loop starts immediately on mount.
+   * Use this for game screens — the loop runs as soon as the player enters.
+   */
+  autoStart?: boolean;
+}
+
+export function useTickLoop(options: UseTickLoopOptions = {}): UseTickLoopReturn {
+  const { autoStart = false } = options;
   const [isRunning, setIsRunning] = useState(false);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -54,6 +63,12 @@ export function useTickLoop(): UseTickLoopReturn {
   const tickOnce = useCallback(() => {
     useGameStore.getState().tick();
   }, []);
+
+  // Auto-start on mount if requested.
+  // start is stable (useCallback with no deps) so the empty dep array is correct.
+  useEffect(() => {
+    if (autoStart) start();
+  }, []); // intentional — start is stable, autoStart is fixed at construction time
 
   // Cleanup on unmount
   useEffect(() => {

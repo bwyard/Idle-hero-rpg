@@ -97,37 +97,59 @@ const reactNativeMock = {
   },
 };
 
-// Patch Node's module loader to redirect react-native requires to our mock.
-// Using _load directly ensures we intercept both native and vite-node paths.
+// In-memory MMKV mock — shared across all tests in a run.
+// The storage is only ever accessed via the injectable KVStorage interface
+// in production tests (gameStore, storage) so cross-test pollution is not
+// a concern here.
+//
+// MMKV is typed as a class in the real module, but we model it here as a
+// plain constructor function (function expression, not class — per ESLint rules).
+// new MMKVMock() returns the object literal, which is correct JS behaviour.
+const mmkvStore = new Map<string, string>();
+const mmkvMock = {
+  MMKV: function MMKVMock() {
+    return {
+      getString: (key: string): string | undefined => mmkvStore.get(key),
+      set: (key: string, value: string): void => {
+        mmkvStore.set(key, value);
+      },
+      delete: (key: string): void => {
+        mmkvStore.delete(key);
+      },
+    };
+  },
+};
+
+// Patch Node's module loader to redirect native module requires to our mocks.
+// Using _load directly ensures we intercept both native and vite-node paths,
+// including dynamic require() calls inside factory functions (platformStorage).
 const _originalLoad = (
   Module as unknown as { _load: (request: string, ...args: unknown[]) => unknown }
 )._load;
 (Module as unknown as { _load: (request: string, ...args: unknown[]) => unknown })._load =
   function (request: string, ...args: unknown[]) {
-    if (request === 'react-native') {
-      return reactNativeMock;
-    }
+    if (request === 'react-native') return reactNativeMock;
+    if (request === 'react-native-mmkv') return mmkvMock;
     return _originalLoad(request, ...args);
   };
 
+// NOTE: react-native-mmkv is handled above via Module._load — vi.mock not needed.
+
 vi.mock('expo-router', () => {
+  const replace = vi.fn();
   const Tabs = Object.assign(({ children }: { children: React.ReactNode }) => children, {
     Screen: () => null,
   });
   return {
-    router: {
-      replace: vi.fn(),
-      push: vi.fn(),
-      back: vi.fn(),
-    },
-    useRouter: () => ({
-      replace: vi.fn(),
-      push: vi.fn(),
-      back: vi.fn(),
-    }),
+    router: { replace, push: vi.fn(), back: vi.fn() },
+    useRouter: () => ({ replace: vi.fn(), push: vi.fn(), back: vi.fn() }),
     useLocalSearchParams: () => ({}),
     usePathname: () => '/',
     Link: ({ children }: { children: React.ReactNode }) => children,
+    Redirect: ({ href }: { href: string }) => {
+      replace(href);
+      return null;
+    },
     Stack: { Screen: () => null },
     Tabs,
   };

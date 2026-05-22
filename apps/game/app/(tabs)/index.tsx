@@ -12,7 +12,7 @@ import { ToastStack } from '../../src/components/ToastStack';
 export default function GuildScreen() {
   const state = useGameStore((s) => s.state);
   const dispatch = useGameStore((s) => s.dispatch);
-  const { isRunning, togglePlayPause, tickOnce } = useTickLoop();
+  const { isRunning, togglePlayPause, tickOnce } = useTickLoop({ autoStart: true });
 
   const visitorList = Object.values(state.transientVisitors);
   const recentEvents = [...state.eventLog].reverse().slice(0, 5);
