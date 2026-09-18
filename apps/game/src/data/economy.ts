@@ -60,8 +60,19 @@ export const PLACEHOLDER_FEAST_XP_BONUS = 3;
 
 // ─── Starting Values ─────────────────────────────────────────────────────────
 
-/** Starting gold for a new game. */
+/** Starting gold for a new game, denominated in copper (see Denominations below). */
 export const PLACEHOLDER_STARTING_GOLD = 500;
+
+// ─── Denominations ───────────────────────────────────────────────────────────
+// Guild.gold stores total wealth in copper (the smallest unit). Silver and
+// gold are a display-layer breakdown, not separate stored fields — see
+// docs/design/economy.md "Currency Tier Handoff".
+
+/** Copper units that make up one silver. */
+export const COPPER_PER_SILVER = 1000;
+
+/** Silver units that make up one gold. */
+export const SILVER_PER_GOLD = 1000;
 
 // ─── Magic Rewind ────────────────────────────────────────────────────────────
 

@@ -9,6 +9,7 @@ export type GuildType = 'Combat' | 'Merchant' | 'Knowledge' | 'Hospitality';
 export interface Guild {
   readonly name: string;
   readonly type: GuildType;
+  /** Total wealth in copper (the smallest denomination). Format for display with formatCurrency(). */
   readonly gold: number;
   readonly reputation: number;
 }
