@@ -27,7 +27,7 @@ describe('TabLayout', () => {
     expect(screen.getByTestId('stats-bar')).toBeTruthy();
   });
 
-  it('reflects gold from game state in stats bar', () => {
+  it('reflects gold from game state in stats bar, denominated as copper/silver/gold', () => {
     useGameStore.setState({
       state: {
         ...createInitialGameState(),
@@ -35,6 +35,6 @@ describe('TabLayout', () => {
       },
     });
     render(<TabLayout />);
-    expect(screen.getByTestId('stats-gold').props.children).toBe('999');
+    expect(screen.getByTestId('stats-gold').props.children).toBe('999c');
   });
 });

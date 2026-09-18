@@ -48,6 +48,64 @@ impl requires passing these tests; the test file is the acceptance criteria.
 - **Magic Rewind** safety mechanic exists in early prestiges
 - Magic Rewind is removed at a tuning-defined prestige threshold (configurable, not hardcoded)
 - All values live in `apps/game/src/data/balance.ts` as stubs with TODO comments
+- **Currency is a three-tier handoff, not a single ever-climbing number** — see below
+
+---
+
+## Currency Tier Handoff (locked 2026-09-18)
+
+The economy is not a traditional incremental where one number climbs forever.
+Instead, the currency you actively manage changes as automation takes over the
+tier below it.
+
+| Tier | Currency | Active while... | Handoff trigger |
+|---|---|---|---|
+| 1 | **Gold** (copper/silver/gold denominations) | You manually assign quests, upgrade buildings, recruit | — |
+| 2 | **Reputation** | Quest-sending *and* building management are both automated | Both automations unlocked |
+| 3 | **Dynasty Power** | Reputation-era systems (diplomacy, alliances) automate too | Deferred — depends on Phase 5 Guild Score infra, not specced here |
+
+The superseded currency does **not** freeze or become cosmetic. It keeps
+growing forever, earned and spent automatically by whatever system replaced
+manual management — guardrails below (negative gold, Magic Rewind) still
+apply to it at every tier, since it's still live, just unsupervised.
+
+### Gold denominations
+
+Single underlying integer, stored in copper (the smallest unit) — same field
+(`Guild.gold`), no type change. Display-layer re-denominates by magnitude so
+the number never reads as an absurd raw integer:
+
+- 1,000 copper = 1 silver
+- 1,000 silver = 1 gold
+
+Early-game balances read in copper, late-game in gold — same growth curve,
+different denomination, which is the actual fix for "the number gets
+unreadable" rather than hiding it behind abbreviations.
+
+### Reputation activation
+
+`Guild.reputation` already exists in the type as a dormant field (initialized
+to 0, displayed in `StatsBar`, no earn/spend logic). It activates once both:
+- Quest-sending automation is unlocked
+- Building-management automation is unlocked
+
+Both are recommended to bind to the same `WorldAwarenessTier` transition
+(`idle-progression.md` already gates idle autonomy on this ladder) rather
+than introducing a separate unlock system. Candidate: the **Regional**
+transition (prestige 5–7), where the idle cap already jumps to a full season
+— the same "guild starts running itself" narrative beat. Exact tier binding
+and the automation systems themselves (auto-quest-assignment,
+auto-building-upgrade logic) are **not yet built** — tracked separately in
+`TODO.md`, since they're their own feature, not a byproduct of the currency
+model.
+
+### Dynasty Power
+
+Named in the vision doc (`CLAUDE.md` Guild Score pillars) as "accumulated
+strength across all prestiges." Positioned here as the third handoff tier
+conceptually, but has no type, no earn logic, and depends on Guild Score
+infrastructure that doesn't exist yet (Phase 5, per `docs/ROADMAP.md`). Do
+not implement until Phase 5 Guild Score work starts.
 
 ---
 

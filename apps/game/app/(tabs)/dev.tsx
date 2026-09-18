@@ -11,6 +11,8 @@
 import { ScrollView, StyleSheet, Text, View, Pressable } from 'react-native';
 import { useGameStore } from '../../src/stores/gameStore';
 import { tick } from '../../src/engine/tick';
+import { formatCurrencyDisplay } from '../../src/utils/currency';
+import { COPPER_PER_SILVER, COPPER_PER_GOLD } from '../../src/data/balance';
 import type { AdventurerTier } from '@idle-hero-rpg/shared';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
@@ -103,7 +105,7 @@ export default function DevScreen() {
           <Text style={styles.stat}>
             Year {state.time.currentYear}, Day {state.time.currentDay} ({state.time.currentSeason})
           </Text>
-          <Text style={styles.stat}>Gold: {state.guild.gold}</Text>
+          <Text style={styles.stat}>Gold: {formatCurrencyDisplay(state.guild.gold)}</Text>
           <Text style={styles.stat}>Adventurers: {adventurerList.length}</Text>
           <Text style={styles.stat}>
             Prestige: {state.dynasty.prestigeCount} ({state.dynasty.worldAwarenessTier})
@@ -143,21 +145,21 @@ export default function DevScreen() {
           <SectionHeader title="Give Gold" />
           <View style={styles.row}>
             <DevBtn
-              label="+500g"
+              label="+500c"
               onPress={() => {
                 giveGold(500);
               }}
             />
             <DevBtn
-              label="+5000g"
+              label="+500s"
               onPress={() => {
-                giveGold(5000);
+                giveGold(500 * COPPER_PER_SILVER);
               }}
             />
             <DevBtn
-              label="+50000g"
+              label="+500g"
               onPress={() => {
-                giveGold(50000);
+                giveGold(500 * COPPER_PER_GOLD);
               }}
             />
           </View>

@@ -4,6 +4,8 @@ import { useGameStore } from '../../src/stores/gameStore';
 import { createId } from '@idle-hero-rpg/shared';
 import { QuestBoard } from '../../src/components/QuestBoard';
 import { AdventurerPicker } from '../../src/components/AdventurerPicker';
+import { formatCurrencyDisplay } from '../../src/utils/currency';
+import { PLACEHOLDER_RECRUIT_COST } from '../../src/data/balance';
 
 export default function BoardScreen() {
   const state = useGameStore((s) => s.state);
@@ -43,7 +45,7 @@ export default function BoardScreen() {
           >
             {({ pressed }) => (
               <Text style={[styles.actionBtnText, pressed && styles.actionBtnTextPressed]}>
-                Recruit (50g)
+                Recruit ({formatCurrencyDisplay(PLACEHOLDER_RECRUIT_COST)})
               </Text>
             )}
           </Pressable>

@@ -5,6 +5,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import type { Season } from '@idle-hero-rpg/shared';
 import { DAYS_PER_YEAR } from '../data/balance';
+import { formatCurrencyDisplay } from '../utils/currency';
 
 interface StatsBarProps {
   currentYear: number;
@@ -40,7 +41,7 @@ export function StatsBar({
     <View style={styles.container} testID="stats-bar">
       <StatItem label={currentSeason} value={`Y${String(currentYear + 1)}`} />
       <StatItem label="Day" value={`${String(dayOfYear)}/${String(DAYS_PER_YEAR)}`} />
-      <StatItem label="Gold" value={String(gold)} testID="stats-gold" />
+      <StatItem label="Gold" value={formatCurrencyDisplay(gold)} testID="stats-gold" />
       <StatItem label="Rep" value={String(reputation)} />
       <StatItem label="Advntr" value={String(adventurerCount)} />
     </View>

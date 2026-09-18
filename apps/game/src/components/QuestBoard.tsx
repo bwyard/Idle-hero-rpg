@@ -10,6 +10,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Quest, Adventurer } from '@idle-hero-rpg/shared';
 import { QUEST_TEMPLATES, type QuestTemplate } from '../data/questTemplates';
 import { TICKS_PER_DAY } from '../data/balance';
+import { formatCurrencyDisplay } from '../utils/currency';
 
 interface QuestBoardProps {
   quests: readonly Quest[];
@@ -56,7 +57,7 @@ export function QuestBoard({ quests, adventurers, onAssignQuest }: QuestBoardPro
                     <Text style={styles.questMeta}>{ticksToDays(quest.ticksRemaining)}</Text>
                     <Text style={styles.questSep}>·</Text>
                     <Text style={styles.questReward}>
-                      +{String(template?.baseGoldReward ?? 0)}g
+                      +{formatCurrencyDisplay(template?.baseGoldReward ?? 0)}
                     </Text>
                   </View>
                 </View>
@@ -132,7 +133,9 @@ export function QuestBoard({ quests, adventurers, onAssignQuest }: QuestBoardPro
                   <Text style={[styles.questName, styles.questNameCompleted]}>
                     {template?.name ?? quest.templateId}
                   </Text>
-                  <Text style={styles.questReward}>+{String(template?.baseGoldReward ?? 0)}g</Text>
+                  <Text style={styles.questReward}>
+                    +{formatCurrencyDisplay(template?.baseGoldReward ?? 0)}
+                  </Text>
                 </View>
                 <Text style={styles.completedBadge}>Done</Text>
               </View>

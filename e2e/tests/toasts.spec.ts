@@ -16,7 +16,7 @@ import { gotoGame } from './helpers';
 
 const drainGoldToInsufficient = async (page: import('@playwright/test').Page): Promise<void> => {
   for (let i = 0; i < 7; i++) {
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.locator('[data-testid="stats-gold"]').waitFor();
   }
 };
@@ -37,7 +37,7 @@ test.describe('Toast notifications', () => {
 
   test('shows a toast when recruiting without enough gold', async ({ page }) => {
     await drainGoldToInsufficient(page);
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.clock.fastForward(1); // flush setTimeout(0) toast dispatch
 
     await expect(page.getByText('Not enough gold', { exact: false })).toBeAttached();
@@ -45,7 +45,7 @@ test.describe('Toast notifications', () => {
 
   test('toast can be dismissed by pressing the dismiss button', async ({ page }) => {
     await drainGoldToInsufficient(page);
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.clock.fastForward(1);
 
     await expect(page.getByText('Not enough gold', { exact: false })).toBeAttached();
@@ -56,7 +56,7 @@ test.describe('Toast notifications', () => {
 
   test('toast auto-dismisses after the duration', async ({ page }) => {
     await drainGoldToInsufficient(page);
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.clock.fastForward(1);
 
     await expect(page.getByText('Not enough gold', { exact: false })).toBeAttached();

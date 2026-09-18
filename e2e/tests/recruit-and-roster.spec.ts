@@ -16,7 +16,7 @@ test.describe('Recruit and Roster flow', () => {
   });
 
   test('starts with 500 gold and 2 starter adventurers', async ({ page }) => {
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500');
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500c');
     await expect(page.getByText('Adventurer Roster')).toBeAttached();
     await expect(page.locator('[data-testid^="xp-"]')).toHaveCount(2);
   });
@@ -27,7 +27,7 @@ test.describe('Recruit and Roster flow', () => {
       10,
     );
 
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
 
     const goldAfter = parseInt(
       (await page.locator('[data-testid="stats-gold"]').textContent()) ?? '0',
@@ -37,7 +37,7 @@ test.describe('Recruit and Roster flow', () => {
   });
 
   test('recruited adventurer appears in the roster list', async ({ page }) => {
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await expect(page.locator('[data-testid^="xp-"]')).toHaveCount(3);
   });
 
@@ -86,10 +86,10 @@ test.describe('Recruit and Roster flow', () => {
     // Recruit 2: 3 in dorm → 50g.  Gold: 450 - 50 = 400
     // Recruit 3: 4 in dorm → ceil(50 * 1.5) = 75g. Gold: 400 - 75 = 325
     for (let i = 0; i < 3; i++) {
-      await page.getByText('Recruit (50g)').click({ force: true });
+      await page.getByText('Recruit (50c)').click({ force: true });
     }
 
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('325');
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('325c');
     await expect(page.locator('[role="button"][aria-label^="View"]')).toHaveCount(5);
   });
 });
