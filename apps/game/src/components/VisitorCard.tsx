@@ -9,6 +9,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { TransientVisitor } from '@idle-hero-rpg/shared';
 import { TIER_COLORS } from '../utils/tierColors';
+import { formatCurrencyDisplay } from '../utils/currency';
 import {
   PLACEHOLDER_ENGAGE_COST,
   PLACEHOLDER_HOLD_DURATION_DAYS,
@@ -50,7 +51,7 @@ export function VisitorCard({
       <View style={styles.details}>
         {visitor.archetype !== null && <Text style={styles.detail}>{visitor.archetype}</Text>}
         <Text style={styles.detail}>Seeking: {visitor.serviceRequest}</Text>
-        <Text style={styles.fee}>Service fee: {visitor.serviceFee}g</Text>
+        <Text style={styles.fee}>Service fee: {formatCurrencyDisplay(visitor.serviceFee)}</Text>
         <Text style={styles.timer}>
           {isHeld
             ? `Held: ${String(heldTicksRemaining)}t`
@@ -71,19 +72,23 @@ export function VisitorCard({
         <Pressable
           style={({ pressed }) => [styles.button, styles.serveButton, pressed && styles.pressed]}
           onPress={() => onServe(visitor.id)}
-          accessibilityLabel={`Serve ${visitor.name} — earn ${String(visitor.serviceFee)} gold`}
+          accessibilityLabel={`Serve ${visitor.name} — earn ${formatCurrencyDisplay(visitor.serviceFee)}`}
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Serve (+{visitor.serviceFee}g)</Text>
+          <Text style={styles.buttonText}>
+            Serve (+{formatCurrencyDisplay(visitor.serviceFee)})
+          </Text>
         </Pressable>
 
         <Pressable
           style={({ pressed }) => [styles.button, styles.engageButton, pressed && styles.pressed]}
           onPress={() => onEngage(visitor.id)}
-          accessibilityLabel={`Recruit ${visitor.name} for ${String(PLACEHOLDER_ENGAGE_COST)} gold`}
+          accessibilityLabel={`Recruit ${visitor.name} for ${formatCurrencyDisplay(PLACEHOLDER_ENGAGE_COST)}`}
           accessibilityRole="button"
         >
-          <Text style={styles.buttonText}>Recruit (-{PLACEHOLDER_ENGAGE_COST}g)</Text>
+          <Text style={styles.buttonText}>
+            Recruit (-{formatCurrencyDisplay(PLACEHOLDER_ENGAGE_COST)})
+          </Text>
         </Pressable>
 
         <Pressable

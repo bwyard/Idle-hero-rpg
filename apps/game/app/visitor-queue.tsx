@@ -18,6 +18,7 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { useGameStore } from '../src/stores/gameStore';
 import type { TransientVisitor } from '@idle-hero-rpg/shared';
 import { truncateText } from '../src/utils/truncateText';
+import { formatCurrencyDisplay } from '../src/utils/currency';
 
 // ─── Visitor Card ────────────────────────────────────────────────────────────
 
@@ -42,7 +43,7 @@ function VisitorCard({ visitor, ticksElapsed, onApprove, onDeny }: VisitorCardPr
       {visitor.archetype !== null && <Text style={styles.detail}>{visitor.archetype}</Text>}
 
       <Text style={styles.serviceRequest}>Seeking: {visitor.serviceRequest}</Text>
-      <Text style={styles.serviceFee}>Fee: {visitor.serviceFee} gold</Text>
+      <Text style={styles.serviceFee}>Fee: {formatCurrencyDisplay(visitor.serviceFee)}</Text>
       <Text style={styles.timeRemaining}>
         {daysRemaining > 0
           ? `${String(daysRemaining)} day${daysRemaining === 1 ? '' : 's'} remaining`

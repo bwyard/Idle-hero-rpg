@@ -14,7 +14,7 @@ test.describe('Building and Economy', () => {
   });
 
   test('starts with 500 gold', async ({ page }) => {
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500');
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500c');
   });
 
   test('building costs 100 gold', async ({ page }) => {
@@ -22,7 +22,7 @@ test.describe('Building and Economy', () => {
       (await page.locator('[data-testid="stats-gold"]').textContent()) ?? '0',
       10,
     );
-    await page.getByText('Build (100g)').click({ force: true });
+    await page.getByText('Build (100c)').click({ force: true });
     const goldAfter = parseInt(
       (await page.locator('[data-testid="stats-gold"]').textContent()) ?? '0',
       10,
@@ -45,25 +45,25 @@ test.describe('Building and Economy', () => {
 
   test('gold updates correctly after multiple actions', async ({ page }) => {
     // 500 - 50 = 450
-    await page.getByText('Recruit (50g)').click({ force: true });
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('450');
+    await page.getByText('Recruit (50c)').click({ force: true });
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('450c');
 
     // 450 - 100 = 350
-    await page.getByText('Build (100g)').click({ force: true });
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('350');
+    await page.getByText('Build (100c)').click({ force: true });
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('350c');
 
     // 350 - 75 = 275
     await page.getByText('Feast (75g)').click({ force: true });
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('275');
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('275c');
   });
 
   test('building a building changes gold by 100', async ({ page }) => {
-    await page.getByText('Build (100g)').click({ force: true });
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('400');
+    await page.getByText('Build (100c)').click({ force: true });
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('400c');
   });
 
   test('tick advances the economy and generates passive gold', async ({ page }) => {
-    await page.getByText('Build (100g)').click({ force: true });
+    await page.getByText('Build (100c)').click({ force: true });
     const goldAfterBuild = parseInt(
       (await page.locator('[data-testid="stats-gold"]').textContent()) ?? '0',
       10,
@@ -81,7 +81,7 @@ test.describe('Building and Economy', () => {
   });
 
   test('feast grants XP to adventurers', async ({ page }) => {
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
 
     const xpText = await page.locator('[data-testid^="xp-"]').first().textContent();
     const xpBefore = parseInt((xpText ?? '0').split('/')[0] ?? '0', 10);
@@ -95,9 +95,9 @@ test.describe('Building and Economy', () => {
 
   test('can build multiple buildings', async ({ page }) => {
     for (let i = 0; i < 3; i++) {
-      await page.getByText('Build (100g)').click({ force: true });
+      await page.getByText('Build (100c)').click({ force: true });
     }
     // 500 - 300 = 200
-    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('200');
+    await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('200c');
   });
 });

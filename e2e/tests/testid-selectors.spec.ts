@@ -20,12 +20,12 @@ test.describe('testID selectors', () => {
 
   test.describe('stats-gold', () => {
     test('shows starting gold of 500', async ({ page }) => {
-      await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500');
+      await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('500c');
     });
 
     test('decreases after a recruit action', async ({ page }) => {
-      await page.getByText('Recruit (50g)').click({ force: true });
-      await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('450');
+      await page.getByText('Recruit (50c)').click({ force: true });
+      await expect(page.locator('[data-testid="stats-gold"]')).toHaveText('450c');
     });
   });
 

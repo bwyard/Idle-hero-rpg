@@ -29,14 +29,14 @@ test.describe('Event Log', () => {
   });
 
   test('recruiting an adventurer adds an event after ticking', async ({ page }) => {
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.getByText('Tick +1').click({ force: true });
 
     await expect(page.getByText('joined the guild', { exact: false })).toBeAttached();
   });
 
   test('building adds an event after ticking', async ({ page }) => {
-    await page.getByText('Build (100g)').click({ force: true });
+    await page.getByText('Build (100c)').click({ force: true });
     await page.getByText('Tick +1').click({ force: true });
 
     await expect(page.getByText('constructed', { exact: false })).toBeAttached();
@@ -50,8 +50,8 @@ test.describe('Event Log', () => {
   });
 
   test('multiple actions produce multiple event entries', async ({ page }) => {
-    await page.getByText('Recruit (50g)').click({ force: true });
-    await page.getByText('Build (100g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
+    await page.getByText('Build (100c)').click({ force: true });
     await page.getByText('Feast (75g)').click({ force: true });
     await page.getByText('Tick +1').click({ force: true });
 
@@ -68,9 +68,9 @@ test.describe('Event Log', () => {
   });
 
   test('events are shown newest first', async ({ page }) => {
-    await page.getByText('Recruit (50g)').click({ force: true });
+    await page.getByText('Recruit (50c)').click({ force: true });
     await page.getByText('Tick +1').click({ force: true });
-    await page.getByText('Build (100g)').click({ force: true });
+    await page.getByText('Build (100c)').click({ force: true });
     await page.getByText('Tick +1').click({ force: true });
 
     await expect(page.getByText('joined the guild', { exact: false })).toBeAttached();

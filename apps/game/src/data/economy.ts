@@ -74,6 +74,9 @@ export const COPPER_PER_SILVER = 1000;
 /** Silver units that make up one gold. */
 export const SILVER_PER_GOLD = 1000;
 
+/** Copper units that make up one gold — the single source for this derived ratio. */
+export const COPPER_PER_GOLD = COPPER_PER_SILVER * SILVER_PER_GOLD;
+
 // ─── Magic Rewind ────────────────────────────────────────────────────────────
 
 /**
