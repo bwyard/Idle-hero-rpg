@@ -60,6 +60,10 @@ Priority tiers:
 - [ ] MCP `game_state_inspector` — when MMKV is wired, support reading a real exported state dump instead of only the dev fixture
 - [ ] Kent Dodds testing trophy: add integration tests for `tick` pipeline (pipe all 12 systems, assert output shape) — currently only unit tests exist per system
 - [ ] Functional React standards doc — establish component patterns before first screen is built: no class components, hooks only, `useMemo`/`useCallback` at actual bottlenecks (not speculatively), co-locate state with usage
+- [ ] **REPUTATION ACTIVATION** — `Guild.reputation` exists but has zero earn/spend logic. Per `docs/design/economy.md` "Currency Tier Handoff" (locked 2026-09-18): activates once quest-sending automation AND building-management automation are both unlocked. Recommended binding: the `WorldAwarenessTier` transition into Regional (prestige 5–7), reusing the ladder already in `idle-progression.md` rather than a new unlock system — needs confirmation, not yet locked.
+  - Blocked on the two automation systems below being designed and built first.
+- [ ] **QUEST-SENDING AUTOMATION** — Not yet designed. Needed as one of two triggers for Reputation activation (see above). Scope: what does "automated" mean here — an advisor picks which adventurer goes on which quest? Fully hands-off, or player sets policy/priorities? Open design question.
+- [ ] **BUILDING-MANAGEMENT AUTOMATION** — Not yet designed. Same as quest-sending automation above — needs its own design pass (auto-upgrade priorities, spend caps) before it can gate Reputation.
 
 ---
 
