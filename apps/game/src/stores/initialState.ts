@@ -11,7 +11,7 @@ import { PLACEHOLDER_STARTING_GOLD } from '../data/balance';
 export function createInitialGameState(): GameState {
   return {
     version: 3,
-    rngSeed: Date.now() & 0xffff_ffff,
+    rngSeed: Date.now() >>> 0,
     time: {
       ticksElapsed: 0,
       currentDay: 0,
